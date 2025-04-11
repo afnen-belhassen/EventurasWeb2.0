@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+{% block css %}
+    {{ parent() }}
+    <style>
+        .white-title {
+            color: white;
+        }
+    </style>
+{% endblock %}
+{% block title %}
+    <h1 class="white-title">All Events</h1>
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_home') }}">
+                Eventura
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                    <li class="nav-item">
+                        <a class="nav-link click-scroll" href="#section_1">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link click-scroll" href="#section_2">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link click-scroll" href="#section_3">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link click-scroll" href="#section_4">Contact</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
+                        <i class="bi bi-plus-circle me-2"></i>Créer Événement
+                    </a>
+                    <a href="{{ path('app_show_all_events') }}"class="btn custom-btn d-lg-block d-none">Vos événements</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">All Events</h1>
+
+        {# Flash message for successful updates #}
+        {% if app.flashes('success') %}
+            <div class="alert alert-success">
+                {% for message in app.flashes('success') %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row">
+            {% for event in events %}
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <p class="card-text">
+                                <strong>Date:</strong> {{ event.date_event|date('d/m/Y') }}<br>
+                                <strong>Price:</strong> {{ event.prix }} TND<br>
+                                <strong>Location:</strong> {{ event.location }}
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-warning" onclick="toggleForm('{{ event.id_event }}')">Modifier</button>
+                                <form action="{{ path('app_event_delete', { id: event.id_event }) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this event?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id_event) }}">
+                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="form-{{ event.id_event }}" class="collapse">
+                        <form action="{{ path('app_event_edit', { id: event.id_event }) }}" method="post">
+                            <input type="hidden" name="_token" value="{{ csrf_token('edit' ~ event.id_event) }}">
+                            <div class="mb-3">
+                                <label for="name-{{ event.id_event }}" class="form-label">Nom</label>
+                                <input type="text" class="form-control" id="name-{{ event.id_event }}" name="title" value="{{ event.title }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="date-{{ event.id_event }}" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="date-{{ event.id_event }}" name="date_event" value="{{ event.date_event|date('Y-m-d') }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="price-{{ event.id_event }}" class="form-label">Prix</label>
+                                <input type="number" class="form-control" id="price-{{ event.id_event }}" name="prix" value="{{ event.prix }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="location-{{ event.id_event }}" class="form-label">Localisation</label>
+                                <input type="text" class="form-control" id="location-{{ event.id_event }}" name="location" value="{{ event.location }}" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <p class="text-center">No events found.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function toggleForm(eventId) {
+            const form = document.getElementById('form-' + eventId);
+            if (form.classList.contains('collapse')) {
+                form.classList.remove('collapse');
+            } else {
+                form.classList.add('collapse');
+            }
+        }
+    </script>
+{% endblock %}

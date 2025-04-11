@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Event Details{% endblock %}
+
+{% block css %}
+    {{ parent() }}
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            animation: backgroundAnimation 10s infinite alternate;
+        }
+
+        @keyframes backgroundAnimation {
+            0% { background-color: #f0f0f0; }
+            100% { background-color: #e0e0e0; }
+        }
+
+        .navbar {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .navbar a {
+            color: white;
+        }
+
+        .event-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .floating-man {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 100px; /* Adjust size as needed */
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        .event-details {
+            margin-top: 20px;
+        }
+
+        .event-details h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .event-details p {
+            margin: 5px 0;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_home') }}">Event Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_event_new') }}">Create Event</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Profile</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="event-card">
+            <h2>Votre événement est en cours de traitement</h2>
+            <div class="event-details">
+                <h3>{{ event.title }}</h3>
+                <p><strong>Description:</strong> {{ event.description }}</p>
+                <p><strong>Date:</strong> {{ event.date_event|date('Y-m-d') }}</p>
+                <p><strong>Location:</strong> {{ event.location }}</p>
+                <p><strong>Category:</strong> {{ event.category.name }}</p>
+                <p><strong>Image:</strong></p>
+                {% if event.image %}
+                    <img src="{{ asset('assets/ImagesEvents/' ~ event.image) }}" alt="{{ event.title }}" class="img-fluid">
+                {% else %}
+                    <p>No image available.</p>
+                {% endif %}
+                <p><strong>Activities:</strong> {{ event.activities }}</p>
+                <p><strong>Price:</strong> {{ event.prix }}</p>
+                <p><strong>Number of Places:</strong> {{ event.nb_places }}</p>
+            </div>
+        </div>
+        <img src="{{ asset('images\cartoon-man.png') }}" alt="Floating Cartoon Man" class="floating-man"> {# Replace with the actual path to your cartoon image #}
+    </div>
+{% endblock %}
