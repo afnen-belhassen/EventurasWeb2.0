@@ -3,6 +3,42 @@
 {% block title %}Forum{% endblock %}
 
 {% block body %}
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="{{ path('app_home') }}">
+            Eventura
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                <li class="nav-item">
+                    <a class="nav-link click-scroll" href="#section_1">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link click-scroll" href="#section_2">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link click-scroll" href="#section_3">Features</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link click-scroll" href="#section_4">Contact</a>
+                </li>
+            </ul>
+
+            <div class="d-flex gap-2">
+                <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
+                    <i class="bi bi-plus-circle me-2"></i>Créer Événement
+                </a>
+                <a href="{{ path('app_show_all_events') }}"class="btn custom-btn d-lg-block d-none">Vos événements</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
@@ -159,4 +195,80 @@ function toggleCommentEdit(commentId) {
     }
 }
 </script>
+<script>
+
+    // La variable "postedToday" provient du contrôleur.
+    // Assurez-vous qu'elle est passée correctement dans le contexte Twig
+    var postedToday = {{ postedToday|json_encode|raw }};
+    
+    // Vérification du quota de posts pour la journée
+    if (postedToday >= 2) {
+        // Sélection du conteneur de la carte du formulaire
+        var formCard = document.querySelector('.card.mb-4');
+        
+        // Création d'un message d'alerte avec le style Bootstrap
+        var alertMessage = document.createElement('div');
+        alertMessage.className = 'alert alert-warning text-center';
+        alertMessage.style.fontSize = '1.2em';
+        alertMessage.style.marginTop = '20px';
+        alertMessage.textContent = "Vous avez atteint le quota de 2 posts pour aujourd'hui.";
+
+        // Remplacement du contenu du formulaire par le message
+        formCard.innerHTML = '';
+        formCard.appendChild(alertMessage);
+    }
+</script>
+
+<script>
+    // Récupérer la liste des bad words passée depuis le contrôleur
+    const badWords = {{ badWords|json_encode|raw }};
+
+    // Applique la vérification sur tous les formulaires de la page
+    document.querySelectorAll('form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            // Récupération de la valeur du champ title s'il existe
+            let title = '';
+            const titleInput = form.querySelector('input[name="title"]');
+            if (titleInput) {
+                title = titleInput.value.toLowerCase();
+            }
+
+            // Récupération de la valeur du champ content s'il existe
+            let content = '';
+            const contentField = form.querySelector('textarea[name="content"]');
+            if (contentField) {
+                content = contentField.value.toLowerCase();
+            }
+
+            // Vérification : si l'un des champs contient un bad word, on bloque la soumission
+            const hasBadWord = badWords.some(word => {
+                const lowerWord = word.toLowerCase();
+                return title.includes(lowerWord) || content.includes(lowerWord);
+            });
+
+            if (hasBadWord) {
+                // Empêcher la soumission
+                e.preventDefault();
+
+                // Si un message d'alerte existe déjà dans ce formulaire, on le supprime pour ne pas l'afficher plusieurs fois
+                const existingAlert = form.querySelector('.alert-danger');
+                if (existingAlert) {
+                    existingAlert.remove();
+                }
+
+                // Création du message d'erreur avec le style Bootstrap
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger mt-3';
+                alertDiv.style.fontSize = '1.1em';
+                alertDiv.textContent = 'Votre message contient des mots interdits. Veuillez corriger votre contenu.';
+
+                // Ajout du message d'alerte à la fin du formulaire
+                form.appendChild(alertDiv);
+            }
+        });
+    });
+</script>
+
+
+
 {% endblock %} 

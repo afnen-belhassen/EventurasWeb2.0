@@ -6,6 +6,7 @@ use App\Entity\Post;
 use App\Entity\Comment;
 use App\Repository\PostRepository;
 use App\Repository\CommentRepository;
+use App\Repository\BadWordRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,11 +25,35 @@ class ForumController extends AbstractController
     }
 
     #[Route('/forum', name: 'app_forum')]
-    public function index(PostRepository $postRepository): Response
+    public function index(PostRepository $postRepository,EntityManagerInterface $em,BadWordRepository $badWordRepository): Response
     {
+
+        // Récupération de l'utilisateur courant
+        //$user = $this->getUser();
+        $user = 1;
+        
+        // Définition de la plage horaire pour "aujourd'hui"
+        $todayStart = new \DateTimeImmutable('today midnight');
+        $todayEnd   = new \DateTimeImmutable('tomorrow midnight');
+
+        // Calcul du nombre de posts effectués aujourd'hui par l'utilisateur
+        $postedToday = $em->getRepository(Post::class)
+            ->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.user_id = :user')
+            ->andWhere('p.created_at BETWEEN :start AND :end')
+            ->setParameter('user', $user)
+            ->setParameter('start', $todayStart)
+            ->setParameter('end', $todayEnd)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $badWords = $badWordRepository->findAll();
+        $badWordsArray = array_map(fn($bw) => $bw->getWord(), $badWords);
+
         $posts = $postRepository->findAllOrderedByDate();
         return $this->render('forum/index.html.twig', [
-            'posts' => $posts,
+            'posts' => $posts, 'postedToday' => $postedToday,'badWords' => $badWordsArray,
         ]);
     }
 
