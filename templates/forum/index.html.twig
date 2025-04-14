@@ -41,6 +41,9 @@
                         {% if post.imagePath %}
                             <img src="{{ asset('uploads/posts/' ~ post.imagePath) }}" class="img-fluid mb-3" alt="Post image">
                         {% endif %}
+                        <small class="text-muted">
+                            {{ post.createdAt|timeAgo }}
+                        </small>
                     </div>
                     
                     <!-- Edit Post Form (Hidden by default) -->
