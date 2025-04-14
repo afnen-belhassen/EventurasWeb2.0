@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Post;
 use App\Entity\Comment;
+use App\Entity\Like;
+use App\Repository\LikeRepository;
 use App\Repository\PostRepository;
 use App\Repository\CommentRepository;
 use App\Repository\BadWordRepository;
@@ -14,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ForumController extends AbstractController
 {
@@ -52,6 +55,31 @@ class ForumController extends AbstractController
         $badWordsArray = array_map(fn($bw) => $bw->getWord(), $badWords);
 
         $posts = $postRepository->findAllOrderedByDate();
+
+        // Récupération du repository des likes
+        $likeRepository = $em->getRepository(\App\Entity\Like::class);
+        
+        // Pour chaque post, ajouter les propriétés likeCount et likedByCurrent
+        foreach ($posts as $post) {
+            // Calcul du nombre de likes pour ce post
+            $likeCount = (int)$likeRepository->createQueryBuilder('l')
+                ->select('COUNT(l.id)')
+                ->andWhere('l.postId = :postId')
+                ->setParameter('postId', $post->getId())
+                ->getQuery()
+                ->getSingleScalarResult();
+            
+            // Vérification si le post a déjà été liké par l'utilisateur courant (user 1)
+            $likedByCurrent = $likeRepository->findOneBy([
+                'postId' => $post->getId(),
+                'userId' => $user,
+            ]) !== null;
+
+            // Ajout dynamique des propriétés au post
+            $post->likeCount = $likeCount;
+            $post->likedByCurrent = $likedByCurrent;
+        }
+
         return $this->render('forum/index.html.twig', [
             'posts' => $posts, 'postedToday' => $postedToday,'badWords' => $badWordsArray,
         ]);
@@ -180,5 +208,48 @@ class ForumController extends AbstractController
         }
 
         return $this->redirectToRoute('app_forum');
+    }
+
+    #[Route("/forum/like/{postId}", name:"app_forum_like", methods:['POST'])]
+    public function toggleLike(int $postId, EntityManagerInterface $em, Request $request): JsonResponse
+    {
+        // Pour l'instant, on considère toujours l'utilisateur avec l'id 1
+        $userId = 1;
+
+        // Rechercher un like existant pour ce post par cet utilisateur
+        $likeRepository = $em->getRepository(Like::class);
+        $existingLike = $likeRepository->findOneBy([
+            'postId' => $postId,
+            'userId' => $userId,
+        ]);
+
+        if ($existingLike) {
+            // Si déjà liké, annuler le like
+            $em->remove($existingLike);
+            $liked = false;
+        } else {
+            // Sinon, créer un nouveau like
+            $like = new Like();
+            $like->setPostId($postId);
+            $like->setUserId($userId);
+            $like->setLikedAt(new \DateTimeImmutable());
+            $em->persist($like);
+            $liked = true;
+        }
+
+        $em->flush();
+
+        // Recompter le nombre de likes pour ce post
+        $likeCount = (int) $likeRepository->createQueryBuilder('l')
+            ->select('COUNT(l.id)')
+            ->andWhere('l.postId = :postId')
+            ->setParameter('postId', $postId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return new JsonResponse([
+            'liked' => $liked,
+            'likeCount' => $likeCount,
+        ]);
     }
 } 
