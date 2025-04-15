@@ -17,7 +17,7 @@ final class EventController extends AbstractController
     {
         $events = $entityManager->getRepository(Event::class)->findAll();
 
-        return $this->render('service/indexORG.html.twig', [
+        return $this->render('back/indexBACK.html.twig', [
             'events' => $events,
         ]);
     }
