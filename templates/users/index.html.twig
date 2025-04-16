@@ -1,0 +1,110 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Users List{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Users Management</h1>
+
+        <div class="card shadow-lg">
+            <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Users Information</h5>
+                <a href="{{ path('app_users_new') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus"></i> Add New User
+                </a>
+            </div>
+            <div class="card-body">
+                {% if pagination.getTotalItemCount() == 0 %}
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <div>No records found.</div>
+                    </div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">#ID</th>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Full Name</th>
+                                    <th scope="col">Birthday</th>
+                                    <th scope="col">Gender</th>
+                                    <th scope="col">Phone</th>
+                                    <th scope="col">Level</th>
+                                    <th scope="col">Role</th>
+                                    <th scope="col" class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in pagination %}
+                                    <tr>
+                                        <td>{{ user.userId }}</td>
+                                        <td>{{ user.userUsername }}</td>
+                                        <td>{{ user.userEmail }}</td>
+                                        <td>{{ user.userFirstname ~ ' ' ~ user.userLastname }}</td>
+                                        <td>{{ user.userBirthday ? user.userBirthday|date('Y-m-d') : 'N/A' }}</td>
+                                        <td>{{ user.userGender ?: 'N/A' }}</td>
+                                        <td>{{ user.userPhonenumber ?: 'N/A' }}</td>
+                                        <td>{{ user.userLevel ?: 'N/A' }}</td>
+                                        <td>{{ user.role ? user.role : 'N/A' }}</td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_users_show', {'id': user.userId}) }}" class="btn btn-sm btn-info" title="Show">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ path('app_users_edit', {'id': user.userId}) }}" class="btn btn-sm btn-warning" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% if user.statut == 0 %}
+                                                <a href="{{ path('app_users_edit_status', {'id': user.userId}) }}" class="btn btn-sm btn-info" title="Set Status">
+                                                    <i class="fas fa-check"></i> 
+                                                </a>
+                                            {% endif %}
+                                                <button type="button" class="btn btn-sm btn-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.userId }}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                   <!-- Modal for Delete Confirmation -->
+<div class="modal fade" id="deleteModal{{ user.userId }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the user <strong>{{ user.userUsername }}</strong>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form action="{{ path('app_users_delete', {'id': user.userId}) }}" method="post" style="display: inline;">
+          {# 1. Champ CSRF #}
+          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.userId) }}">
+          {# 2. On retire le _method, car la route attend POST #}
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {{ knp_pagination_render(pagination) }}
+                        </ul>
+                    </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

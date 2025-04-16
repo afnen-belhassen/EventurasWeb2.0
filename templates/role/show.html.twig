@@ -1,0 +1,40 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Role Details{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Role Details</h1>
+
+        <div class="card shadow-lg">
+            <div class="card-header bg-gradient-primary text-white">
+                <h5 class="mb-0">Role Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tbody>
+                        <tr>
+                            <th scope="row" class="text-muted">ID</th>
+                            <td>{{ role.roleId }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="text-muted">Name</th>
+                            <td>{{ role.roleName ?: 'N/A' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <a href="{{ path('app_role_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+                <div>
+                    <a href="{{ path('app_role_edit', {'id': role.roleId}) }}" class="btn btn-warning me-2">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    {{ include('role/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

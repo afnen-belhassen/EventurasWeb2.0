@@ -1,52 +1,10 @@
-{% extends 'base.html.twig' %}
-{% block css %}
-    {{ parent() }}
-    <style>
-        .white-title {
-            color: white;
-        }
-    </style>
-{% endblock %}
+{% extends 'base_front.html.twig' %}
+
 {% block title %}
     <h1 class="white-title">All Events</h1>
 {% endblock %}
 
 {% block body %}
-<nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="{{ path('app_home') }}">
-                Eventura
-            </a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
-                    <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_1">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_2">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_3">Features</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_4">Contact</a>
-                    </li>
-                </ul>
-
-                <div class="d-flex gap-2">
-                    <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
-                        <i class="bi bi-plus-circle me-2"></i>Créer Événement
-                    </a>
-                    <a href="{{ path('app_show_all_events') }}"class="btn custom-btn d-lg-block d-none">Vos événements</a>
-                </div>
-            </div>
-        </div>
-    </nav>
     <div class="container mt-5">
         <h1 class="text-center mb-4">All Events</h1>
 

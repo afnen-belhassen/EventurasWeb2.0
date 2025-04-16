@@ -1,0 +1,82 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}User Details{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">User Details</h1>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">User Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tbody>
+                        <tr>
+                            <th class="text-muted">ID</th>
+                            <td>{{ user.userId }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Username</th>
+                            <td>{{ user.userUsername }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Email</th>
+                            <td>{{ user.userEmail }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Password</th>
+                            <td>{{ user.userPassword }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">First Name</th>
+                            <td>{{ user.userFirstname }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Last Name</th>
+                            <td>{{ user.userLastname }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Birthday</th>
+                            <td>{{ user.userBirthday ? user.userBirthday|date('Y-m-d') : 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Gender</th>
+                            <td>{{ user.userGender ?: 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Picture</th>
+                            <td>
+                                {% if user.userPicture %}
+                                    <img src="{{ asset('uploads/users/' ~ user.userPicture) }}" alt="Profile Picture" class="img-thumbnail" style="width: 200px;height:300px">
+                                {% else %}
+                                    No picture available
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Phone Number</th>
+                            <td>{{ user.userPhonenumber ?: 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Level</th>
+                            <td>{{ user.userLevel ?: 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Role</th>
+                            <td>{{ user.role ? user.role : 'N/A' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <a href="{{ path('app_users_index') }}" class="btn btn-secondary">Back to List</a>
+                <div>
+                    <a href="{{ path('app_users_edit', {'id': user.userId}) }}" class="btn btn-warning me-2">Edit</a>
+                    {{ include('users/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
