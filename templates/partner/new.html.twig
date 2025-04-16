@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Partner{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Create New Partner</h1>
+            <a href="{{ path('app_partner_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.name, 'Name', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.name, {'attr': {'class': 'invalid-feedback'}}) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.website, 'Website', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.website, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.website, {'attr': {'class': 'invalid-feedback'}}) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.email, 'Email', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.email, {'attr': {'class': 'invalid-feedback'}}) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.phone, 'Phone', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.phone, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.phone, {'attr': {'class': 'invalid-feedback'}}) }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.address, 'Address', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.address, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.address, {'attr': {'class': 'invalid-feedback'}}) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                        {{ form_errors(form.description, {'attr': {'class': 'invalid-feedback'}}) }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.imagePath, 'Partner Image', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.imagePath, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.imagePath, {'attr': {'class': 'invalid-feedback'}}) }}
+                            <div class="form-text">Upload a JPEG, PNG or GIF image (max 2MB)</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.videoPath, 'Video URL', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.videoPath, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.videoPath, {'attr': {'class': 'invalid-feedback'}}) }}
+                            <div class="form-text">Enter a YouTube, Vimeo or other video URL</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_partner_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to list
+                        </a>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-save"></i> {{ button_label|default('Save') }}
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %} 

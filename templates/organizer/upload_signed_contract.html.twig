@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Upload Signed Contract - Partnership #{{ partnership.id }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="text-white"><i class="fas fa-file-upload me-2"></i>Upload Signed Contract</h1>
+            <p class="lead text-white">Partnership #{{ partnership.id }} with {{ partnership.partnerId.name }}</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ path('app_organizer_view_contract', {'id': partnership.id}) }}" class="btn btn-light">
+                <i class="fas fa-arrow-left"></i> Back to Contract
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card bg-primary text-white shadow-lg mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>Upload Instructions</h5>
+                </div>
+                <div class="card-body">
+                    <p>Please upload the signed contract for this partnership. Our AI will verify if the contract has been properly signed.</p>
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-robot me-2"></i>AI Signature Verification</h6>
+                        <p class="mb-0">Our AI system will analyze the uploaded document to detect signatures. If a valid signature is found, the partnership status will be automatically updated to "Signed".</p>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Important Notes</h6>
+                        <ul class="mb-0">
+                            <li>Only PDF files are accepted</li>
+                            <li>Maximum file size: 10MB</li>
+                            <li>The file should contain the complete contract with signatures</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+            
+            {% for message in app.flashes('warning') %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+            
+            {% for message in app.flashes('info') %}
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+            
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-primary text-white shadow-lg mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>Partnership Details</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm text-white">
+                        <tbody>
+                            <tr>
+                                <th>Partner:</th>
+                                <td>{{ partnership.partnerId.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Contract Type:</th>
+                                <td>{{ partnership.contracttype }}</td>
+                            </tr>
+                            <tr>
+                                <th>Current Status:</th>
+                                <td>
+                                    {% if partnership.isSigned %}
+                                        <span class="badge bg-success">Signed</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Pending Signature</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>ID:</th>
+                                <td>{{ partnership.id }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card bg-primary text-white shadow-lg">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-upload me-2"></i>Upload Contract</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+                        <div class="mb-3">
+                            {{ form_label(form.contractFile, 'Select PDF File', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.contractFile, {'attr': {'class': 'form-control'}}) }}
+                            {% if form.contractFile.vars.help is defined %}
+                                <div class="form-text text-light">{{ form.contractFile.vars.help }}</div>
+                            {% endif %}
+                            {% if form.contractFile.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.contractFile.vars.errors %}
+                                        {{ error.message }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-upload me-2"></i> Upload and Verify
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Add file input change event
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                const fileName = this.files[0]?.name;
+                if (fileName) {
+                    const fileLabel = this.nextElementSibling;
+                    if (fileLabel && fileLabel.classList.contains('form-text')) {
+                        fileLabel.textContent = 'Selected file: ' + fileName;
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 
