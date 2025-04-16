@@ -20,6 +20,7 @@ class EventType extends AbstractType
             ->add('date_event', null, [
                 'widget' => 'single_text',
             ])
+            ->add('date_finEve')
             ->add('location')
             ->add('category', EntityType::class, [
                 'class' => Categorie::class,
