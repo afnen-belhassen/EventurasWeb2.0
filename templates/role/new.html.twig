@@ -1,0 +1,33 @@
+{% extends 'indexBACK.html.twig' %}
+
+{% block title %}New Role{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Create a New Role</h1>
+
+        <div class="card shadow-lg">
+            <div class="card-header bg-gradient-primary text-white">
+                <h5 class="mb-0">Role Information</h5>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+                    <div class="col-md-12">
+                        {{ form_row(form.roleName, {
+                            'label': 'Role Name',
+                            'attr': {'class': 'form-control', 'placeholder': 'Enter role name'}
+                        }) }}
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                        <a href="{{ path('app_role_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

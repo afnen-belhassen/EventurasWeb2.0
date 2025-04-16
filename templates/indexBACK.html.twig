@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard{% endblock %}</title>
+  <link rel="icon" href="{{ asset('images/img/kaiadmin/favicon.ico') }}" type="image/x-icon">
+
+  
+  {% block css %}
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/plugins.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/kaiadmin.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/demo.css') }}">
+  {% endblock %}
+</head>
+
+<body>
+  <div class="wrapper">
+    {% block sidebar %}
+    <!-- Sidebar -->
+    <div class="sidebar" data-background-color="dark">
+      <div class="sidebar-logo">
+        <div class="logo-header" data-background-color="dark">
+          <a href="#" class="logo">
+            <img src="{{ asset('images/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20">
+          </a>
+          <div class="nav-toggle">
+            <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
+            <button class="btn btn-toggle sidenav-toggler"><i class="gg-menu-left"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+          <ul class="nav nav-secondary">
+            <li class="nav-item active">
+              <a href="#">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+              </a>
+            </li>
+            <li class="nav-section">
+              <span class="sidebar-mini-icon"><i class="fa fa-ellipsis-h"></i></span>
+              <h4 class="text-section">Modules</h4>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#userMgmt">
+                <i class="fas fa-user-shield"></i>
+                <p>Comptes</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="userMgmt">
+                <ul class="nav nav-collapse">
+                  <li><a href="{{ path('app_users_index') }}">Utilisateurs</a></li>
+                  <li><a href="{{ path('app_role_index') }}">Rôles</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#eventCenter">
+                <i class="fas fa-calendar-alt"></i>
+                <p>Événements</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="eventCenter">
+                <ul class="nav nav-collapse">
+                  <li><a href="#">Liste événements</a></li>
+                  <li><a href="#">Catégories</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#external">
+                <i class="fas fa-handshake"></i>
+                <p>Relations</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="external">
+                <ul class="nav nav-collapse">
+                  <li><a href="#">Partenaires</a></li>
+                  <li><a href="#">Partenariats</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#shop">
+                <i class="fas fa-store"></i>
+                <p>Boutique</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="shop">
+                <ul class="nav nav-collapse">
+                  <li><a href="#">Produits</a></li>
+                  <li><a href="#">Commandes</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a href="#">
+                <i class="fas fa-headset"></i>
+                <p>Support client</p>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- End Sidebar -->
+    {% endblock %}
+
+    <!-- Main Content -->
+    <div class="main-panel">
+      {% block body %}{% endblock %}
+      </div>
+{%block footer%}
+     
+      {% endblock %}
+  {% block js %}
+    <script src="{{ asset('js/core/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('js/core/popper.min.js') }}"></script>
+    <script src="{{ asset('js/core/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
+    <script src="{{ asset('js/plugin/chart.js/chart.min.js') }}"></script>
+    <script src="{{ asset('js/kaiadmin.min.js') }}"></script>
+    <script src="{{ asset('js/demo.js') }}"></script>
+     <!-- Fonts and icons -->
+  <script src="{{ asset('js/plugin/webfont/webfont.min.js') }}"></script>
+  <script>
+    WebFont.load({
+      google: { families: ["Public Sans:300,400,500,600,700"] },
+      custom: {
+        families: [
+          "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"
+        ],
+        urls: ["{{ asset('css/fonts.min.css') }}"]
+      },
+      active: function () {
+        sessionStorage.fonts = true;
+      }
+    });
+  </script>
+  {% endblock %}
+</body>
+</html>
