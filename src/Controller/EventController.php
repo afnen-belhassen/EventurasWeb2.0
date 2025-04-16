@@ -17,7 +17,7 @@ final class EventController extends AbstractController
     {
         $events = $entityManager->getRepository(Event::class)->findAll();
 
-        return $this->render('service/indexORG.html.twig', [
+        return $this->render('back/indexBACK.html.twig', [
             'events' => $events,
         ]);
     }
@@ -121,4 +121,39 @@ public function edit(Request $request, Event $event, EntityManagerInterface $ent
         'events' => $events,
     ]);
     }
+    
+    #[Route('/eventsBack', name: 'app_show_all_eventsBack')]
+    public function showAllBack(EntityManagerInterface $entityManager, Request $request): Response
+    {
+        $events = $entityManager->getRepository(Event::class)->findAll();
+
+        return $this->render('backOFF/displayEveBack.html.twig', [
+            'events' => $events,
+        ]);
+    }
+    #[Route('/event/change-status/{id}', name: 'app_change_status', methods: ['POST'])]
+    public function changeStatus(int $id, EntityManagerInterface $entityManager): Response
+    {
+        // Find the event by ID
+        $event = $entityManager->getRepository(Event::class)->find($id);
+
+        if (!$event) {
+            throw $this->createNotFoundException('Événement non trouvé.');
+        }
+
+        // Toggle the status
+        if ($event->getStatut() === 'en cours de traitement') {
+            $event->setStatut('accepté');
+        } else if ($event->getStatut() === 'accepté') {
+            $event->setStatut('en cours de traitement');
+        }
+
+        // Persist the changes
+        $entityManager->flush();
+
+        // Redirect or return a response
+        return $this->redirectToRoute('app_show_all_events');
+    }
+
+
 }
