@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Commandes{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Liste des Commandes</h2>
+                <div>
+                    <a href="{{ path('app_boutique') }}" class="btn btn-primary me-2">
+                        <i class="bi bi-shop"></i> Boutique
+                    </a>
+                    <a href="{{ path('ajouter_commande') }}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle"></i> Nouvelle Commande
+                    </a>
+                    <a href="{{ path('app_dashboard') }}" class="btn btn-info">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Client</th>
+                                <th>Produit</th>
+                                <th>Quantité</th>
+                                <th>Montant Total</th>
+                                <th>Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for commande in commandes %}
+                                <tr>
+                                    <td>{{ commande.id }}</td>
+                                    <td>
+                                        <div>{{ commande.nomClient }}</div>
+                                        <small class="text-muted">{{ commande.telephone }}</small>
+                                    </td>
+                                    <td>{{ commande.produit.nom }}</td>
+                                    <td>{{ commande.quantite }}</td>
+                                    <td>{{ commande.getMontantTotal()|number_format(2, ',', ' ') }} €</td>
+                                    <td>{{ commande.dateCommande|date('d/m/Y H:i') }}</td>
+                                    <td class="text-end">
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('supprimer_commande', {'id': commande.id}) }}" 
+                                               class="btn btn-sm btn-outline-danger"
+                                               data-bs-toggle="tooltip"
+                                               title="Supprimer"
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                            <p class="mt-2 mb-0">Aucune commande trouvée</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

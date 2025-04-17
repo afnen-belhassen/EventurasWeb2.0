@@ -1,0 +1,15 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true  # Ensures services are accessible if needed
+
+    # Register all controllers in the Controller directory
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    # Register all repositories in the Repository directory
+    App\Repository\:
+        resource: '../src/Repository'
+        tags: ['doctrine.repository_service']

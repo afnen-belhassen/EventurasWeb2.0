@@ -30,7 +30,7 @@ class Event
     }
 
     #[ORM\Column(type: 'string', nullable: true)]
-    #[Assert\NotBlank(message: 'Oups ! Tu as oublié le titre. C’est la star de ton contenu !')]
+    #[Assert\NotBlank(message: "Oups ! Tu as oublié le titre. C'est la star de ton contenu !")]
     #[Assert\Length(min: 10, minMessage: 'Le titre doit contenir au moins 10 caractères.')]
     private ?string $title = null;
 
@@ -78,7 +78,7 @@ class Event
     }
 
     #[ORM\Column(type: 'string', nullable: false)]
-    #[Assert\NotBlank(message: 'Ajoute un lieu pour qu’on puisse te rejoindre ')]
+    #[Assert\NotBlank(message: "Ajoute un lieu pour qu'on puisse te rejoindre")]
     private ?string $location = null;
     public function getLocation(): ?string
     {
@@ -92,7 +92,7 @@ class Event
     }
 
     #[ORM\ManyToOne(targetEntity: Categorie::class)]
-    #[Assert\NotNull(message: ' C’est quel genre d’événement ? Aide-nous à le classer !')]
+    #[Assert\NotNull(message: "C'est quel genre d'événement ? Aide-nous à le classer !")]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'category_id', nullable: false)]
     private ?Categorie $category = null;
 
@@ -177,17 +177,17 @@ class Event
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: false)]
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: false)]
     #[Assert\NotNull(message: 'Vous devez fournir le prix')]
-    #[Assert\GreaterThan(value: 0, message: 'Oups ! Le prix doit être positif ou gratuit ')]
-    private ?float $prix = null;
+    #[Assert\GreaterThan(value: 0, message: 'Oups ! Le prix doit être positif ou gratuit')]
+    private ?string $prix = null;
 
-    public function getPrix(): ?float
+    public function getPrix(): ?string
     {
         return $this->prix;
     }
 
-    public function setPrix(float $prix): self
+    public function setPrix(string $prix): self
     {
         $this->prix = $prix;
         return $this;
@@ -195,7 +195,7 @@ class Event
 
     #[ORM\Column(type: 'integer', nullable: false)]
     #[Assert\NotNull(message: 'Le nombre de places est requis.')]
-    #[Assert\GreaterThanOrEqual(value: 10, message: 'Prévois un peu plus de monde ! Minimum 10 participants, c’est la règle ')]
+    #[Assert\GreaterThanOrEqual(value: 10, message: "Prévois un peu plus de monde ! Minimum 10 participants, c'est la règle")]
     private ?int $nb_places = null;
 
     public function getNb_places(): ?int

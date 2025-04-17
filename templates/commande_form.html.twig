@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Passer une Commande{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Passer une Commande</h2>
+                <div>
+                    <a href="{{ path('app_boutique') }}" class="btn btn-primary me-2">
+                        <i class="bi bi-shop"></i> Boutique
+                    </a>
+                    <a href="{{ path('app_dashboard') }}" class="btn btn-info">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.nomClient, "Nom du Client", {'label_attr': {'class': 'form-label'}}) }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                {{ form_widget(form.nomClient, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.nomClient) }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.adresse, "Adresse", {'label_attr': {'class': 'form-label'}}) }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                {{ form_widget(form.adresse, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.adresse) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.telephone, "Téléphone", {'label_attr': {'class': 'form-label'}}) }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                {{ form_widget(form.telephone, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.telephone) }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.produit, "Produit", {'label_attr': {'class': 'form-label'}}) }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-box"></i></span>
+                                {{ form_widget(form.produit, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.produit) }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.quantite, "Quantité", {'label_attr': {'class': 'form-label'}}) }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-cart"></i></span>
+                                {{ form_widget(form.quantite, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.quantite) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>Passer la commande
+                    </button>
+                </div>
+                {{ form_end(form, {'render_rest': false}) }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+{% endblock %} 

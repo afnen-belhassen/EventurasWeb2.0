@@ -1,0 +1,229 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+    <main>
+        <header class="site-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 col-12 d-flex flex-wrap">
+                        <p class="d-flex me-4 mb-0">
+                            <i class="bi-speedometer2 custom-icon me-2"></i>
+                            <strong class="text-dark">Dashboard Overview</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="{{ path('app_dashboard') }}">
+                    Eventuras Dashboard
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('liste_commandes') }}">Orders</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('liste_produits') }}">Products</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <section class="dashboard-section section-padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="section-title-wrap mb-5">
+                            <h2 class="text-white">Dashboard Overview</h2>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-12 mb-4">
+                        <div class="custom-block custom-block-bg">
+                            <div class="custom-block-icon">
+                                <i class="bi-cash-coin"></i>
+                            </div>
+                            <h5 class="text-white mb-2">Total Revenue</h5>
+                            <p class="text-white mb-0">{{ chiffre_affaires|number_format(2, '.', ',') }} TND</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-12 mb-4">
+                        <div class="custom-block custom-block-bg">
+                            <div class="custom-block-icon">
+                                <i class="bi-cart"></i>
+                            </div>
+                            <h5 class="text-white mb-2">Total Orders</h5>
+                            <p class="text-white mb-0">{{ commandes|length }}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-12 mb-4">
+                        <div class="custom-block custom-block-bg">
+                            <div class="custom-block-icon">
+                                <i class="bi-box"></i>
+                            </div>
+                            <h5 class="text-white mb-2">Total Products</h5>
+                            <p class="text-white mb-0">{{ produits|length }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <div class="col-lg-6 col-12 mb-4">
+                        <div class="custom-block custom-block-bg">
+                            <h5 class="text-white mb-3">Monthly Sales</h5>
+                            <canvas id="ventesChart" class="w-100" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-12 mb-4">
+                        <div class="custom-block custom-block-bg">
+                            <h5 class="text-white mb-3">Top Products</h5>
+                            <canvas id="produitsChart" class="w-100" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <div class="custom-block custom-block-bg">
+                            <h5 class="text-white mb-3">Recent Orders</h5>
+                            <div class="table-responsive">
+                                <table class="table table-dark">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Customer</th>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for commande in commandes|slice(0, 5) %}
+                                            <tr>
+                                                <td>#{{ commande.id }}</td>
+                                                <td>{{ commande.nomClient }}</td>
+                                                <td>{{ commande.produit.nom }}</td>
+                                                <td>{{ commande.quantite }}</td>
+                                                <td>{{ commande.dateCommande|date('Y-m-d H:i') }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Monthly Sales Chart
+        const ventesCtx = document.getElementById('ventesChart').getContext('2d');
+        new Chart(ventesCtx, {
+            type: 'line',
+            data: {
+                labels: {{ labels|raw }},
+                datasets: [{
+                    label: 'Monthly Sales (TND)',
+                    data: {{ ventesParMois|raw }},
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Top Products Chart
+        const produitsCtx = document.getElementById('produitsChart').getContext('2d');
+        new Chart(produitsCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ topProduitsLabels|raw }},
+                datasets: [{
+                    label: 'Quantity Sold',
+                    data: {{ topProduitsData|raw }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %} 

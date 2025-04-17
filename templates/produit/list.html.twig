@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Produits{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Liste des Produits</h3>
+                    <a href="{{ path('app_produit_form') }}" class="btn btn-primary">Ajouter un produit</a>
+                </div>
+                <div class="card-body">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom</th>
+                                <th>Description</th>
+                                <th>Prix</th>
+                                <th>Quantité</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for produit in produits %}
+                                <tr>
+                                    <td>{{ produit.id }}</td>
+                                    <td>{{ produit.nom }}</td>
+                                    <td>{{ produit.description }}</td>
+                                    <td>{{ produit.prix }} €</td>
+                                    <td>{{ produit.quantite }}</td>
+                                    <td>
+                                        <a href="{{ path('modifier_produit', {'id': produit.id}) }}" class="btn btn-warning">Modifier</a>
+                                        <a href="{{ path('supprimer_produit', {'id': produit.id}) }}" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">Supprimer</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center">Aucun produit trouvé</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

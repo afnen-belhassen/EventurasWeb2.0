@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Produits{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Liste des Produits</h2>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Prix</th>
+                            <th>Quantité</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produit in produits %}
+                            <tr>
+                                <td>{{ produit.id }}</td>
+                                <td>{{ produit.nom }}</td>
+                                <td>{{ produit.description }}</td>
+                                <td>{{ produit.prix|number_format(2, ',', ' ') }} €</td>
+                                <td>
+                                    <span class="badge {% if produit.quantite > 10 %}bg-success{% elseif produit.quantite > 0 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ produit.quantite }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('modifier_produit', {'id': produit.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary"
+                                           data-bs-toggle="tooltip"
+                                           title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{{ path('supprimer_produit', {'id': produit.id}) }}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           data-bs-toggle="tooltip"
+                                           title="Supprimer"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                        <p class="mt-2 mb-0">Aucun produit trouvé</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %} 
