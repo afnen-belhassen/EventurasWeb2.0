@@ -1,0 +1,446 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Forum{% endblock %}
+
+{% block body %}
+<style>
+    /* Style pour les menus d'actions */
+    .action-menu {
+        transition: all 0.2s ease;
+        border: 1px solid #dee2e6;
+    }
+    
+    .action-menu button:hover {
+        background-color: #f8f9fa;
+    }
+    
+    /* Animation pour le like */
+    .like-button:hover {
+        transform: scale(1.05);
+    }
+    
+    .like-button:active {
+        transform: scale(0.95);
+    }
+    
+    .bi-heart {
+        transition: all 0.3s ease;
+    }
+</style>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="{{ path('app_home') }}">
+            Eventura
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                <li class="nav-item">
+                    <a class="nav-link click-scroll" href="#section_1">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link click-scroll" href="#section_2">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link click-scroll" href="#section_3">Features</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link click-scroll" href="#section_4">Contact</a>
+                </li>
+            </ul>
+
+            <div class="d-flex gap-2">
+                <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
+                    <i class="bi bi-plus-circle me-2"></i>Créer Événement
+                </a>
+                <a href="{{ path('app_show_all_events') }}"class="btn custom-btn d-lg-block d-none">Vos événements</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <h1 class="text-center mb-4">Forum Posts</h1>
+            
+            <!-- Create Post Form -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Create New Post</h5>
+                    <form action="{{ path('app_forum_create') }}" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Content</label>
+                            <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Image (optional)</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*" onchange="previewImage(this, 'preview')">
+                            <div id="preview" class="mt-2"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Post</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Posts List -->
+            {% for post in posts %}
+            <div class="card mb-4" data-post-id="{{ post.id }}">
+                <div class="card-body">
+                    <div class="post-content">
+                        <div class="d-flex align-items-center gap-2">
+                            <!-- Avatar -->
+                            <div class="rounded-circle bg-secondary p-2">
+                                <i class="bi bi-person-fill text-white"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Ahmed</h6>
+                                <small class="text-muted">@ahmed</small>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <h5 class="card-title">{{ post.title }}</h5>
+                            <div class="mt-3 position-relative">
+                                <button class="btn btn-sm btn-light rounded-2" onclick="toggleActionMenu({{ post.id }})">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                
+                                <!-- Menu d'actions (style dropdown) -->
+                                <div id="actionMenu-{{ post.id }}" class="action-menu bg-white shadow rounded p-2" style="display: none; position: absolute; top: 100%; left: 0; z-index: 100; min-width: 120px;">
+                                    <button class="btn btn-sm btn-link text-primary w-100 text-start" onclick="toggleEditForm({{ post.id }})">
+                                        <i class="bi bi-pencil-square me-2"></i>Edit
+                                    </button>
+                                    <form action="{{ path('app_forum_delete', {id: post.id}) }}" method="POST">
+                                        <button type="submit" class="btn btn-sm btn-link text-danger w-100 text-start" onclick="return confirm('Are you sure?')">
+                                            <i class="bi bi-trash me-2"></i>Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="card-text">{{ post.content }}</p>
+                        {% if post.imagePath %}
+                            <img src="{{ asset('uploads/posts/' ~ post.imagePath) }}" class="img-fluid mb-3" alt="Post image">
+                        {% endif %}
+                        
+                        
+                    </div>
+                    <small class="text-muted">
+                        {{ post.createdAt|timeAgo }}
+                    </small>
+                    <!-- Edit Post Form (Hidden by default) -->
+                    <div class="edit-form" style="display: none;">
+                        <form action="{{ path('app_forum_edit', {id: post.id}) }}" method="POST" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="edit-title-{{ post.id }}" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="edit-title-{{ post.id }}" name="title" value="{{ post.title }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit-content-{{ post.id }}" class="form-label">Content</label>
+                                <textarea class="form-control" id="edit-content-{{ post.id }}" name="content" rows="3" required>{{ post.content }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit-image-{{ post.id }}" class="form-label">New Image (optional)</label>
+                                <input type="file" class="form-control" id="edit-image-{{ post.id }}" name="image" accept="image/*" onchange="previewImage(this, 'edit-preview-{{ post.id }}')">
+                                <div id="edit-preview-{{ post.id }}" class="mt-2"></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn btn-secondary" onclick="toggleEditForm({{ post.id }})">Cancel</button>
+                        </form>
+                    </div>
+
+                    
+                    <div class="d-flex align-items-center mt-3">
+                        
+                        
+                        <!-- Bouton Like -->
+                        <button type="button" class="btn btn-sm like-button {% if post.likedByCurrent %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill"
+                                data-post-id="{{ post.id }}">
+                            <i class="bi {% if post.likedByCurrent %}bi-heart-fill{% else %}bi-heart{% endif %} me-2"></i>
+                            <span id="like-count-{{ post.id }}">{{ post.likeCount|default(0) }}</span>
+                        </button>
+
+                        <!-- Bouton Commentaire (optionnel) -->
+                        <button class="btn btn-sm btn-link text-muted">
+                            <i class="bi bi-chat"></i>
+                            {{ post.comments|length }}
+                        </button>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="mt-4">
+                        <h6>Comments</h6>
+                        {% for comment in post.comments %}
+                            <div class="card mb-2" data-comment-id="{{ comment.id }}">
+                                <div class="card-body">
+                                    <div class="comment-content">
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <!-- Avatar -->
+                                                <div class="rounded bg-secondary p-1">
+                                                    <i class="bi bi-person-fill text-white"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold">Ahmed</h6>
+                                                    <small class="text-muted">@ahmed</small>
+                                                </div>
+                                            </div>
+                                            <div class="position-relative">
+                                                <button class="btn btn-sm btn-light rounded-2" onclick="toggleCommentActionMenu({{ comment.id }})">
+                                                    <i class="bi bi-three-dots"></i>
+                                                </button>
+                                                <div id="actionMenuComment-{{ comment.id }}" class="action-menu bg-white shadow rounded p-2" 
+                                                    style="display: none; position: absolute; right: 0; z-index: 100; min-width: 120px;">
+                                                    <button class="btn btn-sm btn-link text-primary w-100 text-start" onclick="toggleCommentEdit({{ comment.id }})">
+                                                        <i class="bi bi-pencil-square me-2"></i>Edit
+                                                    </button>
+                                                    <form action="{{ path('app_forum_comment_delete', {id: comment.id}) }}" method="POST">
+                                                        <button type="submit" class="btn btn-sm btn-link text-danger w-100 text-start" 
+                                                                onclick="return confirm('Are you sure?')">
+                                                            <i class="bi bi-trash me-2"></i>Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <p class="card-text">{{ comment.content }}</p>
+                                    </div>
+                                    <div class="comment-edit-form" style="display: none;">
+                                        <form action="{{ path('app_forum_comment_edit', {id: comment.id}) }}" method="POST">
+                                            <div class="mb-3">
+                                                <textarea class="form-control" name="content" rows="2" required>{{ comment.content }}</textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCommentEdit({{ comment.id }})">Cancel</button>
+                                        </form>
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ comment.createdAt|timeAgo }}
+                                    </small>
+                                    
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Add Comment Form -->
+                        <form action="{{ path('app_forum_comment', {id: post.id}) }}" method="POST" class="mt-3">
+                            <div class="mb-3">
+                                <textarea class="form-control" name="content" rows="2" placeholder="Add a comment..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary">Add Comment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+function previewImage(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" class="img-fluid" style="max-height: 200px;">`;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function toggleEditForm(postId) {
+    const postCard = document.querySelector(`[data-post-id="${postId}"]`);
+    if (postCard) {
+        const content = postCard.querySelector('.post-content');
+        const editForm = postCard.querySelector('.edit-form');
+        
+        if (content && editForm) {
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+            editForm.style.display = editForm.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+}
+
+function toggleCommentEdit(commentId) {
+    const commentCard = document.querySelector(`[data-comment-id="${commentId}"]`);
+    if (commentCard) {
+        const content = commentCard.querySelector('.comment-content');
+        const editForm = commentCard.querySelector('.comment-edit-form');
+        
+        if (content && editForm) {
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+            editForm.style.display = editForm.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+}
+</script>
+<script>
+
+    // La variable "postedToday" provient du contrôleur.
+    // Assurez-vous qu'elle est passée correctement dans le contexte Twig
+    var postedToday = {{ postedToday|json_encode|raw }};
+    
+    // Vérification du quota de posts pour la journée
+    if (postedToday >= 2) {
+        // Sélection du conteneur de la carte du formulaire
+        var formCard = document.querySelector('.card.mb-4');
+        
+        // Création d'un message d'alerte avec le style Bootstrap
+        var alertMessage = document.createElement('div');
+        alertMessage.className = 'alert alert-warning text-center';
+        alertMessage.style.fontSize = '1.2em';
+        alertMessage.style.marginTop = '20px';
+        alertMessage.textContent = "You have reached your daily limit of 2 posts.";
+
+        // Remplacement du contenu du formulaire par le message
+        formCard.innerHTML = '';
+        formCard.appendChild(alertMessage);
+    }
+</script>
+
+<script>
+    // Récupérer la liste des bad words passée depuis le contrôleur
+    const badWords = {{ badWords|json_encode|raw }};
+
+    // Applique la vérification sur tous les formulaires de la page
+    document.querySelectorAll('form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            // Récupération de la valeur du champ title s'il existe
+            let title = '';
+            const titleInput = form.querySelector('input[name="title"]');
+            if (titleInput) {
+                title = titleInput.value.toLowerCase();
+            }
+
+            // Récupération de la valeur du champ content s'il existe
+            let content = '';
+            const contentField = form.querySelector('textarea[name="content"]');
+            if (contentField) {
+                content = contentField.value.toLowerCase();
+            }
+
+            // Vérification : si l'un des champs contient un bad word, on bloque la soumission
+            const hasBadWord = badWords.some(word => {
+                const lowerWord = word.toLowerCase();
+                return title.includes(lowerWord) || content.includes(lowerWord);
+            });
+
+            if (hasBadWord) {
+                // Empêcher la soumission
+                e.preventDefault();
+
+                // Si un message d'alerte existe déjà dans ce formulaire, on le supprime pour ne pas l'afficher plusieurs fois
+                const existingAlert = form.querySelector('.alert-danger');
+                if (existingAlert) {
+                    existingAlert.remove();
+                }
+
+                // Création du message d'erreur avec le style Bootstrap
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger mt-3';
+                alertDiv.style.fontSize = '1.1em';
+                alertDiv.textContent = 'Votre message contient des mots interdits. Veuillez corriger votre contenu.';
+
+                // Ajout du message d'alerte à la fin du formulaire
+                form.appendChild(alertDiv);
+            }
+        });
+    });
+</script>
+
+<script>
+    document.querySelectorAll('.like-button').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+    
+            const postId = this.getAttribute('data-post-id');
+    
+            fetch("{{ path('app_forum_like', {'postId': 'POST_ID_PLACEHOLDER'}) }}".replace('POST_ID_PLACEHOLDER', postId), {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const likeCountElem = document.getElementById('like-count-' + postId);
+                likeCountElem.textContent = data.likeCount;
+
+                const icon = button.querySelector('.bi');
+                
+                // Animation fluide
+                if (data.liked) {
+                    icon.style.transform = 'scale(1.3)';
+                    setTimeout(() => icon.style.transform = 'scale(1)', 200);
+                } else {
+                    icon.style.transform = 'scale(0.7)';
+                    setTimeout(() => icon.style.transform = 'scale(1)', 200);
+                }
+
+                // Changement de classe avec transition
+                button.classList.toggle('btn-danger');
+                button.classList.toggle('btn-outline-danger');
+                icon.classList.toggle('bi-heart');
+                icon.classList.toggle('bi-heart-fill');
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+
+<script>
+    // Nouvelle fonction pour le menu d'actions
+    function toggleActionMenu(postId) {
+        const menu = document.getElementById(`actionMenu-${postId}`);
+        menu.classList.toggle('show');
+        menu.style.display = menu.classList.contains('show') ? 'block' : 'none';
+    }
+
+</script>
+    
+<style>
+    /* Ajoutez ces règles CSS */
+    .like-button {
+        transition: all 0.3s ease !important;
+        border-width: 2px;
+    }
+    
+    .bi-heart-fill {
+        transition: transform 0.2s ease;
+    }
+</style>
+
+<script>
+    // Fonction pour les menus des commentaires
+    function toggleCommentActionMenu(commentId) {
+        const menu = document.getElementById(`actionMenuComment-${commentId}`);
+        const allMenus = document.querySelectorAll('.action-menu');
+        
+        allMenus.forEach(m => {
+            if(m.id !== `actionMenuComment-${commentId}`) m.style.display = 'none';
+        });
+        
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    // Mettre à jour l'écouteur d'événements global
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.action-menu') && 
+            !e.target.closest('[onclick*="toggleActionMenu"]') && 
+            !e.target.closest('[onclick*="toggleCommentActionMenu"]')) {
+            document.querySelectorAll('.action-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        }
+    });
+    </script>
+{% endblock %} 
