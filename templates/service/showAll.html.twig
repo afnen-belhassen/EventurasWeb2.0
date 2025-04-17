@@ -1,14 +1,10 @@
 {% extends 'base.html.twig' %}
 {% block css %}
     {{ parent() }}
-    <style>
-        .white-title {
-            color: white;
-        }
-    </style>
+
 {% endblock %}
 {% block title %}
-    <h1 class="white-title">All Events</h1>
+    <h1 id="title-eve" style="color-text: white !important;">All Events</h1>
 {% endblock %}
 
 {% block body %}

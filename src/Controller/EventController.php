@@ -13,8 +13,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 final class EventController extends AbstractController
 {
-    #[Route('/home', name: 'app_home')]
+    #[Route('/homeOrg', name: 'app_home')]
     public function index(EntityManagerInterface $entityManager): Response
+    {
+        $events = $entityManager->getRepository(Event::class)->findAll();
+
+        return $this->render('service/indexORG.html.twig', [
+            'events' => $events,
+        ]);
+    }
+    #[Route('/homeBACK', name: 'app_home_back')]
+    public function indexBack(EntityManagerInterface $entityManager): Response
     {
         $events = $entityManager->getRepository(Event::class)->findAll();
 
@@ -22,6 +31,16 @@ final class EventController extends AbstractController
             'events' => $events,
         ]);
     }
+    #[Route('/homePart', name: 'app_home_part')]
+    public function indexPart(EntityManagerInterface $entityManager): Response
+    {
+        $events = $entityManager->getRepository(Event::class)->findAll();
+
+        return $this->render('service/indexPart.html.twig', [
+            'events' => $events,
+        ]);
+    }
+
 
     #[Route('/event/new', name: 'app_event_new')]
 public function new(Request $request, EntityManagerInterface $entityManager): Response

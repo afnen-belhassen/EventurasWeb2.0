@@ -4,7 +4,6 @@
 
 {% block stylesheets %}
 {{parent()}}
-
 {% endblock %}
 
 {% block body %}
@@ -74,14 +73,9 @@
                 <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
                     <!-- Add any additional navbar items here -->
                 </ul>
-
                 <div class="d-flex gap-2">
-                    <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
-                        <i class="bi bi-plus-circle me-2"></i>Créer Événement
-                    </a>
-                   
                     
-                     {{ include('service/sidebar.html.twig') }}
+                     {{ include('service/sidebarPart.html.twig') }}
                 </div>
             </div>
         </div>
