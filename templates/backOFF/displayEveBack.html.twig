@@ -72,8 +72,9 @@
         color: black;
     }
     .modal.show {
-        display: block;
-    }
+  display: block !important;
+  z-index: 9999 !important;
+}
     
 </style>
 {% endblock %}
@@ -653,8 +654,7 @@
                 <td>{{ event.status }}</td>
                 <td>
                   <div class="button-group">
-                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-                    <button type="button" class="btn btn-warning" onclick="openEditModal({{ event.id_event }})">
+                  <button type="button" class="btn btn-warning" data-action="event-modal#open" data-event-id="{{ event.id_event }}">
                       Modifier
                     </button>
                     <form action="{{ path('app_event_delete', { id: event.id_event }) }}" method="post" style="display:inline;">
@@ -739,67 +739,35 @@
 </div>
 {% endblock %}
 
+
 {% block js %}
 {{ parent() }}
 <script>
-  function openEditModal(id) {
-    // Fetch event data via AJAX
-    fetch('/event/get/${id}')
-      .then(response => response.json())
-      .then(data => {
-        // Populate the form with the event data
-        document.getElementById('eventId').value = data.id_event;
-        document.getElementById('title').value = data.title;
-        document.getElementById('description').value = data.description;
-        document.getElementById('date_event').value = data.date_event.split(' ')[0]; // Remove time part
-        document.getElementById('dateFinEve').value = data.dateFinEve.split(' ')[0]; // Remove time part
-        document.getElementById('location').value = data.location;
-        document.getElementById('activities').value = data.activities;
-        document.getElementById('prix').value = data.prix;
-        document.getElementById('nb_places').value = data.nb_places;
-        document.getElementById('status').value = data.status;
-        
-        // Show the modal
-        document.getElementById('editEventModal').classList.add('show');
-      })
-      .catch(error => {
-        console.error('Error fetching event data:', error);
-      });
-  }
+document.addEventListener('DOMContentLoaded', function() {
+  // Direct button binding instead of delegation
+  document.querySelectorAll('.btn-warning[data-event-id]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const modal = document.getElementById('editEventModal');
+      modal.classList.add('show');
+      
+      // Just for testing - remove after confirmation
+      console.log('Modal should be visible now');
+      document.getElementById('title').value = 'Test Title';
+    });
+  });
 
-  function closeEditModal() {
+  // Close modal handlers
+  document.querySelector('.close').addEventListener('click', function() {
     document.getElementById('editEventModal').classList.remove('show');
-  }
+  });
 
-  // Close modal when clicking outside of it
   window.onclick = function(event) {
     const modal = document.getElementById('editEventModal');
     if (event.target === modal) {
-      closeEditModal();
+      modal.classList.remove('show');
     }
-  }
-
-  // Handle form submission
-  document.getElementById('editEventForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const id = document.getElementById('eventId').value;
-    fetch(`/event/edit/${id}`, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (response.ok) {
-            closeEditModal();
-            location.reload();
-        } else {
-        console.error('Error updating event');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
-  });
+  };
+});
 </script>
+
 {% endblock %}
