@@ -69,7 +69,7 @@
                                  <strong>Date:</strong> {{ event.date_event|date('d/m/Y H:i') }}<br>
                                 <strong>Price:</strong> {{ event.prix }} TND<br>
                                 <strong>Location:</strong> {{ event.location }}<br>
-                                <strong>Date Fin:</strong> {{ event.date_fin_eve|date('d/m/Y H:i') }}
+                                <strong>Date Fin:</strong> {{ event.dateFinEve|date('d/m/Y H:i') }}
                             </p>
                             <div class="d-flex justify-content-between">
                                 <button class="btn btn-warning" onclick="toggleForm('{{ event.id_event }}')">Modifier</button>
@@ -93,7 +93,7 @@
                             </div>
                              <div class="mb-3">
                                 <label for="date_finEve-{{ event.id_event }}" class="form-label">Date Fin</label>
-                                <input type="text" class="form-control" id="date_finEve-{{ event.id_event }}" name="date_fin_eve" value="{{event.date_fin_eve |date('d/m/Y H:i')}}" required>
+                                <input type="text" class="form-control" id="date_finEve-{{ event.id_event }}" name="date_fin_eve" value="{{event.dateFinEve |date('d/m/Y H:i')}}" required>
                             </div>
                             <div class="mb-3">
                                 <label for="price-{{ event.id_event }}" class="form-label">Prix</label>
