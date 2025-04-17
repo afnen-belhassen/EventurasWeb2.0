@@ -1,113 +1,68 @@
-{% extends 'base.html.twig' %}
+{% extends 'back/basePartner.html.twig' %}
 
-{% block title %}Create Partnership with {{ partner.name }}{% endblock %}
+{% block title %}Create Partnership{% endblock %}
 
-{% block body %}
-<div class="container-fluid mt-4">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="text-white"><i class="fas fa-handshake me-2"></i>Create Partnership</h1>
-            <p class="lead text-white">with <strong>{{ partner.name }}</strong></p>
-        </div>
-        <div class="col-md-4 text-md-end">
-            <a href="{{ path('app_organizer_partner_show', {'id': partner.id}) }}" class="btn btn-light">
-                <i class="fas fa-arrow-left"></i> Back to Partner Details
+{% block content %}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Create Partnership</h1>
+            <a href="{{ path('app_organizer_partnerships') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
             </a>
         </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card bg-primary text-white shadow-lg">
-                <div class="card-header">
-                    <h5 class="card-title mb-0"><i class="fas fa-file-contract me-2"></i>Partnership Details</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        <div class="mb-4">
-                            <label for="contracttype" class="form-label text-light">Contract Type</label>
-                            <select class="form-select" id="contracttype" name="contracttype" required>
-                                <option value="">Select a contract type</option>
-                                <option value="SPONSORSHIP">Sponsorship</option>
-                                <option value="COLLABORATION">Collaboration</option>
-                                <option value="SERVICE_PROVIDER">Service Provider</option>
-                                <option value="LICENSING">Licensing</option>
-                                <option value="ADVERTISING">Advertising</option>
-                                <option value="AFFILIATE">Affiliate</option>
-                                <option value="DONATION">Donation</option>
-                                <option value="JOINT_VENTURE">Joint Venture</option>
-                                <option value="FRANCHISE">Franchise</option>
-                                <option value="CONSULTING">Consulting</option>
-                            </select>
-                            <div class="form-text text-light">Select the type of partnership you want to establish.</div>
+
+        <div class="card">
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.partner, 'Partner', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.partner, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.partner) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.event, 'Event', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.event, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.event) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.type, 'Partnership Type', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.type) }}
+                            </div>
                         </div>
-                        
-                        <div class="mb-4">
-                            <label for="description" class="form-label text-light">Partnership Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
-                            <div class="form-text text-light">Describe the details of your partnership, including goals, expectations, and any specific terms.</div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '5'}}) }}
+                                {{ form_errors(form.description) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.startDate, 'Start Date', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.startDate, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.startDate) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.endDate, 'End Date', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.endDate, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.endDate) }}
+                            </div>
                         </div>
-                        
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> After submitting this form, a PDF contract will be generated for review and signing.
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-light btn-lg">
-                                <i class="fas fa-file-pdf me-2"></i> Generate Contract
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card bg-primary text-white shadow-lg mb-4">
-                <div class="card-header">
-                    <h5 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>Partner Information</h5>
-                </div>
-                <div class="card-body">
-                    <h6>{{ partner.name }}</h6>
-                    <p class="text-light">{{ partner.type }}</p>
-                    <p>
-                        {% if partner.description %}
-                            {{ partner.description|length > 150 ? partner.description|slice(0, 150) ~ '...' : partner.description }}
-                        {% else %}
-                            No description available.
-                        {% endif %}
-                    </p>
-                    
-                    <hr class="border-light">
-                    
-                    <h6>Contact Information</h6>
-                    <ul class="list-unstyled">
-                        {% if partner.email %}
-                            <li><i class="fas fa-envelope me-2"></i> {{ partner.email }}</li>
-                        {% endif %}
-                        
-                        {% if partner.phone %}
-                            <li><i class="fas fa-phone me-2"></i> {{ partner.phone }}</li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="card bg-primary text-white shadow-lg">
-                <div class="card-header">
-                    <h5 class="card-title mb-0"><i class="fas fa-tasks me-2"></i>Partnership Process</h5>
-                </div>
-                <div class="card-body">
-                    <ol class="mb-0">
-                        <li class="mb-2">Fill out the partnership details</li>
-                        <li class="mb-2">Generate the contract</li>
-                        <li class="mb-2">Review the contract terms</li>
-                        <li class="mb-2">Sign the contract</li>
-                        <li>Begin your partnership</li>
-                    </ol>
-                </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create Partnership
+                        </button>
+                    </div>
+                {{ form_end(form) }}
             </div>
         </div>
     </div>
-</div>
 {% endblock %} 

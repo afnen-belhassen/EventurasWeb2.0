@@ -1,8 +1,8 @@
-{% extends 'base.html.twig' %}
+{% extends 'back/basePartner.html.twig' %}
 
 {% block title %}Edit Partner{% endblock %}
 
-{% block body %}
+{% block content %}
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Edit Partner</h1>
@@ -15,105 +15,43 @@
             <div class="card-body">
                 {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form_label(form.name, 'Name', {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(form.name, {'attr': {'class': 'invalid-feedback'}}) }}
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.name, 'Name', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.name) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '5'}}) }}
+                                {{ form_errors(form.description) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.website, 'Website', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.website, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.website) }}
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form_label(form.website, 'Website', {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(form.website, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(form.website, {'attr': {'class': 'invalid-feedback'}}) }}
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.imageFile, 'Image', {'label_attr': {'class': 'form-label'}}) }}
+                                {% if partner.imagePath %}
+                                    <div class="mb-2">
+                                        <img src="{{ asset('uploads/partners/' ~ partner.imagePath) }}" alt="Current image" class="img-thumbnail" style="max-width: 200px;">
+                                    </div>
+                                {% endif %}
+                                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.imageFile) }}
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form_label(form.email, 'Email', {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(form.email, {'attr': {'class': 'invalid-feedback'}}) }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form_label(form.phone, 'Phone', {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(form.phone, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(form.phone, {'attr': {'class': 'invalid-feedback'}}) }}
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form_label(form.address, 'Address', {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(form.address, {'attr': {'class': 'form-control'}}) }}
-                        {{ form_errors(form.address, {'attr': {'class': 'invalid-feedback'}}) }}
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
-                        {{ form_errors(form.description, {'attr': {'class': 'invalid-feedback'}}) }}
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form_label(form.imagePath, 'Partner Image', {'label_attr': {'class': 'form-label'}}) }}
-                            {% if partner.imagePath %}
-                                <div class="mb-2">
-                                    <img src="{{ asset('uploads/partners/' ~ partner.imagePath) }}" alt="Current image" class="img-thumbnail" style="max-width: 200px;">
-                                </div>
-                            {% endif %}
-                            {{ form_widget(form.imagePath, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(form.imagePath, {'attr': {'class': 'invalid-feedback'}}) }}
-                            <div class="form-text">Upload a JPEG, PNG or GIF image (max 2MB)</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form_label(form.videoPath, 'Video URL', {'label_attr': {'class': 'form-label'}}) }}
-                            {% if partner.videoPath %}
-                                <div class="mb-2">
-                                    {% if 'youtube.com' in partner.videoPath or 'youtu.be' in partner.videoPath %}
-                                        {% set videoId = partner.videoPath|replace({'https://www.youtube.com/watch?v=': '', 'https://youtu.be/': ''}) %}
-                                        <div class="ratio ratio-16x9">
-                                            <iframe 
-                                                src="https://www.youtube.com/embed/{{ videoId }}" 
-                                                title="YouTube video player" 
-                                                frameborder="0" 
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                                allowfullscreen>
-                                            </iframe>
-                                        </div>
-                                    {% elseif 'vimeo.com' in partner.videoPath %}
-                                        {% set videoId = partner.videoPath|replace({'https://vimeo.com/': ''}) %}
-                                        <div class="ratio ratio-16x9">
-                                            <iframe 
-                                                src="https://player.vimeo.com/video/{{ videoId }}" 
-                                                title="Vimeo video player" 
-                                                frameborder="0" 
-                                                allow="autoplay; fullscreen; picture-in-picture" 
-                                                allowfullscreen>
-                                            </iframe>
-                                        </div>
-                                    {% else %}
-                                        <div class="alert alert-info">
-                                            <i class="fas fa-info-circle"></i> Video preview not available. Please check the URL format.
-                                        </div>
-                                        <div class="mb-2">
-                                            <a href="{{ partner.videoPath }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-external-link-alt"></i> Open video in new tab
-                                            </a>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                            {{ form_widget(form.videoPath, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(form.videoPath, {'attr': {'class': 'invalid-feedback'}}) }}
-                            <div class="form-text">Enter a YouTube or Vimeo URL (e.g., https://www.youtube.com/watch?v=VIDEO_ID)</div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ path('app_partner_index') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to list
-                        </a>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-save"></i> {{ button_label|default('Save') }}
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
                         </button>
                     </div>
                 {{ form_end(form) }}
