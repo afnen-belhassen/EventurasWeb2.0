@@ -32,6 +32,7 @@ class DashboardController extends AbstractController
         $commandes = $this->commandeRepository->createQueryBuilder('c')
             ->leftJoin('c.produit', 'p')
             ->addSelect('p')
+            ->orderBy('c.dateCommande', 'DESC')
             ->getQuery()
             ->getResult();
 

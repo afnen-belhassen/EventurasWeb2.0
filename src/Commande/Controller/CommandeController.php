@@ -55,7 +55,7 @@ class CommandeController extends AbstractController
                 $produit = $commande->getProduit();
                 if ($produit->getQuantite() < $commande->getQuantite()) {
                     $this->addFlash('error', 'La quantité demandée n\'est pas disponible en stock.');
-                    return $this->render('commande_form.html.twig', [
+                    return $this->render('commande/form.html.twig', [
                         'form' => $form->createView(),
                     ]);
                 }
@@ -75,7 +75,7 @@ class CommandeController extends AbstractController
                 ]);
 
                 $this->addFlash('success', 'Commande passée avec succès!');
-                return $this->redirectToRoute('app_boutique');
+                return $this->redirectToRoute('liste_commandes');
             } catch (\Exception $e) {
                 $this->logger->error('Erreur lors de la création de la commande', [
                     'error' => $e->getMessage(),
@@ -85,7 +85,7 @@ class CommandeController extends AbstractController
             }
         }
 
-        return $this->render('commande_form.html.twig', [
+        return $this->render('commande/form.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -100,7 +100,7 @@ class CommandeController extends AbstractController
             ->getQuery()
             ->getResult();
         
-        return $this->render('liste_commandes.html.twig', [
+        return $this->render('commande/liste.html.twig', [
             'commandes' => $commandes,
         ]);
     }
