@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 final class EventController extends AbstractController
 {
@@ -142,18 +143,41 @@ public function edit(Request $request, Event $event, EntityManagerInterface $ent
         }
 
         // Toggle the status
-        if ($event->getStatut() === 'en cours de traitement') {
-            $event->setStatut('accepté');
-        } else if ($event->getStatut() === 'accepté') {
-            $event->setStatut('en cours de traitement');
+        if ($event->getStatus() === 'En cours de traitement') {
+            $event->setStatus('Accepté');
+        } else if ($event->getStatus() === 'Accepté') {
+            $event->setStatus('En cours de traitement');
         }
 
         // Persist the changes
         $entityManager->flush();
 
         // Redirect or return a response
-        return $this->redirectToRoute('app_show_all_events');
+        return $this->redirectToRoute('app_show_all_eventsBack');
     }
+ 
+        #[Route('/event/get/{id}', name: 'app_event_get')]
+        public function getEventData(int $id, EntityManagerInterface $entityManager): JsonResponse
+        {
+            $event = $entityManager->getRepository(Event::class)->find($id);
+    
+            if (!$event) {
+                return $this->json(['error' => 'Event not found'], 404);
+            }
+            
+            return $this->json([
+                'id_event' => $event->getIdEvent(),
+                'title' => $event->getTitle(),
+                'description' => $event->getDescription(),
+                'date_event' => $event->getDateEvent()->format('Y-m-d H:i:s'),
+                'dateFinEve' => $event->getDateFinEve()->format('Y-m-d H:i:s'),
+                'location' => $event->getLocation(),
+                'activities' => $event->getActivities(),
+                'prix' => $event->getPrix(),
+                'nb_places' => $event->getNbPlaces(),
+                'status' => $event->getStatus(),
+            ]);
+        }
 
 
 }
