@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Post;
 use App\Entity\Comment;
 use App\Entity\Like;
+use App\Entity\BadWord;
 use App\Repository\LikeRepository;
 use App\Repository\PostRepository;
 use App\Repository\CommentRepository;
@@ -251,5 +252,73 @@ class ForumController extends AbstractController
             'liked' => $liked,
             'likeCount' => $likeCount,
         ]);
+    }
+
+    #[Route('/admin/forum', name: 'app_admin_forum')]
+    public function adminDashboard(
+        PostRepository $postRepository,
+        CommentRepository $commentRepository,
+        BadWordRepository $badWordRepository
+    ): Response {
+        // Vérification des droits (à adapter selon votre système d'authentification)
+        // if (!$this->isGranted('ROLE_ADMIN')) {
+        //     throw $this->createAccessDeniedException();
+        // }
+
+        return $this->render('forum/admin.html.twig', [
+            'stats' => [
+                'totalPosts' => $postRepository->count([]),
+                'totalComments' => $commentRepository->count([]),
+            ],
+            'badWords' => $badWordRepository->findAll(),
+            'allPosts' => $postRepository->findAll(),
+            'allComments' => $commentRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/admin/badword/add', name: 'app_admin_add_badword', methods: ['POST'])]
+    public function addBadWord(Request $request, EntityManagerInterface $em): Response
+    {
+        $word = $request->request->get('word');
+        
+        $badWord = new BadWord();
+        $badWord->setWord($word);
+        
+        $em->persist($badWord);
+        $em->flush();
+
+        return $this->redirectToRoute('app_admin_forum');
+    }
+
+    #[Route('/admin/badword/{id}/delete', name: 'app_admin_delete_badword', methods: ['POST'])]
+    public function deleteBadWord(BadWord $badWord, EntityManagerInterface $em): Response
+    {
+        $em->remove($badWord);
+        $em->flush();
+
+        return $this->redirectToRoute('app_admin_forum');
+    }
+
+    #[Route('/admin/post/{id}/delete', name: 'app_admin_delete_post', methods: ['POST'])]
+    public function adminDeletePost(Post $post, EntityManagerInterface $em): Response
+    {
+        // Suppression des commentaires associés
+        foreach ($post->getComments() as $comment) {
+            $em->remove($comment);
+        }
+        
+        $em->remove($post);
+        $em->flush();
+
+        return $this->redirectToRoute('app_admin_forum');
+    }
+
+    #[Route('/admin/comment/{id}/delete', name: 'app_admin_delete_comment', methods: ['POST'])]
+    public function adminDeleteComment(Comment $comment, EntityManagerInterface $em): Response
+    {
+        $em->remove($comment);
+        $em->flush();
+
+        return $this->redirectToRoute('app_admin_forum');
     }
 } 

@@ -20,4 +20,16 @@ class PostRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findAllWithComments()
+    {
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.comments', 'c')
+            ->addSelect('c')
+            ->orderBy('p.created_at', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+   
 } 
