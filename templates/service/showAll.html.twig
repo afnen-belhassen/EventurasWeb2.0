@@ -69,7 +69,7 @@
                                  <strong>Date:</strong> {{ event.date_event|date('d/m/Y H:i') }}<br>
                                 <strong>Price:</strong> {{ event.prix }} TND<br>
                                 <strong>Location:</strong> {{ event.location }}<br>
-                                <strong>Date Fin:</strong> {{ event.date_fin_eve|date('d/m/Y H:i') }}
+                                <strong>Date Fin:</strong> {{ event.dateFinEve|date('d/m/Y H:i') }}
                             </p>
                             <div class="d-flex justify-content-between">
                                 <button class="btn btn-warning" onclick="toggleForm('{{ event.id_event }}')">Modifier</button>
