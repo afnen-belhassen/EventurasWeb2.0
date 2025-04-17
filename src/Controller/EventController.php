@@ -31,6 +31,15 @@ final class EventController extends AbstractController
             'events' => $events,
         ]);
     }
+    #[Route('/homePart', name: 'app_home_part')]
+    public function indexPart(EntityManagerInterface $entityManager): Response
+    {
+        $events = $entityManager->getRepository(Event::class)->findAll();
+
+        return $this->render('service/indexPart.html.twig', [
+            'events' => $events,
+        ]);
+    }
 
 
     #[Route('/event/new', name: 'app_event_new')]
