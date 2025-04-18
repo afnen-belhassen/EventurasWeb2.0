@@ -1,0 +1,155 @@
+{% extends 'organizer/index.html.twig' %}
+
+{% block title %}Partners List{% endblock %}
+
+{% block body %}
+    {% block navbar %}
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_home') }}">
+                Eventura
+            </a>
+            <form class="search-form" action="/search" method="GET" style="
+                display: flex;
+                align-items: center;
+                background-color: #f8f6fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 50px;
+                padding: 8px 12px;
+                width: 600px;
+                margin: 20px auto;
+                box-sizing: border-box;
+            ">
+                <i class="fas fa-search" style="color: #55546d; margin: 0 10px;"></i>
+                <input 
+                    type="search" 
+                    name="query" 
+                    placeholder="Rechercher des partenaires" 
+                    style="
+                        border: none;
+                        outline: none;
+                        background: transparent;
+                        font-size: 16px;
+                        flex: 1;
+                        color: #55546d;
+                    " 
+                />
+                <div style="
+                    height: 10px;
+                    width: 1px;
+                    background-color: #ccc;
+                    margin: 0 15px;
+                "></div>
+                <div style="display: flex; align-items: center; color: #55546d; font-size: 16px;">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>
+                    <span>Tunis</span>
+                </div>
+                <button type="submit" style="
+                    background-color: #bd4c33;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: 10px;
+                    cursor: pointer;
+                ">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                    <!-- Add any additional navbar items here -->
+                </ul>
+
+                <div class="d-flex gap-2">
+                    {{ include('service/sidebar.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    {# Main Content #}
+    <main>
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="text-white text-center mb-4"><i class="fas fa-handshake me-2"></i>Nos Partenaires</h1>
+                </div>
+            </div>
+        </div>
+
+        <section class="about-section section-padding" id="section_2">
+            <div class="container">
+                <div class="row">
+                    {% for partner in partners %}
+                        <div class="col-lg-4 col-md-6 col-12 mb-4">
+                            <div class="card h-100 shadow-lg" style="background-color: #1a2035;">
+                                <div class="card-body">
+                                    <h5 class="card-title text-white mb-3">{{ partner.name }}</h5>
+                                    <p class="card-text text-white-50">{{ partner.description|slice(0, 100) }}...</p>
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <span class="badge bg-primary">{{ partner.type }}</span>
+                                        <a href="{{ path('app_organizer_show', {'id': partner.id}) }}" class="btn btn-outline-light btn-sm">
+                                            <i class="fas fa-eye me-1"></i> Voir
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <section class="hero-section" id="section_1">
+            <div class="section-overlay"></div>
+
+            <div class="container d-flex justify-content-center align-items-center">
+                <div class="row">
+                    <div class="col-12 mt-auto mb-5 text-center">
+                        <h1 class="text-white mb-5">Nos Partenaires</h1>
+                        <a class="btn custom-btn smoothscroll" href="#section_2">Voir les Partenaires</a>
+                    </div>
+
+                    <div class="col-lg-12 col-12 mt-auto d-flex flex-column flex-lg-row text-center">
+                        <div class="date-wrap">
+                            <h5 class="text-white">
+                                <i class="custom-icon bi-clock me-2"></i>
+                                {{ partners|length }} Partenaires
+                            </h5>
+                        </div>
+
+                        <div class="location-wrap mx-auto py-3 py-lg-0">
+                            <h5 class="text-white">
+                                <i class="custom-icon bi-geo-alt me-2"></i>
+                                Partenariats Actifs
+                            </h5>
+                        </div>
+
+                        <div class="social-share">
+                            <ul class="social-icon d-flex align-items-center justify-content-center">
+                                <span class="text-white me-3">Contact:</span>
+                                <li class="social-icon-item">
+                                    <a href="#" class="social-icon-link"><span class="bi-envelope"></span></a>
+                                </li>
+                                <li class="social-icon-item">
+                                    <a href="#" class="social-icon-link"><span class="bi-telephone"></span></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %} 

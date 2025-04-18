@@ -1,0 +1,151 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}View Contract - Partnership #{{ partnership.id }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="text-white"><i class="fas fa-file-contract me-2"></i>Partnership Contract</h1>
+            <p class="lead text-white">Partnership #{{ partnership.id }} with {{ partnership.partnerId.name }}</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ path('app_organizer_index') }}" class="btn btn-light">
+                <i class="fas fa-arrow-left"></i> Back to Partners
+            </a>
+        </div>
+    </div>
+    
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    
+    {% for message in app.flashes('warning') %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    
+    {% for message in app.flashes('info') %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card bg-primary text-white shadow-lg mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="fas fa-file-pdf me-2"></i>Contract Preview</h5>
+                    <div>
+                        <a href="{{ asset(contractPath) }}" class="btn btn-sm btn-light" target="_blank">
+                            <i class="fas fa-download"></i> Download PDF
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if contractPath is defined and contractPath is not empty %}
+                        <div class="ratio ratio-16x9">
+                            <iframe src="{{ asset(contractPath) }}" width="100%" height="600px" frameborder="0"></iframe>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning m-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Contract file not found or not accessible.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-primary text-white shadow-lg mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>Partnership Details</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm text-white">
+                        <tbody>
+                            <tr>
+                                <th>Partner:</th>
+                                <td>{{ partnership.partnerId.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Contract Type:</th>
+                                <td>{{ partnership.contracttype }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td>
+                                    {% if partnership.isSigned %}
+                                        <span class="badge bg-success">Signed</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Pending Signature</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>ID:</th>
+                                <td>{{ partnership.id }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card bg-primary text-white shadow-lg">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-tasks me-2"></i>Next Steps</h5>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li class="mb-2">Review all terms and conditions</li>
+                        <li class="mb-2">Sign the contract using one of the options below</li>
+                        <li class="mb-2">Share with the partner for their signature</li>
+                        <li>Complete the partnership process</li>
+                    </ol>
+                    
+                    <hr class="border-light">
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        {% if not partnership.isSigned %}
+                            <div class="alert alert-info">
+                                <h4 class="alert-heading">Contract Not Signed</h4>
+                                <p>This contract has not been signed yet. Please follow these steps:</p>
+                                <ol>
+                                    <li>Review the contract terms carefully</li>
+                                    <li>Click the "Sign Contract" button below to open the signature pad</li>
+                                    <li>Sign the document using the signature pad</li>
+                                    <li>Save and submit the signed document</li>
+                                </ol>
+                                <hr>
+                                <p class="mb-0">
+                                    <a href="{{ path('signature_pad', {'id': partnership.id}) }}" class="btn btn-primary">
+                                        <i class="fas fa-signature"></i> Sign Contract
+                                    </a>
+                                </p>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <h4 class="alert-heading">Contract Signed</h4>
+                                <p>This contract has been signed and verified.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

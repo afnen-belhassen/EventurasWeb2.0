@@ -1,0 +1,60 @@
+{% extends 'back/basePartner.html.twig' %}
+
+{% block title %}Partnerships{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Partnerships</h1>
+            <a href="{{ path('app_organizer_create_partnership') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create New Partnership
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Partner</th>
+                                <th>Event</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for partnership in partnerships %}
+                                <tr>
+                                    <td>{{ partnership.partner.name }}</td>
+                                    <td>{{ partnership.event.name }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ partnership.status == 'pending' ? 'warning' : (partnership.status == 'active' ? 'success' : 'danger') }}">
+                                            {{ partnership.status|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>{{ partnership.createdAt|date('Y-m-d H:i') }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('app_organizer_view_contract', {'id': partnership.id}) }}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-file-contract"></i> View Contract
+                                            </a>
+                                            <a href="{{ path('app_organizer_generate_partnership', {'id': partnership.partner.id}) }}" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No partnerships found</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

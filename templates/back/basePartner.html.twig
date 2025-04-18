@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>{% block title %}Eventuras Admin{% endblock %}</title>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+    <link rel="icon" href="{{asset('images/img/kaiadmin/favicon.ico')}}" type="image/x-icon" />
+
+    <!-- Fonts and icons -->
+    <script src="{{asset('js/plugin/webfont/webfont.min.js')}}"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["{{asset('css/fonts.min.css')}}"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    {% block css %}
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{asset('css/bootstrap.min.css')}}" />
+    <link rel="stylesheet" href="{{asset('css/plugins.min.css')}}" />
+    <link rel="stylesheet" href="{{asset('css/kaiadmin.min.css')}}" />
+    <link rel="stylesheet" href="{{asset('css/demo.css')}}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;400;700&display=swap" rel="stylesheet">
+    <link href="{{asset('css/bootstrap-icons.css')}}" rel="stylesheet">
+    <link href="{{asset('css/templatemo-festava-live.css')}}" rel="stylesheet">
+    <style>
+      :root {
+        --primary-color: #1a2035;
+        --secondary-color: #2c2e33;
+        --accent-color: #00d2ff;
+        --text-color: #ffffff;
+        --sidebar-bg: #1a2035;
+        --navbar-bg: #ffffff;
+        --card-bg: #ffffff;
+        --border-color: #e9ecef;
+      }
+      
+      body {
+        background-color: #f4f6f9;
+        color: #333;
+      }
+      
+      .sidebar {
+        background-color: var(--sidebar-bg);
+      }
+      
+      .sidebar .nav-secondary > li > a {
+        color: var(--text-color);
+      }
+      
+      .sidebar .nav-secondary > li.active > a {
+        background-color: var(--accent-color);
+      }
+      
+      .navbar {
+        background-color: var(--navbar-bg) !important;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+      
+      .card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      }
+      
+      .table {
+        background-color: var(--card-bg);
+      }
+      
+      .table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid var(--border-color);
+      }
+      
+      .btn-primary {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+      }
+      
+      .btn-primary:hover {
+        background-color: #00b8e6;
+        border-color: #00b8e6;
+      }
+    </style>
+    {% endblock %}
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a href="{{ path('app_home') }}" class="logo">
+              <img src="{{ asset('images/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+          <div class="sidebar-content">
+            <ul class="nav nav-secondary">
+              <li class="nav-item active">
+                <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+                  <i class="fas fa-home"></i>
+                  <p>Dashboard</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="dashboard">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ path('app_home_back') }}">
+                        <span class="sub-item">Dashboard</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-section">
+                <span class="sidebar-mini-icon">
+                  <i class="fa fa-ellipsis-h"></i>
+                </span>
+                <h4 class="text-section">Components</h4>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#relations-externes">
+                  <i class="fas fa-globe"></i>
+                  <p>Relations externes</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="relations-externes">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ path('app_partner_index') }}">
+                        <span class="sub-item">Partenaires</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ path('app_partnership_index') }}">
+                        <span class="sub-item">Partenariats</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#base">
+                  <i class="fas fa-layer-group"></i>
+                  <p>Administration des comptes</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="base">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ path('app_partner_index') }}">
+                        <span class="sub-item">Utilisateurs</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ path('app_partner_index') }}">
+                        <span class="sub-item">Roles</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item active submenu">
+                <a data-bs-toggle="collapse" href="#sidebarLayouts">
+                  <i class="fas fa-th-list"></i>
+                  <p>Centre événementiel</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse show" id="sidebarLayouts">
+                  <ul class="nav nav-collapse">
+                    <li class="active">
+                      <a href="{{ path('app_show_all_eventsBack') }}">
+                        <span class="sub-item">Événements</span>
+                      </a>
+                    </li>
+                    <li class="active">
+                      <a href="{{ path('app_category_index') }}">
+                        <span class="sub-item">Catégories</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <!-- Add other menu items as needed -->
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- End Sidebar -->
+
+      <div class="main-panel">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light">
+          <div class="container-fluid">
+            <div class="navbar-nav">
+              <a class="nav-link" href="{{ path('app_home') }}">
+                <i class="fas fa-home"></i> Accueil
+              </a>
+            </div>
+            <div class="navbar-nav ms-auto">
+              <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-user"></i> Mon compte
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog"></i> Profil</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Paramètres</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </nav>
+        <!-- End Navbar -->
+
+        <div class="content">
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+
+    {% block javascripts %}
+    <!-- Core JS Files -->
+    <script src="{{asset('js/core/jquery.3.2.1.min.js')}}"></script>
+    <script src="{{asset('js/core/bootstrap.min.js')}}"></script>
+    <script src="{{asset('js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js')}}"></script>
+    <script src="{{asset('js/plugin/jquery-scrollbar/jquery.scrollbar.min.js')}}"></script>
+    <script src="{{asset('js/kaiadmin.min.js')}}"></script>
+    {% endblock %}
+  </body>
+</html> 

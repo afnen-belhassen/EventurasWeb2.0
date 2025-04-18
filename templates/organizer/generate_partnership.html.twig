@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Generate Partnership{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-primary text-white shadow-lg">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-file-contract me-2"></i>Generate Partnership with {{ partner.name }}
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation">
+                        <div class="mb-4">
+                            <label for="email" class="form-label text-light">Contact Email</label>
+                            <input type="email" id="email" name="email" class="form-control">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="phone" class="form-label text-light">Contact Phone</label>
+                            <input type="text" id="phone" name="phone" class="form-control">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="address" class="form-label text-light">Address</label>
+                            <input type="text" id="address" name="address" class="form-control">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-light">
+                                <i class="fas fa-save me-2"></i>Generate Partnership
+                            </button>
+                            <a href="{{ path('app_organizer_partners') }}" class="btn btn-warning">
+                                <i class="fas fa-arrow-left me-2"></i>Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

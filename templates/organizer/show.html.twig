@@ -1,0 +1,275 @@
+{% extends 'organizer/index.html.twig' %}
+
+{% block title %}Partner Details - {{ partner.name }}{% endblock %}
+
+{% block body %}
+    {% block navbar %}
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_home') }}">
+                Eventura
+            </a>
+            <form class="search-form" action="/search" method="GET" style="
+                display: flex;
+                align-items: center;
+                background-color: #f8f6fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 50px;
+                padding: 8px 12px;
+                width: 600px;
+                margin: 20px auto;
+                box-sizing: border-box;
+            ">
+                <i class="fas fa-search" style="color: #55546d; margin: 0 10px;"></i>
+                <input 
+                    type="search" 
+                    name="query" 
+                    placeholder="Rechercher des partenaires" 
+                    style="
+                        border: none;
+                        outline: none;
+                        background: transparent;
+                        font-size: 16px;
+                        flex: 1;
+                        color: #55546d;
+                    " 
+                />
+                <div style="
+                    height: 10px;
+                    width: 1px;
+                    background-color: #ccc;
+                    margin: 0 15px;
+                "></div>
+                <div style="display: flex; align-items: center; color: #55546d; font-size: 16px;">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>
+                    <span>Tunis</span>
+                </div>
+                <button type="submit" style="
+                    background-color: #bd4c33;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: 10px;
+                    cursor: pointer;
+                ">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                    <!-- Add any additional navbar items here -->
+                </ul>
+
+                <div class="d-flex gap-2">
+                    {{ include('service/sidebar.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    {# Main Content #}
+    <main>
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="text-white text-center mb-4"><i class="fas fa-handshake me-2"></i>Détails du Partenaire</h1>
+                </div>
+            </div>
+        </div>
+
+        <section class="about-section section-padding" id="section_2">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="card shadow-lg" style="background-color: #1a2035;">
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead style="background-color: #2c2e33;">
+                                            <tr>
+                                                <th class="text-white">Information</th>
+                                                <th class="text-white">Détails</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="color: #ffffff;">
+                                                <td>Image</td>
+                                                <td>
+                                                    {% if partner.imagePath %}
+                                                        <div class="text-center">
+                                                            <img src="{{ asset('uploads/partners/' ~ partner.imagePath) }}" 
+                                                                 alt="{{ partner.name }}" 
+                                                                 class="img-fluid rounded shadow" 
+                                                                 style="max-width: 300px; height: auto;">
+                                                        </div>
+                                                    {% else %}
+                                                        <i class="fas fa-image me-2"></i>Aucune image disponible
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            <tr style="color: #ffffff;">
+                                                <td>Vidéo</td>
+                                                <td>
+                                                    {% if partner.videoPath %}
+                                                        {% if 'youtube.com' in partner.videoPath or 'youtu.be' in partner.videoPath %}
+                                                            {% set videoId = partner.videoPath|replace({'https://www.youtube.com/watch?v=': '', 'https://youtu.be/': ''}) %}
+                                                            <div class="ratio ratio-16x9">
+                                                                <iframe 
+                                                                    src="https://www.youtube.com/embed/{{ videoId }}" 
+                                                                    title="YouTube video player" 
+                                                                    frameborder="0" 
+                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                                    allowfullscreen>
+                                                                </iframe>
+                                                            </div>
+                                                        {% elseif 'vimeo.com' in partner.videoPath %}
+                                                            {% set videoId = partner.videoPath|replace({'https://vimeo.com/': ''}) %}
+                                                            <div class="ratio ratio-16x9">
+                                                                <iframe 
+                                                                    src="https://player.vimeo.com/video/{{ videoId }}" 
+                                                                    title="Vimeo video player" 
+                                                                    frameborder="0" 
+                                                                    allow="autoplay; fullscreen; picture-in-picture" 
+                                                                    allowfullscreen>
+                                                                </iframe>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="alert alert-info">
+                                                                <i class="fas fa-info-circle"></i> Aperçu de la vidéo non disponible. Veuillez vérifier le format de l'URL.
+                                                            </div>
+                                                            <div class="mb-2">
+                                                                <a href="{{ partner.videoPath }}" target="_blank" class="btn btn-outline-light">
+                                                                    <i class="fas fa-external-link-alt"></i> Ouvrir la vidéo dans un nouvel onglet
+                                                                </a>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <i class="fas fa-video me-2"></i>Aucune vidéo disponible
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            <tr style="color: #ffffff;">
+                                                <td>Description</td>
+                                                <td>{{ partner.description }}</td>
+                                            </tr>
+                                            <tr style="color: #ffffff;">
+                                                <td>Email</td>
+                                                <td>
+                                                    <a href="mailto:{{ partner.email }}" class="text-white">
+                                                        <i class="fas fa-envelope me-2"></i>{{ partner.email }}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr style="color: #ffffff;">
+                                                <td>Téléphone</td>
+                                                <td>
+                                                    <a href="tel:{{ partner.phone }}" class="text-white">
+                                                        <i class="fas fa-phone me-2"></i>{{ partner.phone }}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr style="color: #ffffff;">
+                                                <td>Adresse</td>
+                                                <td>
+                                                    <i class="fas fa-map-marker-alt me-2"></i>{{ partner.address }}
+                                                </td>
+                                            </tr>
+                                            <tr style="color: #ffffff;">
+                                                <td>Date de création</td>
+                                                <td>
+                                                    <i class="fas fa-calendar-alt me-2"></i>{{ partner.createdAt|date('Y-m-d H:i:s') }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-lg mt-4" style="background-color: #1a2035;">
+                            <div class="card-header" style="background-color: #2c2e33; border-bottom: 1px solid #e9ecef;">
+                                <h2 class="mb-0 text-white text-center"><i class="fas fa-handshake me-2"></i>Partenariats</h2>
+                            </div>
+                            <div class="card-body p-0">
+                                {% if partner.partnerships|length > 0 %}
+                                    <div class="list-group">
+                                        {% for partnership in partner.partnerships %}
+                                            <a href="{{ path('app_organizer_view_contract', {'id': partnership.id}) }}" class="list-group-item list-group-item-action" style="background-color: #1a2035; color: white; border-color: #2c2e33;">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <h6 class="mb-1">{{ partnership.contracttype }}</h6>
+                                                        <small>{{ partnership.description|slice(0, 50) }}...</small>
+                                                    </div>
+                                                    <span class="badge bg-{{ partnership.isSigned ? 'success' : 'warning' }}">
+                                                        {{ partnership.isSigned ? 'Signé' : 'En attente' }}
+                                                    </span>
+                                                </div>
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-4 text-white">
+                                        <i class="fas fa-handshake fa-3x mb-3"></i>
+                                        <p class="mb-0">Aucun partenariat trouvé</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="hero-section" id="section_1">
+            <div class="section-overlay"></div>
+
+            <div class="container d-flex justify-content-center align-items-center">
+                <div class="row">
+                    <div class="col-12 mt-auto mb-5 text-center">
+                        <h1 class="text-white mb-5">{{ partner.name }}</h1>
+                        <a class="btn custom-btn smoothscroll" href="#section_2">Voir les Détails</a>
+                    </div>
+
+                    <div class="col-lg-12 col-12 mt-auto d-flex flex-column flex-lg-row text-center">
+                        <div class="date-wrap">
+                            <h5 class="text-white">
+                                <i class="custom-icon bi-clock me-2"></i>
+                                {{ partner.type }}
+                            </h5>
+                        </div>
+
+                        <div class="location-wrap mx-auto py-3 py-lg-0">
+                            <h5 class="text-white">
+                                <i class="custom-icon bi-geo-alt me-2"></i>
+                                {{ partner.website ?? 'Pas de site web' }}
+                            </h5>
+                        </div>
+
+                        <div class="social-share">
+                            <ul class="social-icon d-flex align-items-center justify-content-center">
+                                <span class="text-white me-3">Contact:</span>
+                                <li class="social-icon-item">
+                                    <a href="mailto:{{ partner.email }}" class="social-icon-link"><span class="bi-envelope"></span></a>
+                                </li>
+                                <li class="social-icon-item">
+                                    <a href="tel:{{ partner.phone }}" class="social-icon-link"><span class="bi-telephone"></span></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %} 
