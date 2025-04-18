@@ -37,14 +37,14 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                {{ form_label(form.imageFile, 'Image', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_label(form.imagePath, 'Image', {'label_attr': {'class': 'form-label'}}) }}
                                 {% if partner.imagePath %}
                                     <div class="mb-2">
                                         <img src="{{ asset('uploads/partners/' ~ partner.imagePath) }}" alt="Current image" class="img-thumbnail" style="max-width: 200px;">
                                     </div>
                                 {% endif %}
-                                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(form.imageFile) }}
+                                {{ form_widget(form.imagePath, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.imagePath) }}
                             </div>
                         </div>
                     </div>

@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 
 #[Route('/organizer')]
 class OrganizerController extends AbstractController
@@ -66,13 +68,10 @@ class OrganizerController extends AbstractController
         $partnership->setStatus('pending');
         $partnership->setCreatedAt(new \DateTime());
         
-        if ($request->isMethod('POST')) {
-            $contractType = $request->request->get('contracttype');
-            $description = $request->request->get('description');
-            
-            $partnership->setContracttype($contractType);
-            $partnership->setDescription($description);
-            
+        $form = $this->createForm(PartnershipType::class, $partnership);
+        $form->handleRequest($request);
+        
+        if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($partnership);
             $entityManager->flush();
             
@@ -89,6 +88,7 @@ class OrganizerController extends AbstractController
         return $this->render('organizer/create_partnership.html.twig', [
             'partner' => $partner,
             'partnership' => $partnership,
+            'form' => $form->createView(),
         ]);
     }
     
@@ -264,6 +264,63 @@ class OrganizerController extends AbstractController
         
         return $this->render('organizer/partnerships.html.twig', [
             'partnerships' => $partnershipRepository->findAll(),
+        ]);
+    }
+    
+    #[Route('/partnership/{id}/sign', name: 'app_organizer_sign_contract', methods: ['GET'])]
+    public function signContract(Partnership $partnership): Response
+    {
+        // Find the original contract file
+        $contractsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/organizer/contracts/';
+        $files = glob($contractsDir . 'contract_' . $partnership->getId() . '_*.pdf');
+        
+        if (empty($files)) {
+            $this->addFlash('error', 'Contract file not found.');
+            return $this->redirectToRoute('contract_management', ['id' => $partnership->getId()]);
+        }
+        
+        $contractFilename = basename($files[0]);
+        
+        return $this->render('organizer/sign_online.html.twig', [
+            'partnership' => $partnership,
+            'contractFilename' => $contractFilename,
+        ]);
+    }
+
+    #[Route('/partnership/{id}/upload-signed-contract', name: 'app_organizer_upload_signed_contract')]
+    public function uploadSignedContract(Request $request, Partnership $partnership, SignatureVerificationService $signatureVerificationService): Response
+    {
+        $form = $this->createForm(SignedContractType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $file = $form->get('signedContract')->getData();
+            
+            try {
+                // Verify the signature
+                if ($signatureVerificationService->verifySignature($file->getPathname())) {
+                    // Save the signed contract
+                    $filename = $signatureVerificationService->saveContract($file, $partnership->getId());
+                    $partnership->setSignedContractFile($filename);
+                    $partnership->setStatus('signed');
+                    $partnership->setIsSigned(true);
+                    $partnership->setSignedAt(new \DateTime());
+                    $this->entityManager->flush();
+
+                    $this->addFlash('success', 'Le contrat signé a été téléversé avec succès et vérifié. Le statut du partenariat a été mis à jour.');
+                    return $this->redirectToRoute('contract_management', ['id' => $partnership->getId()]);
+                } else {
+                    $this->addFlash('error', 'Le fichier du contrat n\'est pas valide ou n\'est pas correctement signé. Veuillez téléverser un PDF valide avec une signature.');
+                }
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors du téléversement du contrat: ' . $e->getMessage());
+            }
+        }
+
+        // Afficher la page dédiée au téléchargement et à la vérification
+        return $this->render('organizer/upload_signed_contract.html.twig', [
+            'partnership' => $partnership,
+            'form' => $form->createView(),
         ]);
     }
 } 

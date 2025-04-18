@@ -38,6 +38,65 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;400;700&display=swap" rel="stylesheet">
     <link href="{{asset('css/bootstrap-icons.css')}}" rel="stylesheet">
     <link href="{{asset('css/templatemo-festava-live.css')}}" rel="stylesheet">
+    <style>
+      :root {
+        --primary-color: #1a2035;
+        --secondary-color: #2c2e33;
+        --accent-color: #00d2ff;
+        --text-color: #ffffff;
+        --sidebar-bg: #1a2035;
+        --navbar-bg: #ffffff;
+        --card-bg: #ffffff;
+        --border-color: #e9ecef;
+      }
+      
+      body {
+        background-color: #f4f6f9;
+        color: #333;
+      }
+      
+      .sidebar {
+        background-color: var(--sidebar-bg);
+      }
+      
+      .sidebar .nav-secondary > li > a {
+        color: var(--text-color);
+      }
+      
+      .sidebar .nav-secondary > li.active > a {
+        background-color: var(--accent-color);
+      }
+      
+      .navbar {
+        background-color: var(--navbar-bg) !important;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+      
+      .card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      }
+      
+      .table {
+        background-color: var(--card-bg);
+      }
+      
+      .table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid var(--border-color);
+      }
+      
+      .btn-primary {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+      }
+      
+      .btn-primary:hover {
+        background-color: #00b8e6;
+        border-color: #00b8e6;
+      }
+    </style>
     {% endblock %}
   </head>
   <body>
@@ -76,7 +135,7 @@
                 <div class="collapse" id="dashboard">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="{{ path('app_home') }}">
+                      <a href="{{ path('app_home_back') }}">
                         <span class="sub-item">Dashboard</span>
                       </a>
                     </li>
@@ -160,6 +219,31 @@
       <!-- End Sidebar -->
 
       <div class="main-panel">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light">
+          <div class="container-fluid">
+            <div class="navbar-nav">
+              <a class="nav-link" href="{{ path('app_home') }}">
+                <i class="fas fa-home"></i> Accueil
+              </a>
+            </div>
+            <div class="navbar-nav ms-auto">
+              <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-user"></i> Mon compte
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog"></i> Profil</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Paramètres</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </nav>
+        <!-- End Navbar -->
+
         <div class="content">
           {% block content %}{% endblock %}
         </div>

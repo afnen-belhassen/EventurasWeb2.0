@@ -14,21 +14,21 @@ class SignedContractType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('contractFile', FileType::class, [
-                'label' => 'Upload Signed Contract (PDF)',
+            ->add('signedContract', FileType::class, [
+                'label' => 'Téléverser le contrat signé (PDF)',
                 'mapped' => false,
                 'required' => true,
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'Please select a PDF file to upload',
+                        'message' => 'Veuillez sélectionner un fichier PDF à téléverser',
                     ]),
                     new File([
                         'maxSize' => '10M',
                         'mimeTypes' => [
                             'application/pdf',
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file',
-                        'maxSizeMessage' => 'The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.',
+                        'mimeTypesMessage' => 'Veuillez téléverser un fichier PDF valide',
+                        'maxSizeMessage' => 'Le fichier est trop volumineux ({{ size }} {{ suffix }}). La taille maximale autorisée est de {{ limit }} {{ suffix }}.',
                     ])
                 ],
                 'attr' => [
@@ -36,9 +36,9 @@ class SignedContractType extends AbstractType
                     'accept' => 'application/pdf',
                     'data-bs-toggle' => 'tooltip',
                     'data-bs-placement' => 'top',
-                    'title' => 'Select a PDF file containing the signed contract (max 10MB)'
+                    'title' => 'Sélectionnez un fichier PDF contenant le contrat signé (max 10MB)'
                 ],
-                'help' => 'Upload a PDF file containing the signed contract. Maximum file size: 10MB.'
+                'help' => 'Téléversez un fichier PDF contenant le contrat signé. Notre système vérifiera automatiquement la signature. Taille maximale : 10MB.'
             ])
         ;
     }

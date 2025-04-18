@@ -37,6 +37,18 @@
         {{ form_errors(form.description, {'attr': {'class': 'invalid-feedback'}}) }}
     </div>
 
+    <div class="mb-3">
+        {{ form_label(form.imagePath, 'Partner Image', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.imagePath, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.imagePath, {'attr': {'class': 'invalid-feedback'}}) }}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.videoPath, 'Video URL', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.videoPath, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.videoPath, {'attr': {'class': 'invalid-feedback'}}) }}
+    </div>
+
     <div class="d-flex justify-content-between">
         <a href="{{ path('app_partner_index') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Back to list

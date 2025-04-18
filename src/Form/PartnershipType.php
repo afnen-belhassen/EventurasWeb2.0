@@ -3,9 +3,11 @@
 namespace App\Form;
 
 use App\Entity\Partnership;
+use App\Entity\Partner;
+use App\Enum\ContractType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -15,24 +17,33 @@ class PartnershipType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('contracttype', TextType::class, [
-                'label' => 'Contract Type',
-                'attr' => ['class' => 'form-control'],
+            ->add('partnerId', EntityType::class, [
+                'class' => Partner::class,
+                'choice_label' => 'name',
+                'label' => 'Partenaire',
                 'required' => true,
+                'attr' => ['class' => 'form-control bg-dark text-white border-secondary']
+            ])
+            ->add('contracttype', ChoiceType::class, [
+                'label' => 'Type de Contrat',
+                'required' => true,
+                'choices' => ContractType::getChoices(),
+                'attr' => ['class' => 'form-control bg-dark text-white border-secondary']
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
-                'attr' => ['class' => 'form-control', 'rows' => 5],
                 'required' => true,
+                'attr' => ['class' => 'form-control bg-dark text-white border-secondary', 'rows' => 5]
             ])
             ->add('status', ChoiceType::class, [
-                'label' => 'Status',
                 'choices' => [
-                    'Pending' => 'pending',
-                    'Signed' => 'signed',
+                    'En attente' => 'pending',
+                    'Actif' => 'active',
+                    'Inactif' => 'inactive'
                 ],
-                'attr' => ['class' => 'form-control'],
+                'label' => 'Statut',
                 'required' => true,
+                'attr' => ['class' => 'form-control bg-dark text-white border-secondary']
             ])
         ;
     }
