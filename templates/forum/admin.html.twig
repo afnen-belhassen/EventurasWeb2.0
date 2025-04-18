@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Kaiadmin - Forum Admin</title>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+    <link rel="icon" href="{{ asset('images/img/kaiadmin/favicon.ico') }}" type="image/x-icon" />
+
+    <!-- Fonts and icons -->
+    <script src="{{ asset('js/plugin/webfont/webfont.min.js') }}"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["{{ asset('css/fonts.min.css') }}"],
+        },
+        active: function () { sessionStorage.fonts = true; },
+      });
+    </script>
+    {% block css %}
+      <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+      <link rel="stylesheet" href="{{ asset('css/plugins.min.css') }}" />
+      <link rel="stylesheet" href="{{ asset('css/kaiadmin.min.css') }}" />
+      <link rel="stylesheet" href="{{ asset('css/demo.css') }}" />
+    {% endblock %}
+  </head>
+
+  <body>
+    {% block body %}
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a href="index.html" class="logo">
+              <img
+                src="{{ asset('images/img/kaiadmin/logo_light.svg') }}"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="20"
+              />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+          <div class="sidebar-content">
+            <ul class="nav nav-secondary">
+              <li class="nav-item active">
+                <a
+                  data-bs-toggle="collapse"
+                  href="#dashboard"
+                  class="collapsed"
+                  aria-expanded="false"
+                >
+                  <i class="fas fa-home"></i>
+                  <p>Dashboard</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="dashboard">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="../demo1/index.html">
+                        <span class="sub-item">Dashboard 1</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-section">
+                <span class="sidebar-mini-icon">
+                  <i class="fa fa-ellipsis-h"></i>
+                </span>
+                <h4 class="text-section">Components</h4>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#base">
+                  <i class="fas fa-layer-group"></i>
+                  <p>Administration des comptes</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="base">
+                  <ul class="nav nav-collapse">
+                  <li>
+                      <a href="components/avatars.html">
+                        <span class="sub-item">Utilisateurs</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="components/avatars.html">
+                        <span class="sub-item">Roles</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item active submenu">
+                <a data-bs-toggle="collapse" href="#sidebarLayouts">
+                  <i class="fas fa-th-list"></i>
+                  <p>Centre événementiel</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse show" id="sidebarLayouts">
+                  <ul class="nav nav-collapse">
+                  <li class="active">
+                      <a href="{{ path('app_show_all_eventsBack') }}">
+                        <span class="sub-item">Événements</span>
+                      </a>
+                    </li>
+                    <li class="active">
+                      <a href="sidebar-style-2.html">
+                        <span class="sub-item">Catégories</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#forms">
+                  <i class="fas fa-pen-square"></i>
+                  <p>Relations externes</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="forms">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="forms/forms.html">
+                        <span class="sub-item">Partenaires</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="forms/forms.html">
+                        <span class="sub-item">Partenariats</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#tables">
+                  <i class="fas fa-table"></i>
+                  <p>Boutique</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="tables">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="tables/tables.html">
+                        <span class="sub-item">Produits</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="tables/tables.html">
+                        <span class="sub-item">Commandes</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#maps">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <p>Espace communautaire</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="maps">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="admin/forum">
+                        <span class="sub-item">Publications</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              
+              <li class="nav-item">
+                <a href="widgets.html">
+                  <i class="fas fa-desktop"></i>
+                  <p>Support client</p>
+                  <span class="badge badge-success">4</span>
+                  <li>
+                      <a href="maps/googlemaps.html">
+                        <span class="sub-item">Réclamations</span>
+                      </a>
+                    </li>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#charts">
+                  <i class="far fa-chart-bar"></i>
+                  <p>Charts</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="charts">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="charts/charts.html">
+                        <span class="sub-item">Chart Js</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="charts/sparkline.html">
+                        <span class="sub-item">Sparkline</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- End Sidebar -->
+
+      <div class="main-panel">
+        <div class="main-header">
+          <!-- Navbar Header -->
+          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+            <div class="container-fluid">
+              <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+                <div class="input-group">
+                  <button type="submit" class="btn btn-search pe-1"><i class="fa fa-search search-icon"></i></button>
+                  <input type="text" placeholder="Search ..." class="form-control">
+                </div>
+              </nav>
+              <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+                <!-- Topbar icons & user menu -->
+              </ul>
+            </div>
+          </nav>
+        </div>
+
+        <div class="container">
+          <div class="page-inner">
+            <!-- Forum Admin Header -->
+            <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+              <div>
+                <h3 class="fw-bold mb-3">Administration du Forum</h3>
+                <h6 class="op-7 mb-2">Gestion des publications, commentaires et mots interdits</h6>
+              </div>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="row">
+              <div class="col-sm-6 col-md-3">
+                <div class="card card-stats card-round">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-icon">
+                        <div class="icon-big text-center icon-primary bubble-shadow-small"><i class="fas fa-comments"></i></div>
+                      </div>
+                      <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers"><p class="card-category">Publications</p><h4 class="card-title">{{ stats.totalPosts }}</h4></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <div class="card card-stats card-round">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-icon">
+                        <div class="icon-big text-center icon-success bubble-shadow-small"><i class="fas fa-comment-dots"></i></div>
+                      </div>
+                      <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers"><p class="card-category">Commentaires</p><h4 class="card-title">{{ stats.totalComments }}</h4></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <div class="card card-stats card-round">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-icon">
+                        <div class="icon-big text-center icon-danger bubble-shadow-small"><i class="fas fa-ban"></i></div>
+                      </div>
+                      <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers"><p class="card-category">Mots interdits</p><h4 class="card-title">{{ badWords|length }}</h4></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gestion des Mots Interdits -->
+            <div class="card card-round">
+              <div class="card-header"><div class="card-head-row"><h4 class="card-title">Gestion des Mots Interdits</h4>
+                <div class="card-tools">
+                  <form action="{{ path('app_admin_add_badword') }}" method="POST" class="d-flex gap-2">
+                    <input type="text" name="word" class="form-control form-control-sm" placeholder="Ajouter un mot" required>
+                    <button type="submit" class="btn btn-success btn-sm">Ajouter</button>
+                  </form>
+                </div>
+              </div></div>
+              <div class="card-body"><div class="row">
+                {% for badWord in badWords %}
+                  <div class="col-md-3 mb-2">
+                    <div class="card card-secondary">
+                      <div class="card-body py-2 d-flex justify-content-between align-items-center">
+                        {{ badWord.word }}
+                        <form action="{{ path('app_admin_delete_badword', {id: badWord.id}) }}" method="POST">
+                          <button type="submit" class="btn btn-danger btn-link btn-sm"><i class="fas fa-times"></i></button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div></div>
+
+            <!-- Liste des Publications -->
+            <div class="card card-round mt-4"><div class="card-header"><div class="card-head-row"><h4 class="card-title">Dernières Publications</h4></div></div>
+              <div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0">
+                <thead><tr><th>Auteur</th><th>Contenu</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+                  {% for post in allPosts %}
+                    <tr>
+                      <td>Utilisateur #{{ post.userId }}</td>
+                      <td>{{ post.content|slice(0,50) }}...</td>
+                      <td>{{ post.CreatedAt|date('d/m/Y H:i') }}</td>
+                      <td><form action="{{ path('app_admin_delete_post', {id: post.id}) }}" method="POST"><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></form></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table></div></div></div>
+
+            <!-- Liste des Commentaires -->
+            <div class="card card-round mt-4"><div class="card-header"><div class="card-head-row"><h4 class="card-title">Derniers Commentaires</h4></div></div>
+              <div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0">
+                <thead><tr><th>Auteur</th><th>Contenu</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+                  {% for comment in allComments %}
+                    <tr>
+                      <td>Utilisateur #{{ comment.userId }}</td>
+                      <td>{{ comment.content|slice(0,50) }}...</td>
+                      <td>{{ comment.CreatedAt|date('d/m/Y H:i') }}</td>
+                      <td><form action="{{ path('app_admin_delete_comment', {id: comment.id}) }}" method="POST"><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></form></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table></div></div></div>
+
+          </div>
+        </div>
+
+        <footer class="footer">
+          <div class="container-fluid d-flex justify-content-between">
+            <nav class="pull-left">
+              <ul class="nav"><li class="nav-item"><a class="nav-link" href="http://www.themekita.com">ThemeKita</a></li><li class="nav-item"><a class="nav-link" href="#">Help</a></li><li class="nav-item"><a class="nav-link" href="#">Licenses</a></li></ul>
+            </nav>
+            <div class="copyright">2024, made with <i class="fa fa-heart heart text-danger"></i> by <a href="http://www.themekita.com">ThemeKita</a></div>
+            <div>Distributed by <a target="_blank" href="https://themewagon.com/">ThemeWagon</a>.</div>
+          </div>
+        </footer>
+
+        <!-- Custom template | don't include it in your project! -->
+        <div class="custom-template"> ... </div>
+      </div>
+    </div>
+    {% endblock %}
+
+    {% block js %}
+      <script src="{{ asset('js/core/jquery-3.7.1.min.js') }}"></script>
+      <script src="{{ asset('js/core/popper.min.js') }}"></script>
+      <script src="{{ asset('js/core/bootstrap.min.js') }}"></script>
+      <script src="{{ asset('js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
+      <script src="{{ asset('js/plugin/chart.js/chart.min.js') }}"></script>
+      <script src="{{ asset('js/plugin/jquery.sparkline/jquery.sparkline.min.js') }}"></script>
+      <script src="{{ asset('js/plugin/chart-circle/circles.min.js') }}"></script>
+      <script src="{{ asset('js/plugin/datatables/datatables.min.js') }}"></script>
+      <script src="{{ asset('js/plugin/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
+      <script src="{{ asset('js/plugin/jsvectormap/jsvectormap.min.js') }}"></script>
+      <script src="{{ asset('js/plugin/jsvectormap/world.js') }}"></script>
+      <script src="{{ asset('js/plugin/sweetalert/sweetalert.min.js') }}"></script>
+      <script src="{{ asset('js/kaiadmin.min.js') }}"></script>
+      <script src="{{ asset('js/setting-demo.js') }}"></script>
+      <script src="{{ asset('js/demo.js') }}"></script>
+    {% endblock %}
+  </body>
+</html>

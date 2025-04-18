@@ -61,7 +61,7 @@ class Event
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Assert\NotBlank(message: 'Vous devez fournir une date😊')]
     #[Assert\GreaterThanOrEqual("today", message: "On adore les événements… mais pas encore ceux du futur ! ")]
     private ?\DateTimeInterface $date_event = null;
@@ -197,6 +197,7 @@ class Event
     #[Assert\NotNull(message: 'Le nombre de places est requis.')]
     #[Assert\GreaterThanOrEqual(value: 10, message: 'Prévois un peu plus de monde ! Minimum 10 participants, c’est la règle ')]
     private ?int $nb_places = null;
+  
 
     public function getNb_places(): ?int
     {
@@ -258,6 +259,19 @@ class Event
     public function setNbPlaces(int $nb_places): static
     {
         $this->nb_places = $nb_places;
+
+        return $this;
+    }
+      #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $date_fin_eve = null;
+    public function getDateFinEve(): ?\DateTimeInterface
+    {
+        return $this->date_fin_eve;
+    }
+
+    public function setDateFinEve(?\DateTimeInterface $date_fin_eve): static
+    {
+        $this->date_fin_eve = $date_fin_eve;
 
         return $this;
     }

@@ -9,10 +9,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 final class EventController extends AbstractController
 {
-    #[Route('/home', name: 'app_home')]
+    #[Route('/homeOrg', name: 'app_home')]
     public function index(EntityManagerInterface $entityManager): Response
     {
         $events = $entityManager->getRepository(Event::class)->findAll();
@@ -21,6 +22,25 @@ final class EventController extends AbstractController
             'events' => $events,
         ]);
     }
+    #[Route('/homeBACK', name: 'app_home_back')]
+    public function indexBack(EntityManagerInterface $entityManager): Response
+    {
+        $events = $entityManager->getRepository(Event::class)->findAll();
+
+        return $this->render('back/indexBACK.html.twig', [
+            'events' => $events,
+        ]);
+    }
+    #[Route('/homePart', name: 'app_home_part')]
+    public function indexPart(EntityManagerInterface $entityManager): Response
+    {
+        $events = $entityManager->getRepository(Event::class)->findAll();
+
+        return $this->render('service/indexPart.html.twig', [
+            'events' => $events,
+        ]);
+    }
+
 
     #[Route('/event/new', name: 'app_event_new')]
 public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -121,4 +141,62 @@ public function edit(Request $request, Event $event, EntityManagerInterface $ent
         'events' => $events,
     ]);
     }
+    
+    #[Route('/eventsBack', name: 'app_show_all_eventsBack')]
+    public function showAllBack(EntityManagerInterface $entityManager, Request $request): Response
+    {
+        $events = $entityManager->getRepository(Event::class)->findAll();
+
+        return $this->render('backOFF/displayEveBack.html.twig', [
+            'events' => $events,
+        ]);
+    }
+    #[Route('/event/change-status/{id}', name: 'app_change_status', methods: ['POST'])]
+    public function changeStatus(int $id, EntityManagerInterface $entityManager): Response
+    {
+        // Find the event by ID
+        $event = $entityManager->getRepository(Event::class)->find($id);
+
+        if (!$event) {
+            throw $this->createNotFoundException('Événement non trouvé.');
+        }
+
+        // Toggle the status
+        if ($event->getStatus() === 'En cours de traitement') {
+            $event->setStatus('Accepté');
+        } else if ($event->getStatus() === 'Accepté') {
+            $event->setStatus('En cours de traitement');
+        }
+
+        // Persist the changes
+        $entityManager->flush();
+
+        // Redirect or return a response
+        return $this->redirectToRoute('app_show_all_eventsBack');
+    }
+ 
+        #[Route('/event/get/{id}', name: 'app_event_get')]
+        public function getEventData(int $id, EntityManagerInterface $entityManager): JsonResponse
+        {
+            $event = $entityManager->getRepository(Event::class)->find($id);
+    
+            if (!$event) {
+                return $this->json(['error' => 'Event not found'], 404);
+            }
+            
+            return $this->json([
+                'id_event' => $event->getIdEvent(),
+                'title' => $event->getTitle(),
+                'description' => $event->getDescription(),
+                'date_event' => $event->getDateEvent()->format('Y-m-d H:i:s'),
+                'dateFinEve' => $event->getDateFinEve()->format('Y-m-d H:i:s'),
+                'location' => $event->getLocation(),
+                'activities' => $event->getActivities(),
+                'prix' => $event->getPrix(),
+                'nb_places' => $event->getNbPlaces(),
+                'status' => $event->getStatus(),
+            ]);
+        }
+
+
 }

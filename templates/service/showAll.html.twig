@@ -1,7 +1,10 @@
-{% extends 'base_front.html.twig' %}
+{% extends 'base.html.twig' %}
+{% block css %}
+    {{ parent() }}
 
+{% endblock %}
 {% block title %}
-    <h1 class="white-title">All Events</h1>
+    <h1 id="title-eve" style="color-text: white !important;">All Events</h1>
 {% endblock %}
 
 {% block body %}
@@ -24,9 +27,10 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ event.title }}</h5>
                             <p class="card-text">
-                                <strong>Date:</strong> {{ event.date_event|date('d/m/Y') }}<br>
+                                 <strong>Date:</strong> {{ event.date_event|date('d/m/Y H:i') }}<br>
                                 <strong>Price:</strong> {{ event.prix }} TND<br>
-                                <strong>Location:</strong> {{ event.location }}
+                                <strong>Location:</strong> {{ event.location }}<br>
+                                <strong>Date Fin:</strong> {{ event.dateFinEve|date('d/m/Y H:i') }}
                             </p>
                             <div class="d-flex justify-content-between">
                                 <button class="btn btn-warning" onclick="toggleForm('{{ event.id_event }}')">Modifier</button>
@@ -45,8 +49,12 @@
                                 <input type="text" class="form-control" id="name-{{ event.id_event }}" name="title" value="{{ event.title }}" required>
                             </div>
                             <div class="mb-3">
-                                <label for="date-{{ event.id_event }}" class="form-label">Date</label>
-                                <input type="date" class="form-control" id="date-{{ event.id_event }}" name="date_event" value="{{ event.date_event|date('Y-m-d') }}" required>
+                                <label for="date-{{ event.id_event }}" class="form-label">Date Debut</label>
+                                <input type="date" class="form-control" id="date-{{ event.id_event }}" name="date_event" value="{{ event.date_event|date('d/m/Y H:i') }}" required>
+                            </div>
+                             <div class="mb-3">
+                                <label for="date_finEve-{{ event.id_event }}" class="form-label">Date Fin</label>
+                                <input type="text" class="form-control" id="date_finEve-{{ event.id_event }}" name="date_fin_eve" value="{{event.dateFinEve |date('d/m/Y H:i')}}" required>
                             </div>
                             <div class="mb-3">
                                 <label for="price-{{ event.id_event }}" class="form-label">Prix</label>
@@ -56,6 +64,7 @@
                                 <label for="location-{{ event.id_event }}" class="form-label">Localisation</label>
                                 <input type="text" class="form-control" id="location-{{ event.id_event }}" name="location" value="{{ event.location }}" required>
                             </div>
+                           
                             <button type="submit" class="btn btn-primary">Sauvegarder</button>
                         </form>
                     </div>

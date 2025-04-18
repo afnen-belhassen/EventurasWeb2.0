@@ -1,0 +1,179 @@
+{# templates/partials/_sidebar.html.twig #}
+<div class="sidebar-container">
+    <div class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    <div class="sidebar">
+        <h3>Menu</h3>
+        <ul>
+            <li><a href="{{ path('app_show_all_events') }}"><i class="fas fa-list"></i> Vos Evenements</a></li>
+            <li><a href="#section_1"><i class="fas fa-info-circle"></i> Forum</a></li>
+            <li><a href="#section_2"><i class="fas fa-cogs"></i> Partenariats</a></li>
+            <li><a href="#section_3"><i class="fas fa-star"></i> Produits</a></li>
+        </ul>
+        
+        <h3>Paramètres</h3>
+        <ul>
+            <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="#"><i class="fas fa-question-circle"></i> Se déconnecter</a></li>
+        </ul>
+        <!--
+        <h3>Eventura</h3>
+        <ul>
+            <li><a href="#"><i class="fas fa-search"></i> Rechercher des événements</a></li>
+            <li><a href="#"><i class="fas fa-tag"></i> Tarifs</a></li>
+            <li><a href="#"><i class="fas fa-quote-left"></i> Citez Evénement</a></li>
+            <li><a href="#"><i class="fas fa-check-circle"></i> Visa événements</a></li>
+        </ul>
+        -->
+    </div>
+</div>
+
+<style>
+    /* Sidebar Styles */
+    .sidebar-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+    
+    .sidebar-toggle {
+        cursor: pointer;
+        font-size: 24px;
+        color: #bd4c33;
+        background: white;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar-toggle:hover {
+        transform: scale(1.1);
+    }
+    
+    .sidebar {
+        position: fixed;
+        right: -320px;
+        top: 0;
+        width: 300px;
+        height: 100%;
+        background: white;
+        box-shadow: -2px 0 15px rgba(0,0,0,0.1);
+        z-index: 999;
+        transition: right 0.3s ease;
+        padding: 20px;
+        overflow-y: auto;
+    }
+    
+    .sidebar-container:hover .sidebar {
+        right: 0;
+    }
+    
+    .sidebar h2 {
+        color: #bd4c33;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .sidebar h3 {
+        color: #333;
+        margin: 25px 0 15px 0;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .sidebar li {
+        margin-bottom: 8px;
+    }
+    
+    .sidebar a {
+        color: #555;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        padding: 8px 5px;
+        transition: all 0.2s;
+    }
+    
+    .sidebar a:hover {
+        color: #bd4c33;
+        padding-left: 10px;
+    }
+    
+    .sidebar a i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    
+    .location-display {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        margin-bottom: 15px;
+        color: #555;
+    }
+    
+    .location-display i {
+        margin-right: 8px;
+        color: #bd4c33;
+    }
+    .custom-sidebar-system:hover .custom-sidebar,
+    .custom-sidebar:hover {
+        right: 0 !important;
+    }
+    
+    .custom-sidebar {
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarSystem = document.querySelector('.custom-sidebar-system');
+    const sidebar = sidebarSystem.querySelector('.custom-sidebar');
+    const toggle = sidebarSystem.querySelector('.custom-sidebar-toggle');
+    
+    // Persistent hover handling
+    let hoverTimeout;
+    
+    function showSidebar() {
+        clearTimeout(hoverTimeout);
+        sidebar.style.right = '0';
+    }
+    
+    function hideSidebar() {
+        hoverTimeout = setTimeout(() => {
+            if (!sidebar.matches(':hover') && !toggle.matches(':hover')) {
+                sidebar.style.right = '-320px';
+            }
+        }, 300); // 300ms delay before hiding
+    }
+    
+    // Mouse events
+    toggle.addEventListener('mouseenter', showSidebar);
+    sidebar.addEventListener('mouseenter', showSidebar);
+    
+    toggle.addEventListener('mouseleave', hideSidebar);
+    sidebar.addEventListener('mouseleave', hideSidebar);
+    
+    // Touch support for mobile
+    toggle.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        sidebar.style.right = sidebar.style.right === '0px' ? '-320px' : '0';
+    });
+});
+</script>
