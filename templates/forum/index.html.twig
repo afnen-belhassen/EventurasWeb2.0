@@ -60,6 +60,9 @@
                 </a>
                 <a href="{{ path('app_show_all_events') }}"class="btn custom-btn d-lg-block d-none">Vos événements</a>
             </div>
+
+            {{ include('service/sidebar.html.twig') }}
+
         </div>
     </div>
 </nav>
@@ -99,8 +102,10 @@
                     <div class="post-content">
                         <div class="d-flex align-items-center gap-2">
                             <!-- Avatar -->
-                            <div class="rounded-circle bg-secondary p-2">
-                                <i class="bi bi-person-fill text-white"></i>
+                            <div class="rounded-circle p-2">
+                                <img src="{{ asset('images/artists/avatar.jpg') }}" 
+                                     class="img-fluid rounded-circle"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
                             </div>
                             <div>
                                 <h6 class="mb-0 fw-bold">Ahmed</h6>
@@ -186,12 +191,14 @@
                                         <div class="d-flex justify-content-between align-items-center mt-1">
                                             <div class="d-flex align-items-center gap-2">
                                                 <!-- Avatar -->
-                                                <div class="rounded bg-secondary p-1">
-                                                    <i class="bi bi-person-fill text-white"></i>
+                                                <div class="rounded-circle " style="width: 30px; height: 30px">
+                                                    <img src="{{ asset('images/artists/avatar2.jpg') }}" 
+                                                         class="img-fluid rounded-circle"
+                                                         style="width: 30px; height: 30px; object-fit: cover;">
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-0 fw-bold">Ahmed</h6>
-                                                    <small class="text-muted">@ahmed</small>
+                                                    <h6 class="mb-0 fw-bold">Sarra</h6>
+                                                    <small class="text-muted">@Sarra</small>
                                                 </div>
                                             </div>
                                             <div class="position-relative">
