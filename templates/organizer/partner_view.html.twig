@@ -1,0 +1,231 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Partner Details{% endblock %}
+
+{% block stylesheets %}
+{{parent()}}
+{% endblock %}
+
+{% block body %}
+    {% block navbar %}
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_home') }}">
+                Eventura
+            </a>
+            <form class="search-form" action="/search" method="GET" style="
+                display: flex;
+                align-items: center;
+                background-color: #f8f6fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 50px;
+                padding: 8px 12px;
+                width: 600px;
+                margin: 20px auto;
+                box-sizing: border-box;
+            ">
+                <i class="fas fa-search" style="color: #55546d; margin: 0 10px;"></i>
+                <input 
+                    type="search" 
+                    name="query" 
+                    placeholder="Rechercher des partenaires" 
+                    style="
+                        border: none;
+                        outline: none;
+                        background: transparent;
+                        font-size: 16px;
+                        flex: 1;
+                        color: #55546d;
+                    " 
+                />
+                <div style="
+                    height: 10px;
+                    width: 1px;
+                    background-color: #ccc;
+                    margin: 0 15px;
+                "></div>
+                <div style="display: flex; align-items: center; color: #55546d; font-size: 16px;">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>
+                    <span>Tunis</span>
+                </div>
+                <button type="submit" style="
+                    background-color: #bd4c33;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: 10px;
+                    cursor: pointer;
+                ">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                    <!-- Add any additional navbar items here -->
+                </ul>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ path('app_organizer_partners') }}" class="btn custom-btn d-lg-block d-none">
+                        <i class="bi bi-plus-circle me-2"></i>Créer Partenariat
+                    </a>
+                   
+                    {{ include('service/sidebar.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    {# Main Content #}
+    <main>
+        <section class="hero-section" id="section_1">
+            <div class="section-overlay"></div>
+
+            <div class="container d-flex justify-content-center align-items-center">
+                <div class="row">
+                    <div class="col-12 mt-auto mb-5 text-center">
+                        <h1 class="text-white mb-5">{{ partner.name }}</h1>
+                        <a class="btn custom-btn smoothscroll" href="#section_2">Voir les Détails</a>
+                    </div>
+
+                    <div class="col-lg-12 col-12 mt-auto d-flex flex-column flex-lg-row text-center">
+                        <div class="date-wrap">
+                            <h5 class="text-white">
+                                <i class="custom-icon bi-clock me-2"></i>
+                                {{ partner.type }}
+                            </h5>
+                        </div>
+
+                        <div class="location-wrap mx-auto py-3 py-lg-0">
+                            <h5 class="text-white">
+                                <i class="custom-icon bi-geo-alt me-2"></i>
+                                {{ partner.website ?? 'Pas de site web' }}
+                            </h5>
+                        </div>
+
+                        <div class="social-share">
+                            <ul class="social-icon d-flex align-items-center justify-content-center">
+                                <span class="text-white me-3">Contact:</span>
+                                <li class="social-icon-item">
+                                    <a href="#" class="social-icon-link"><span class="bi-envelope"></span></a>
+                                </li>
+                                <li class="social-icon-item">
+                                    <a href="#" class="social-icon-link"><span class="bi-telephone"></span></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section section-padding" id="section_2">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow-lg" style="background-color: #1a2035;">
+                            <div class="card-header" style="background-color: #2c2e33; border-bottom: 1px solid #e9ecef;">
+                                <h1 class="mb-0 text-white"><i class="fas fa-handshake me-2"></i>Détails du Partenaire</h1>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead style="background-color: #2c2e33;">
+                                            <tr>
+                                                <th class="text-white">Information</th>
+                                                <th class="text-white">Détails</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="color: #ffffff;">
+                                                <td>Description</td>
+                                                <td>{{ partner.description ?? 'Pas de description' }}</td>
+                                            </tr>
+                                            <tr style="color: #ffffff;">
+                                                <td>Site Web</td>
+                                                <td>
+                                                    {% if partner.website %}
+                                                        <a href="{{ partner.website }}" target="_blank" class="text-white">{{ partner.website }}</a>
+                                                    {% else %}
+                                                        Pas de site web
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            <tr style="color: #ffffff;">
+                                                <td>Contact</td>
+                                                <td>{{ partner.contactInfo ?? 'Pas d\'informations de contact' }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-lg mt-4" style="background-color: #1a2035;">
+                            <div class="card-header" style="background-color: #2c2e33; border-bottom: 1px solid #e9ecef;">
+                                <h1 class="mb-0 text-white"><i class="fas fa-handshake me-2"></i>Partenariats</h1>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead style="background-color: #2c2e33;">
+                                            <tr>
+                                                <th class="text-white">ID</th>
+                                                <th class="text-white">Type de Contrat</th>
+                                                <th class="text-white">Statut</th>
+                                                <th class="text-white">Date de Création</th>
+                                                <th class="text-center text-white">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if partnerships is empty %}
+                                                <tr>
+                                                    <td colspan="5" class="text-center py-4 text-white">
+                                                        <i class="fas fa-handshake fa-3x mb-3"></i>
+                                                        <p class="mb-0">Aucun partenariat trouvé</p>
+                                                    </td>
+                                                </tr>
+                                            {% else %}
+                                                {% for partnership in partnerships %}
+                                                    <tr style="color: #ffffff;">
+                                                        <td>{{ partnership.id }}</td>
+                                                        <td>{{ partnership.contracttype }}</td>
+                                                        <td>
+                                                            {% if partnership.isSigned %}
+                                                                <span class="badge bg-success">Signé</span>
+                                                            {% else %}
+                                                                <span class="badge bg-warning">En attente</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>{{ partnership.createdAt|date('Y-m-d') }}</td>
+                                                        <td>
+                                                            <div class="d-flex justify-content-center gap-2">
+                                                                <a href="{{ path('contract_management', {'id': partnership.id}) }}" class="btn" style="background-color: #00d2ff; color: white; border: none;">
+                                                                    <i class="fas fa-file-contract me-1"></i>Gérer
+                                                                </a>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %} 
