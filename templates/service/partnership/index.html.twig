@@ -1,0 +1,112 @@
+{% extends 'back/basePartner.html.twig' %}
+
+{% block title %}Liste des Partenariats{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .card {
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            padding: 15px 20px;
+        }
+        .card-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        .table th {
+            font-weight: 500;
+            background: #f8f9fa;
+        }
+        .btn-group .btn {
+            margin: 0 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Liste des Partenariats</h1>
+            <a href="{{ path('app_partnership_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Ajouter un partenariat
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Partenaire</th>
+                                <th>Type de contrat</th>
+                                <th>Description</th>
+                                <th>Statut</th>
+                                <th>Date de création</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for partnership in partnerships %}
+                                <tr>
+                                    <td>
+                                        {% if partnership.partnerId and partnership.partnerId.imagePath %}
+                                            <img src="{{ asset('uploads/partners/' ~ partnership.partnerId.imagePath) }}" alt="{{ partnership.partnerId.name }}" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <br>
+                                            <small>{{ partnership.partnerId.name }}</small>
+                                        {% else %}
+                                            <div class="bg-light text-center" style="width: 50px; height: 50px; line-height: 50px;">
+                                                <i class="fas fa-image text-muted"></i>
+                                            </div>
+                                            <br>
+                                            <small>{{ partnership.partnerId ? partnership.partnerId.name : 'N/A' }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ partnership.contracttype }}</td>
+                                    <td>{{ partnership.description|striptags|slice(0, 100) }}...</td>
+                                    <td>
+                                        {% if partnership.status == 'active' %}
+                                            <span class="badge bg-success">Actif</span>
+                                        {% elseif partnership.status == 'pending' %}
+                                            <span class="badge bg-warning">En attente</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactif</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ partnership.createdAt ? partnership.createdAt|date('Y-m-d H:i:s') : 'N/A' }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ path('app_partnership_show', {'id': partnership.id}) }}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ path('app_partnership_edit', {'id': partnership.id}) }}" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="post" action="{{ path('app_partnership_delete', {'id': partnership.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce partenariat ?');" style="display: inline;">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ partnership.id) }}">
+                                                <button class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center">Aucun partenariat trouvé</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 
