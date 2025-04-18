@@ -1,0 +1,213 @@
+{% extends 'organizer/index.html.twig' %}
+
+{% block title %}Contract Management{% endblock %}
+
+{% block body %}
+    {% block navbar %}
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_home') }}">
+                Eventura
+            </a>
+            <form class="search-form" action="/search" method="GET" style="
+                display: flex;
+                align-items: center;
+                background-color: #f8f6fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 50px;
+                padding: 8px 12px;
+                width: 600px;
+                margin: 20px auto;
+                box-sizing: border-box;
+            ">
+                <i class="fas fa-search" style="color: #55546d; margin: 0 10px;"></i>
+                <input 
+                    type="search" 
+                    name="query" 
+                    placeholder="Rechercher des contrats" 
+                    style="
+                        border: none;
+                        outline: none;
+                        background: transparent;
+                        font-size: 16px;
+                        flex: 1;
+                        color: #55546d;
+                    " 
+                />
+                <div style="
+                    height: 10px;
+                    width: 1px;
+                    background-color: #ccc;
+                    margin: 0 15px;
+                "></div>
+                <div style="display: flex; align-items: center; color: #55546d; font-size: 16px;">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>
+                    <span>Tunis</span>
+                </div>
+                <button type="submit" style="
+                    background-color: #bd4c33;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: 10px;
+                    cursor: pointer;
+                ">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                    <!-- Add any additional navbar items here -->
+                </ul>
+
+                <div class="d-flex gap-2">
+                    {{ include('service/sidebar.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    {# Main Content #}
+    <main>
+        <section class="hero-section" id="section_1">
+            <div class="section-overlay"></div>
+
+            <div class="container d-flex justify-content-center align-items-center">
+                <div class="row">
+                    <div class="col-12 mt-auto mb-5 text-center">
+                        <h1 class="text-white mb-5">Gestion des Contrats</h1>
+                        <a class="btn custom-btn smoothscroll" href="#section_2">Voir les Contrats</a>
+                    </div>
+
+                    <div class="col-lg-12 col-12 mt-auto d-flex flex-column flex-lg-row text-center">
+                        <div class="date-wrap">
+                            <h5 class="text-white">
+                                <i class="custom-icon bi-clock me-2"></i>
+                                Contrats Actifs
+                            </h5>
+                        </div>
+
+                        <div class="location-wrap mx-auto py-3 py-lg-0">
+                            <h5 class="text-white">
+                                <i class="custom-icon bi-geo-alt me-2"></i>
+                                Partenaires
+                            </h5>
+                        </div>
+
+                        <div class="social-share">
+                            <ul class="social-icon d-flex align-items-center justify-content-center">
+                                <span class="text-white me-3">Share:</span>
+                                <li class="social-icon-item">
+                                    <a href="#" class="social-icon-link"><span class="bi-facebook"></span></a>
+                                </li>
+                                <li class="social-icon-item">
+                                    <a href="#" class="social-icon-link"><span class="bi-twitter"></span></a>
+                                </li>
+                                <li class="social-icon-item">
+                                    <a href="#" class="social-icon-link"><span class="bi-instagram"></span></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section section-padding" id="section_2">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="card shadow-lg" style="background-color: #1a2035;">
+                            <div class="card-header" style="background-color: #2c2e33; border-bottom: 1px solid #e9ecef;">
+                                <h1 class="mb-0 text-white text-center"><i class="fas fa-file-contract me-2"></i>Contrats</h1>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead style="background-color: #2c2e33;">
+                                            <tr>
+                                                <th class="text-white">Partenaire</th>
+                                                <th class="text-white">Type de Contrat</th>
+                                                <th class="text-white">Description</th>
+                                                <th class="text-white">Statut</th>
+                                                <th class="text-center text-white">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="color: #ffffff;">
+                                                <td>{{ partnership.partnerId.name }}</td>
+                                                <td>{{ partnership.contracttype }}</td>
+                                                <td>
+                                                    {% if partnership.description %}
+                                                        {{ partnership.description|length > 100 ? partnership.description|slice(0, 100) ~ '...' : partnership.description }}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{{ partnership.isSigned ? 'success' : 'warning' }}">
+                                                        {{ partnership.isSigned ? 'Signé' : 'En attente' }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                        {% if contractPath %}
+                                                            <a href="{{ path('app_organizer_contract_file', {'type': 'contracts', 'filename': contractPath|split('/')|last}) }}" class="btn" style="background-color: #00d2ff; color: white; border: none;">
+                                                                <i class="fas fa-eye me-1"></i>Voir
+                                                            </a>
+                                                        {% endif %}
+                                                        {% if not partnership.isSigned %}
+                                                            <a href="{{ path('app_organizer_upload_signed_contract', {'id': partnership.id}) }}" class="btn" style="background-color: #bd4c33; color: white; border: none;">
+                                                                <i class="fas fa-upload me-1"></i>Téléverser et Vérifier
+                                                            </a>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal pour le téléversement -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="background-color: #1a2035;">
+                <div class="modal-header" style="background-color: #2c2e33; border-bottom: 1px solid #e9ecef;">
+                    <h5 class="modal-title text-white" id="uploadModalLabel">Téléverser le Contrat Signé</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation'}, 'action': path('app_organizer_upload_signed_contract', {'id': partnership.id})}) }}
+                        <div class="mb-3">
+                            {{ form_label(form.signedContract, 'Sélectionnez le contrat signé (PDF)', {'label_attr': {'class': 'form-label text-white'}}) }}
+                            {{ form_widget(form.signedContract, {'attr': {'class': 'form-control bg-dark text-white'}}) }}
+                            {{ form_errors(form.signedContract, {'attr': {'class': 'text-danger'}}) }}
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn" style="background-color: #bd4c33; color: white; border: none;">
+                                <i class="fas fa-upload me-2"></i>Téléverser
+                            </button>
+                        </div>
+                        <input type="hidden" name="redirect_to" value="{{ path('contract_management', {'id': partnership.id}) }}">
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

@@ -1,0 +1,337 @@
+{% extends 'back/indexBACK.html.twig' %}
+
+{% block title %}Partenaires{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .wrapper {
+        display: flex;
+        width: 100%;
+        align-items: stretch;
+    }
+    .sidebar {
+        min-width: 260px;
+        max-width: 260px;
+        background: #1a2035;
+        color: #fff;
+        transition: all 0.3s;
+    }
+    .sidebar.active {
+        margin-left: -260px;
+    }
+    .main-panel {
+        width: 100%;
+        min-height: 100vh;
+        margin-left: 260px;
+        transition: all 0.3s;
+    }
+    .main-panel.active {
+        margin-left: 0;
+    }
+    .sidebar-wrapper {
+        height: calc(100vh - 70px);
+        overflow-y: auto;
+    }
+    .nav-item {
+        position: relative;
+        margin: 0;
+        padding: 0;
+    }
+    .nav-item a {
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        text-decoration: none;
+    }
+    .nav-item a:hover {
+        background: rgba(255,255,255,0.1);
+    }
+    .nav-item i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    .nav-section {
+        padding: 15px;
+        color: #999;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+    .card {
+        margin: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        padding: 15px 20px;
+    }
+    .card-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+    .table th {
+        font-weight: 500;
+        background: #f8f9fa;
+    }
+    .btn-group .btn {
+        margin: 0 5px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+            <!-- Logo Header -->
+            <div class="logo-header" data-background-color="dark">
+                <a href="index.html" class="logo">
+                    <img src="{{ asset('images/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+                </a>
+                <div class="nav-toggle">
+                    <button class="btn btn-toggle toggle-sidebar">
+                        <i class="gg-menu-right"></i>
+                    </button>
+                    <button class="btn btn-toggle sidenav-toggler">
+                        <i class="gg-menu-left"></i>
+                    </button>
+                </div>
+                <button class="topbar-toggler more">
+                    <i class="gg-more-vertical-alt"></i>
+                </button>
+            </div>
+            <!-- End Logo Header -->
+        </div>
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+            <div class="sidebar-content">
+                <ul class="nav nav-secondary">
+                    <li class="nav-item active">
+                        <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+                            <i class="fas fa-home"></i>
+                            <p>Dashboard</p>
+                            <span class="caret"></span>
+                        </a>
+                        <div class="collapse" id="dashboard">
+                            <ul class="nav nav-collapse">
+                                <li>
+                                    <a href="../demo1/index.html">
+                                        <span class="sub-item">Dashboard 1</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-section">
+                        <span class="sidebar-mini-icon">
+                            <i class="fa fa-ellipsis-h"></i>
+                        </span>
+                        <h4 class="text-section">Components</h4>
+                    </li>
+                    <li class="nav-item">
+                        <a data-bs-toggle="collapse" href="#base">
+                            <i class="fas fa-layer-group"></i>
+                            <p>Administration des comptes</p>
+                            <span class="caret"></span>
+                        </a>
+                        <div class="collapse" id="base">
+                            <ul class="nav nav-collapse">
+                                <li>
+                                    <a href="components/avatars.html">
+                                        <span class="sub-item">Utilisateurs</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="components/avatars.html">
+                                        <span class="sub-item">Roles</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item active submenu">
+                        <a data-bs-toggle="collapse" href="#sidebarLayouts">
+                            <i class="fas fa-th-list"></i>
+                            <p>Centre événementiel</p>
+                            <span class="caret"></span>
+                        </a>
+                        <div class="collapse show" id="sidebarLayouts">
+                            <ul class="nav nav-collapse">
+                                <li class="active">
+                                    <a href="{{ path('app_show_all_eventsBack') }}">
+                                        <span class="sub-item">Événements</span>
+                                    </a>
+                                </li>
+                                <li class="active">
+                                    <a href="sidebar-style-2.html">
+                                        <span class="sub-item">Catégories</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a data-bs-toggle="collapse" href="#forms">
+                            <i class="fas fa-pen-square"></i>
+                            <p>Relations externes</p>
+                            <span class="caret"></span>
+                        </a>
+                        <div class="collapse" id="forms">
+                            <ul class="nav nav-collapse">
+                                <li>
+                                    <a href="{{ path('app_partner_index') }}">
+                                        <span class="sub-item">Partenaires</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ path('app_partnership_index') }}">
+                                        <span class="sub-item">Partenariats</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a data-bs-toggle="collapse" href="#tables">
+                            <i class="fas fa-table"></i>
+                            <p>Boutique</p>
+                            <span class="caret"></span>
+                        </a>
+                        <div class="collapse" id="tables">
+                            <ul class="nav nav-collapse">
+                                <li>
+                                    <a href="tables/tables.html">
+                                        <span class="sub-item">Produits</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="tables/tables.html">
+                                        <span class="sub-item">Commandes</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a data-bs-toggle="collapse" href="#maps">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p>Espace communautaire</p>
+                            <span class="caret"></span>
+                        </a>
+                        <div class="collapse" id="maps">
+                            <ul class="nav nav-collapse">
+                                <li>
+                                    <a href="admin/forum">
+                                        <span class="sub-item">Forum</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Panel -->
+    <div class="main-panel">
+        <div class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="card-title">Liste des Partenaires</h4>
+                                    <a href="{{ path('app_partner_new') }}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Nouveau Partenaire
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Nom</th>
+                                                <th>Image</th>
+                                                <th>Site Web</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for partner in partners %}
+                                                <tr>
+                                                    <td>{{ partner.name }}</td>
+                                                    <td>
+                                                        {% if partner.imagePath %}
+                                                            <img src="{{ asset('uploads/partners/' ~ partner.imagePath) }}" alt="{{ partner.name }}" style="max-width: 50px;">
+                                                        {% else %}
+                                                            <span class="text-muted">Aucune image</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if partner.website %}
+                                                            <a href="{{ partner.website }}" target="_blank">{{ partner.website }}</a>
+                                                        {% else %}
+                                                            <span class="text-muted">Non spécifié</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group">
+                                                            <a href="{{ path('app_partner_show', {'id': partner.id}) }}" class="btn btn-info btn-sm">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a href="{{ path('app_partner_edit', {'id': partner.id}) }}" class="btn btn-warning btn-sm">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <form method="post" action="{{ path('app_partner_delete', {'id': partner.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce partenaire ?');" style="display: inline-block;">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ partner.id) }}">
+                                                                <button class="btn btn-danger btn-sm">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="4" class="text-center">Aucun partenaire trouvé</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar
+            const toggleSidebar = document.querySelector('.toggle-sidebar');
+            const sidebar = document.querySelector('.sidebar');
+            const mainPanel = document.querySelector('.main-panel');
+            
+            if (toggleSidebar) {
+                toggleSidebar.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    mainPanel.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+{% endblock %} 
