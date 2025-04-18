@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="fr" datatype="plaintext" original="file.ext">
+        <header>
+            <tool tool-id="symfony" tool-name="Symfony"/>
+        </header>
+        <body>
+            <!-- Common validation messages -->
+            <trans-unit id="invalid_form">
+                <source>The form is invalid</source>
+                <target>Le formulaire est invalide</target>
+            </trans-unit>
+            <trans-unit id="required_field">
+                <source>This field is required</source>
+                <target>Ce champ est obligatoire</target>
+            </trans-unit>
+            <trans-unit id="invalid_email">
+                <source>This value is not a valid email address</source>
+                <target>Cette valeur n'est pas une adresse email valide</target>
+            </trans-unit>
+            <trans-unit id="invalid_length">
+                <source>This value is too short</source>
+                <target>Cette valeur est trop courte</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff> 

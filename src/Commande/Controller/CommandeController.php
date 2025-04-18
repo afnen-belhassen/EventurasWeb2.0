@@ -2,10 +2,11 @@
 
 namespace App\Commande\Controller;
 
+use App\Entity\Produit;
 use App\Commande\Entity\Commande;
 use App\Commande\Form\CommandeType;
+use App\Repository\ProduitRepository;
 use App\Commande\Repository\CommandeRepository;
-use App\Produit\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,7 +39,6 @@ class CommandeController extends AbstractController
         $commande = new Commande();
         $form = $this->createForm(CommandeType::class, $commande);
 
-        // Si un produit_id est fourni, pré-remplir le formulaire
         if ($produit_id) {
             $produit = $this->produitRepository->find($produit_id);
             if ($produit) {
@@ -51,7 +51,6 @@ class CommandeController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                // Vérifier la disponibilité du stock
                 $produit = $commande->getProduit();
                 if ($produit->getQuantite() < $commande->getQuantite()) {
                     $this->addFlash('error', 'La quantité demandée n\'est pas disponible en stock.');
@@ -60,10 +59,8 @@ class CommandeController extends AbstractController
                     ]);
                 }
 
-                // Mettre à jour le stock
                 $produit->setQuantite($produit->getQuantite() - $commande->getQuantite());
 
-                // Sauvegarder la commande
                 $this->entityManager->persist($commande);
                 $this->entityManager->flush();
 
@@ -99,7 +96,7 @@ class CommandeController extends AbstractController
             ->orderBy('c.dateCommande', 'DESC')
             ->getQuery()
             ->getResult();
-        
+
         return $this->render('commande/liste.html.twig', [
             'commandes' => $commandes,
         ]);
@@ -116,7 +113,6 @@ class CommandeController extends AbstractController
         }
 
         try {
-            // Restaurer le stock
             $produit = $commande->getProduit();
             $produit->setQuantite($produit->getQuantite() + $commande->getQuantite());
 
@@ -129,4 +125,4 @@ class CommandeController extends AbstractController
 
         return $this->redirectToRoute('liste_commandes');
     }
-} 
+}

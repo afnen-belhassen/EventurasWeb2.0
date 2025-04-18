@@ -3,3 +3,11 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+commande:
+    resource: ../src/Commande/Controller/
+    type: annotation
+
+produit:
+    resource: ../src/Produit/Controller/
+    type: annotation
