@@ -40,4 +40,14 @@ class EventRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+        // src/Repository/EventRepository.php
+public function searchByName(string $query): array
+{
+    return $this->createQueryBuilder('e')
+        ->where('e.title LIKE :query')
+        ->setParameter('query', '%'.$query.'%')
+        ->orderBy('e.date_event', 'ASC')
+        ->getQuery()
+        ->getResult();
+}
 }

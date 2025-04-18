@@ -62,20 +62,22 @@ class Event
     }
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Assert\GreaterThanOrEqual("today", message: "On adore les événements… mais pas encore ceux du passé !")]
     #[Assert\NotBlank(message: 'Vous devez fournir une date😊')]
-    #[Assert\GreaterThanOrEqual("today", message: "On adore les événements… mais pas encore ceux du futur ! ")]
-    private ?\DateTimeInterface $date_event = null;
     
-    public function getDate_event(): ?\DateTimeInterface
-    {
-        return $this->date_event;
-    }
+private ?\DateTimeInterface $date_event = null;
 
-    public function setDate_event(?\DateTimeInterface $date_event): self
-    {
-        $this->date_event = $date_event;
-        return $this;
-    }
+public function getDate_event(): ?\DateTimeInterface
+{
+    return $this->date_event;
+}
+
+public function setDate_event(?\DateTimeInterface $date_event): self
+{
+    $this->date_event = $date_event;
+    return $this;
+}
+
 
     #[ORM\Column(type: 'string', nullable: false)]
     #[Assert\NotBlank(message: 'Ajoute un lieu pour qu’on puisse te rejoindre ')]
@@ -179,7 +181,7 @@ class Event
 
     #[ORM\Column(type: 'decimal', nullable: false)]
     #[Assert\NotNull(message: 'Vous devez fournir le prix')]
-    #[Assert\GreaterThan(value: 0, message: 'Oups ! Le prix doit être positif ou gratuit ')]
+    #[Assert\GreaterThanOrEqual(value: 0,message: 'Oups ! Le prix doit être positif ')]
     private ?float $prix = null;
 
     public function getPrix(): ?float
@@ -262,8 +264,11 @@ class Event
 
         return $this;
     }
-      #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $date_fin_eve = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+#[Assert\NotBlank(message: 'La date de fin de l\'événement est requise.')]
+#[Assert\GreaterThanOrEqual(propertyPath: "date_event", message: 'La date de fin de l\'événement doit être après la date de début.')]
+private ?\DateTimeInterface $date_fin_eve = null;
+
     public function getDateFinEve(): ?\DateTimeInterface
     {
         return $this->date_fin_eve;

@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Event Details{% endblock %}
+
+{% block css %}
+    {{ parent() }}
+    <style>
+        body {
+            background-color: #0d064ffd;
+            animation: backgroundAnimation 10s infinite alternate;
+        }
+
+        .navbar {
+            background-color:rgba(255, 255, 255, 0.99);
+            color: white;
+        }
+
+        .navbar a {
+            color:rgba(255, 255, 255, 0.99);
+        }
+
+        .event-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .floating-man {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 100px; /* Adjust size as needed */
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        .event-details {
+            margin-top: 20px;
+        }
+
+        .event-details h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .event-details p {
+            margin: 5px 0;
+            font-color: #0d064ffd !important;
+        }
+       .navbar-brand {
+            color: #0d064ffd !important; /* Using !important to override any other styles */
+            font-weight: bold;
+            font-size: 24px;
+            text-decoration: none !important; /* Remove underline */
+        }
+        
+        .navbar-brand:hover,
+        .navbar-brand:focus,
+        .navbar-brand:active {
+            color: #0d064ffd !important; /* Same color on all states */
+            text-decoration: none !important;
+        }
+        .event-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 
+        0 8px 30px rgba(0, 0, 0, 0.2),
+        0 0 15px rgba(93, 70, 255, 0.6),
+        0 0 30px rgba(93, 70, 255, 0.4);
+    cursor: pointer;
+}
+.participer-btn {
+    background-color: #5d46ff;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-weight: bold;
+    padding: 8px 20px;
+    border-radius: 30px;
+}
+
+.participer-btn:hover {
+    background-color: #3f2fd3;
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(93, 70, 255, 0.7);
+}
+
+    </style>
+{% endblock %}
+
+{% block body %}
+    <nav class="navbar navbar-expand-lg">
+        <div class="container ">
+            <a class="navbar-brand" href="{{ path('app_home') }}">
+                Eventura
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                    <li class="nav-item">
+                        <a class="nav-link click-scroll" href="#section_4">Contact</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
+                        <i class="bi bi-plus-circle me-2"></i>Créer Événement
+                    </a>
+                    <a href="{{ path('app_show_all_events') }}"class="btn custom-btn d-lg-block d-none">Vos événements</a>
+                   {{ include('service/sidebarPart.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+    <h2 class="text-center mb-4">Événements Acceptés</h2>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for event in events %}
+            <div class="col d-flex justify-content-center">
+                <div class="event-card p-3 border rounded shadow-sm w-100" style="max-width: 400px;">
+                    <div class="event-details text-center">
+                        <h3 style="font-size: 1.4rem;">{{ event.title }}</h3>
+                        <div class="event-meta text-muted mb-2" style="font-size: 0.9rem;">
+                            <div>{{ event.location }} • 
+                                {% if event.date_event and event.dateFinEve %}
+                                    {{ event.date_event.diff(event.dateFinEve).h }} heures
+                                {% else %}
+                                    Durée non spécifiée
+                                {% endif %}
+                            </div>
+                            <div>
+                                {{ event.date_event ? event.date_event|date('d M Y') : 'Date non spécifiée' }} • 
+                                {{ event.date_event ? event.date_event|date('H:i') : '' }}
+                            </div>
+                        </div>
+                        <p style="font-size: 0.95rem;">{{ event.description }}</p>
+
+                        {% if event.image %}
+                            <div class="event-image my-3">
+                                <img src="{{ asset('ImagesEvents/' ~ event.image) }}" 
+                                     alt="{{ event.title }}" 
+                                     class="img-fluid rounded" 
+                                     style="max-height: 250px;">
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-center gap-3 flex-wrap mt-3 text-muted" style="font-size: 0.9rem;">
+                            <span>{{ event.category.name }}</span>
+                            <span>•</span>
+                            <span>
+                                {% if event.prix > 0 %}
+                                    {{ event.prix }} TND
+                                {% else %}
+                                    Gratuit
+                                {% endif %}
+                            </span>
+                            <span>•</span>
+                            <span>{{ event.nb_places }} participants</span>
+                        </div>
+                    <div class="mt-3 d-flex justify-content-center">
+                        <a href="#"
+                        class="btn btn-primary participer-btn">
+                            Participer
+                        </a>
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-center">Aucun événement accepté pour le moment.</p>
+        {% endfor %}
+           </div>
+</div>
+{% endblock %}

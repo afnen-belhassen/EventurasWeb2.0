@@ -1,6 +1,6 @@
 {% extends 'back/indexBACK.html.twig' %}
 
-{% block title %}Liste des Événements{% endblock %}
+{% block title %}Liste des catégories{% endblock %}
 
 {% block stylesheets %}
 {{ parent() }}
@@ -161,7 +161,7 @@
                   </a>
                 </li>
                 <li class="active">
-                 <a href="{{ path('app_show_all_catsBack') }}">
+                  <a href="{{ path('app_category_list') }}">
                     <span class="sub-item">Catégories</span>
                   </a>
                 </li>
@@ -593,113 +593,31 @@
           </nav>
       
     </div>
-    
     <div class="container">
       <div class="page-inner">
-        <h1>Liste des Événements</h1>
-        <a href="{{ path('app_eventback') }}" class="btn btn-primary">Créer un événement</a>
-        <table class="table event-list">
-          <thead>
-            <tr>
-              <th>Titre</th>
-              <th>Description</th>
-              <th>Date début</th>
-              <th>Date fin</th>
-              <th>Localisation</th>
-              <th>Activités</th>
-              <th>Prix</th>
-              <th>Nombre de places</th>
-              <th>Statut</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for event in events %}
-              <tr>
-                <td>{{ event.title }}</td>
-                <td>{{ event.description }}</td>
-                <td>{{ event.date_event|date('Y-m-d') }}</td>
-                <td>{{ event.dateFinEve|date('Y-m-d') }}</td>
-                <td>{{ event.location }}</td>
-                <td>{{ event.activities }}</td>
-                <td>{{ event.prix }}</td>
-                <td>{{ event.nb_places }}</td>
-                <td>{{ event.status }}</td>
-                <td>
-                  <div class="button-group">
-              <a href="{{ path('app_event_edit_back', {'id': event.id_event}) }}" class="btn btn-warning">
-  Modifier
-</a>
-
-                    <form action="{{ path('app_evedelBACK', { id: event.id_event }) }}" method="post" style="display:inline;">
-                      <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">Supprimer</button>
-                    </form>
-                    <form action="{{ path('app_change_status', { id: event.id_event }) }}" method="post" style="display:inline;">
-                      <button type="submit" class="btn btn-info" onclick="return confirm('Êtes-vous sûr de vouloir changer le statut de cet événement ?');">Changer le Statut</button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-            {% else %}
-              <tr>
-                <td colspan="5">Aucun événement trouvé.</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+          <div class="row justify-content-center" style="margin-top: 15rem;">  {# Added this row with centering #}
+            <div class="col-md-8 col-lg-6">  {# Constrained width for better form appearance #}
+              <div class="card">  {# Optional card styling #}
+                <div class="card-header">
+                  <h1 class="card-title text-center">Modifiez la catégorie</h1>  {# Centered title #}
+                </div>
+                <div class="card-body">
+                  {{ form_start(form) }}
+                    <div class="mb-3">  {# Added spacing between form elements #}
+                      {{ form_label(form.name) }}
+                      {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="text-center">  {# Centered button #}
+                      <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                  {{ form_end(form) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
     
-    <!-- Edit Event Modal -->
-    <div id="editEventModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeEditModal()">&times;</span>
-        <h2>Modifier l'événement</h2>
-        <form id="editEventForm" action="{{ path('app_event_edit', {'id': 0}) }}" method="post">
-            <input type="hidden" id="eventId" name="id" value="">
-          <div class="mb-3">
-            <label for="title" class="form-label">Titre</label>
-            <input type="text" class="form-control" id="title" name="title" required>
-          </div>
-          <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="date_event" class="form-label">Date début</label>
-            <input type="date" class="form-control" id="date_event" name="date_event" required>
-          </div>
-          <div class="mb-3">
-            <label for="dateFinEve" class="form-label">Date fin</label>
-            <input type="date" class="form-control" id="dateFinEve" name="dateFinEve" required>
-          </div>
-          <div class="mb-3">
-            <label for="location" class="form-label">Localisation</label>
-            <input type="text" class="form-control" id="location" name="location" required>
-          </div>
-          <div class="mb-3">
-            <label for="activities" class="form-label">Activités</label>
-            <input type="text" class="form-control" id="activities" name="activities" required>
-          </div>
-          <div class="mb-3">
-            <label for="prix" class="form-label">Prix</label>
-            <input type="number" class="form-control" id="prix" name="prix" required>
-          </div>
-          <div class="mb-3">
-            <label for="nb_places" class="form-label">Nombre de places</label>
-            <input type="number" class="form-control" id="nb_places" name="nb_places" required>
-          </div>
-          <div class="mb-3">
-            <label for="status" class="form-label">Statut</label>
-            <select class="form-select" id="status" name="status" required>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary">Enregistrer</button>
-        </form>
-      </div>
-    </div>
     
     <footer class="footer">
       <!-- Footer content can go here -->
@@ -712,5 +630,4 @@
   </div>
 </div>
 {% endblock %}
-
 
