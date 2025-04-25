@@ -1,0 +1,338 @@
+{# templates/reclamation/reclam.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block css %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/displayReclams.css') }}" />
+{% endblock %}
+
+{% block title %}Réclamations{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="{{ path('app_home') }}">Eventura</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+        <li class="nav-item"><a class="nav-link click-scroll" href="#section_1">Home</a></li>
+        <li class="nav-item"><a class="nav-link click-scroll" href="#section_2">About</a></li>
+        <li class="nav-item"><a class="nav-link click-scroll" href="#section_3">Features</a></li>
+        <li class="nav-item"><a class="nav-link click-scroll" href="#section_4">Contact</a></li>
+      </ul>
+      <div class="d-flex gap-2">
+        <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
+          <i class="bi bi-plus-circle me-2"></i>Créer Événement
+        </a>
+        <a href="{{ path('app_show_all_events') }}" class="btn custom-btn d-lg-block d-none">
+          Vos événements
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5">
+  <h1 class="text-center mb-4" style="color: aliceblue;">Réclamations</h1>
+
+  <div class="parent-header mb-3">
+    <button class="create-button" onclick="openCategoryPopup()">
+      <i class="fa-solid fa-plus"></i> Réclamation
+    </button>
+  </div>
+
+  <div class="parent-kitchen-categories">
+    {% if reclamations is not empty %}
+      {% for reclamation in reclamations %}
+        {% set statusClass =
+             reclamation.status == 'Rejeté'    ? 'status-rejete' :
+             reclamation.status == 'En cours'  ? 'status-en-cours' :
+             reclamation.status == 'En attente'? 'status-en-attente' :
+             reclamation.status == 'Résolu'    ? 'status-resolu' :
+                                              'status-default'
+        %}
+        <div class="element-card {{ statusClass }}"
+             data-id            ="{{ reclamation.id }}"
+             data-id_user       ="{{ reclamation.id_user }}"
+             data-id_event      ="{{ reclamation.id_event ?? '' }}"
+             data-description   ="{{ reclamation.description|e('html_attr') }}"
+             data-subject       ="{{ reclamation.subject|e('html_attr') }}">
+          <div class="display-card text-white p-4">
+            <h6 class="text-center text-info"><strong>Ticket #{{ reclamation.id }}</strong></h6>
+            <p style="color: rgb(211, 234, 255);">
+              <strong>Date:</strong> {{ reclamation.created_at|date('d/m/Y H:i') }}<br>
+              <strong>Description:</strong> {{ reclamation.description }}<br>
+              <strong>Sujet:</strong> {{ reclamation.subject }}<br>
+              <strong>Status:</strong> {{ reclamation.status }}
+            </p>
+            <div class="d-flex justify-content-between mt-3">
+                {% if reclamation.status == 'En attente' %}
+                  <button type="button" class="btn btn-outline-light modifier-button-kitcat">
+                    Modifier
+                  </button>
+                  <form action="{{ path('app_reclamation_delete', { id: reclamation.id }) }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                  </form>
+                {% else %}
+                  <button type="button" class="btn btn-outline-light modifier-button-kitcat">
+                    Suivre
+                  </button>
+                {% endif %}
+              </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-center">No reclamations found.</p>
+    {% endif %}
+  </div>
+</div>
+
+{# Create Popup #}
+<div id="categoryPopup" class="category-popup">
+    <div class="category-popup-content p-4 rounded shadow bg-white">
+      <!-- Close Button -->
+      <button type="button" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Close" onclick="closeCategoryPopup()"></button>
+  
+      <h5 class="mb-4 text-center">Créer une Réclamation</h5>
+  
+      {{ form_start(form, {
+           action: path('app_reclamation_new'),
+           attr: { enctype: 'multipart/form-data', id: 'reclamationForm' }
+      }) }}
+  
+      <div class="mb-3">
+        {{ form_label(form.id_user, null, { label_attr: { class: 'form-label' } }) }}
+        {{ form_widget(form.id_user, { attr: { class: 'form-control' } }) }}
+      </div>
+  
+      <div class="mb-3">
+        {{ form_label(form.id_event, null, { label_attr: { class: 'form-label' } }) }}
+        {{ form_widget(form.id_event, { attr: { class: 'form-control' } }) }}
+      </div>
+  
+      <div class="mb-3">
+        {{ form_label(form.description, null, { label_attr: { class: 'form-label' } }) }}
+        {{ form_widget(form.description, { attr: { class: 'form-control', rows: 3 } }) }}
+      </div>
+  
+      <div class="mb-3">
+        {{ form_label(form.subject, null, { label_attr: { class: 'form-label' } }) }}
+        {{ form_widget(form.subject, { attr: { class: 'form-control' } }) }}
+      </div>
+  
+      <!-- File Upload Button -->
+      <div class="mb-3">
+        <button type="button" id="addFilesBtn" class="btn btn-outline-secondary w-100">
+          <i class="bi bi-paperclip me-2"></i> Ajouter un fichier
+        </button>
+      </div>
+  
+      <!-- Hidden file inputs will be added here -->
+      <div id="fileInputsContainer"></div>
+  
+      <!-- File List -->
+      <table class="table table-bordered table-sm mt-2">
+        <thead class="table-light">
+          <tr>
+            <th>Nom du fichier</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="attachmentsTableBody"></tbody>
+      </table>
+  
+      <div class="d-grid mt-4">
+        <button type="submit" class="btn btn-primary">Envoyer</button>
+      </div>
+  
+      {{ form_end(form) }}
+    </div>
+  </div>
+
+{# Edit Popup #}
+<div id="editPopup" class="category-popup">
+  <div class="category-popup-content">
+    <button class="close close-button" onclick="closeEditPopup()">
+      <i class="fa-solid fa-xmark fa-lg"></i>
+    </button>
+    <h4 class="mb-3">Modifier Réclamation #<span id="edit-id"></span></h4>
+    <form id="editForm" method="post" action="">
+      <div class="mb-2">
+        <label for="edit-id_user">User ID</label>
+        <input type="number" name="reclamation[id_user]" id="edit-id_user"
+               class="form-control">
+      </div>
+      <div class="mb-2">
+        <label for="edit-id_event">Event ID</label>
+        <input type="number" name="reclamation[id_event]" id="edit-id_event"
+               class="form-control">
+      </div>
+      <div class="mb-2">
+        <label for="edit-description">Description</label>
+        <textarea name="reclamation[description]" id="edit-description"
+                  class="form-control" rows="3"></textarea>
+      </div>
+      <div class="mb-2">
+        <label for="edit-subject">Sujet</label>
+        <input type="text" name="reclamation[subject]" id="edit-subject"
+               class="form-control">
+      </div>
+      <button type="submit" class="btn btn-success mt-3">Enregistrer</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // DELETE confirmation
+  document.querySelectorAll('form[action*="delete"]').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      Swal.fire({
+        title: 'Êtes‑vous sûr ?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#de4958',
+        confirmButtonText: 'Oui, supprimez‑le !',
+        cancelButtonText: 'Annuler'
+      }).then(function(result) {
+        if (result.isConfirmed) form.submit();
+      });
+    });
+  });
+
+  // DYNAMIC FILE INPUTS for Create Popup
+  const addBtn    = document.getElementById('addFilesBtn');
+  const container = document.getElementById('fileInputsContainer');
+  const tableBody = document.getElementById('attachmentsTableBody');
+  const formName  = '{{ form.vars.name }}';
+
+  addBtn.addEventListener('click', function() {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.name = formName + '[attachments][]';
+    input.style.display = 'none';
+    input.addEventListener('change', function() {
+      if (!input.files.length) return;
+      var file = input.files[0];
+      var tr   = document.createElement('tr');
+      var tdN  = document.createElement('td');
+      var tdA  = document.createElement('td');
+      tdN.textContent = file.name;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = 'Retirer';
+      btn.className = 'btn btn-sm btn-danger';
+      btn.addEventListener('click', function() {
+        tr.remove(); input.remove();
+      });
+      tdA.appendChild(btn);
+      tr.appendChild(tdN);
+      tr.appendChild(tdA);
+      tableBody.appendChild(tr);
+    });
+    container.appendChild(input);
+    input.click();
+  });
+
+  // EDIT popup logic
+  document.querySelectorAll('.modifier-button-kitcat').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var card     = btn.closest('.element-card');
+      var id       = card.dataset.id;
+      var id_user  = card.dataset.id_user;
+      var id_event = card.dataset.id_event;
+      var desc     = card.dataset.description;
+      var subj     = card.dataset.subject;
+
+      document.getElementById('edit-id').textContent         = id;
+      document.getElementById('edit-id_user').value         = id_user;
+      document.getElementById('edit-id_event').value        = id_event;
+      document.getElementById('edit-description').value     = desc;
+      document.getElementById('edit-subject').value         = subj;
+      document.getElementById('editForm').action            =
+        '{{ path("app_reclamation_edit", {"id":0}) }}'.replace('/0','/' + id);
+
+      document.getElementById('editPopup').classList.add('open');
+    });
+  });
+});
+
+function openCategoryPopup() {
+  document.getElementById('categoryPopup').classList.add('open');
+}
+function closeCategoryPopup() {
+  document.getElementById('categoryPopup').classList.remove('open');
+}
+function closeEditPopup() {
+  document.getElementById('editPopup').classList.remove('open');
+}
+
+
+// Validation for Create Popup form
+document.getElementById('reclamationForm').addEventListener('submit', function (e) {
+  const userId      = document.getElementById('reclamation_id_user').value.trim();
+  const eventId     = document.getElementById('reclamation_id_event').value.trim();
+  const description = document.getElementById('reclamation_description').value.trim();
+  const subject     = document.getElementById('reclamation_subject').value.trim();
+
+  let errors = [];
+
+  if (!userId) errors.push("L'identifiant utilisateur est requis.");
+  if (!eventId) errors.push("L'identifiant de l'événement est requis.");
+
+  if (description.length < 20 || description.length > 300)
+    errors.push("La description doit contenir entre 20 et 300 caractères.");
+
+  if (subject.length < 10 || subject.length > 30)
+    errors.push("Le sujet doit contenir entre 10 et 30 caractères.");
+
+  if (errors.length > 0) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur de validation',
+      html: errors.join('<br>'),
+    });
+  }
+});
+
+
+// Validation on Edit Popup form
+document.getElementById('editForm').addEventListener('submit', function (e) {
+  const userId      = document.getElementById('edit-id_user').value.trim();
+  const eventId     = document.getElementById('edit-id_event').value.trim();
+  const description = document.getElementById('edit-description').value.trim();
+  const subject     = document.getElementById('edit-subject').value.trim();
+
+  let errors = [];
+
+  if (!userId) errors.push("L'identifiant utilisateur est requis.");
+  if (!eventId) errors.push("L'identifiant de l'événement est requis.");
+
+  if (description.length < 20 || description.length > 300)
+    errors.push("La description doit contenir entre 20 et 300 caractères.");
+
+  if (subject.length < 10 || subject.length > 30)
+    errors.push("Le sujet doit contenir entre 10 et 30 caractères.");
+
+  if (errors.length > 0) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur de validation',
+      html: errors.join('<br>'),
+    });
+  }
+});
+
+
+</script>
+{% endblock %}
