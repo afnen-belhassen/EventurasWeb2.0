@@ -45,4 +45,19 @@ class UsersRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+
+// App\Repository\UsersRepository.php
+
+public function countAgeGroup(int $minAge, int $maxAge): int
+{
+    $qb = $this->createQueryBuilder('u')
+        ->select('COUNT(u.userId)')
+        ->where('u.userBirthday BETWEEN :minAge AND :maxAge')
+        ->setParameter('minAge', new \DateTime('-' . $maxAge . ' years'))
+        ->setParameter('maxAge', new \DateTime('-' . $minAge . ' years'));
+    
+    return (int) $qb->getQuery()->getSingleScalarResult();
+}
+
 }

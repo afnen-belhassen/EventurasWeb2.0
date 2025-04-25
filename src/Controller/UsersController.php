@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Controller;
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use App\Entity\Users;
 use App\Form\UsersType;
 use App\Form\UsersMofiType;
@@ -10,7 +13,6 @@ use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -20,25 +22,59 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\QrCode ;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mailer\MailerInterface;
 #[Route('/user')]
 
 class UsersController extends AbstractController
 {
     #[Route('/app_users_index', name: 'app_users_index', methods: ['GET'])]
-    public function index(UsersRepository $usersRepository, PaginatorInterface $paginator, Request $request): Response
-    {
-        $query = $usersRepository->createQueryBuilder('u')->getQuery();
-        $pagination = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            10
-        );
+public function index(UsersRepository $usersRepository, RoleRepository $roleRepository, PaginatorInterface $paginator, Request $request): Response
+{
+    $search = $request->query->get('search');
+    $roleId = $request->query->get('role');
+    $statut = $request->query->get('statut');
 
-        return $this->render('users/index.html.twig', [
-            'pagination' => $pagination,
-        ]);
+    $queryBuilder = $usersRepository->createQueryBuilder('u');
+
+    if ($search) {
+        $queryBuilder->andWhere('u.userUsername LIKE :search OR u.userEmail LIKE :search')
+                     ->setParameter('search', '%' . $search . '%');
     }
 
+    if ($roleId) {
+        $roleEntity = $roleRepository->find($roleId);
+        if ($roleEntity) {
+            $queryBuilder->andWhere('u.role = :role')
+                         ->setParameter('role', $roleEntity);
+        }
+    }
+
+    if ($statut !== null && $statut !== '') {
+        $queryBuilder->andWhere('u.statut = :statut')
+                     ->setParameter('statut', $statut);
+    }
+
+    $query = $queryBuilder->getQuery();
+
+    $pagination = $paginator->paginate(
+        $query,
+        $request->query->getInt('page', 1),
+        10
+    );
+
+    $roles = $roleRepository->findAll();  // récupérer la liste des rôles
+
+    return $this->render('users/index.html.twig', [
+        'pagination' => $pagination,
+        'roles' => $roles,  // passer tous les rôles à la vue
+    ]);
+}
+
+
+    
     #[Route('/new_users', name: 'app_users_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em,UserPasswordHasherInterface $passwordHasher): Response
     {
@@ -239,17 +275,150 @@ if ($pictureFile) {
         ]);
     }
     #[Route('/{id}/edit/status', name: 'app_users_edit_status', methods: ['GET'])]
-        public function edit_status(Users $user, EntityManagerInterface $em): Response
-            {
-                // Set the status to 1
-                $user->setStatut(1); // Update the status to 1 (or any other value you need)
+    public function edit_status(int $id, UsersRepository $usersRepository, EntityManagerInterface $em, MailerInterface $mailer): Response
+    {
+        // Recherche de l'utilisateur par ID
+        $user = $usersRepository->find($id);
+    
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur non trouvé.');
+        }
+    
+        // Mise à jour du statut
+        $user->setStatut(1);
+    
+        // Préparation de l'e-mail
+        $email = (new Email())
+            ->from("az.backup04@gmail.com")
+            ->to($user->getUserEmail()) // Adresse e-mail récupérée dynamiquement
+            ->subject('Validation de votre compte Organisateur')
+            ->text(sprintf(
+                "Bonjour %s %s,\n\nVotre compte organisateur a été validé avec succès.\nNom d'utilisateur : %s\nMerci de votre confiance.",
+                $user->getUserFirstname(),
+                $user->getUserLastname(),
+                $user->getUserUsername()
+            ));
+    
+        // Envoi de l'e-mail
+        $mailer->send($email);
+    
+        // Sauvegarde des modifications
+        $em->flush();
+    
+        // Redirection vers la liste des utilisateurs
+        return $this->redirectToRoute('app_dashboard', [], Response::HTTP_SEE_OTHER);
+    }
+    
+            #[Route('/admin/notifications', name: 'admin_notifications', methods: ['GET'])]
+public function notifications(EntityManagerInterface $entityManager): JsonResponse
+{
+    $pendingOrganisateurs = $entityManager->getRepository(Users::class)->findBy([
+        'statut' => 0
+    ]);
 
-                // Persist the changes and flush to the database
-                $em->flush(); // Commit the change to the database
+    $data = [];
 
-                // Redirect to the users list (or any other route you want after the update)
-                return $this->redirectToRoute('app_users_index', [], Response::HTTP_SEE_OTHER);
-            }
+    foreach ($pendingOrganisateurs as $user) {
+        $data[] = [
+            'id' => $user->getUserId(),
+            'username' => $user->getUserUsername(),
+            'email' => $user->getUserEmail()
+        ];
+    }
+
+    return $this->json([
+        'count' => count($data),
+        'users' => $data
+    ]);
+}
+#[Route('/users/export', name:'app_users_export')]
+ 
+public function export(UsersRepository $userRepository): Response
+{
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    $sheet->setCellValue('A1', 'ID');
+    $sheet->setCellValue('B1', 'Username');
+    $sheet->setCellValue('C1', 'Email');
+    $sheet->setCellValue('D1', 'Role');
+
+    $users = $userRepository->findAll();  // ou ta requête filtrée
+    $row = 2;
+
+    foreach ($users as $user) {
+        $sheet->setCellValue('A' . $row, $user->getUserId());
+        $sheet->setCellValue('B' . $row, $user->getUserUsername());
+        $sheet->setCellValue('C' . $row, $user->getUserEmail());
+        $sheet->setCellValue('D' . $row, $user->getRole());
+        $row++;
+    }
+
+    $writer = new Xlsx($spreadsheet);
+    $temp_file = tempnam(sys_get_temp_dir(), 'users_export');
+    $writer->save($temp_file);
+
+    return $this->file($temp_file, 'users_list.xlsx', ResponseHeaderBag::DISPOSITION_INLINE);
+}
+#[Route('/dashboard', name: 'app_dashboard', methods: ['GET'])]
+public function dashboard(UsersRepository $usersRepository, RoleRepository $roleRepository): Response
+{
+    // Récupération des rôles en tant qu'entités
+    $roleOrganisateur = $roleRepository->findOneBy(['roleName' => 'ROLE_ORGANISATEUR']);
+    $roleParticipant = $roleRepository->findOneBy(['roleName' => 'ROLE_PARTICIPANT']);
+
+    // Sécurité : vérification que les rôles existent
+    if (!$roleOrganisateur || !$roleParticipant) {
+        throw $this->createNotFoundException('Les rôles ROLE_ORGANISATEUR ou ROLE_PARTICIPANT sont introuvables en base.');
+    }
+
+    // Nombre total d'utilisateurs
+    $totalUsers = $usersRepository->count([]);
+
+    // Nombre d'organisateurs et de participants
+    $organisateurs = $usersRepository->count(['role' => $roleOrganisateur]);
+    $participants = $usersRepository->count(['role' => $roleParticipant]);
+
+    // Statistiques par sexe
+    $maleCount = $usersRepository->count(['userGender' => 'male']);
+    $femaleCount = $usersRepository->count(['userGender' => 'female']);
+    $otherGenderCount = $usersRepository->count(['userGender' => 'other']);
+
+    // Statistiques par statut d'organisateur
+    $organisateurStatut1 = $usersRepository->count([
+        'role' => $roleOrganisateur,
+        'statut' => 1
+    ]);
+
+    $organisateurStatut0 = $usersRepository->count([
+        'role' => $roleOrganisateur,
+        'statut' => 0
+    ]);
+
+    // Statistiques par tranches d'âge
+    $age18_25 = $usersRepository->countAgeGroup(18, 25);
+    $age26_35 = $usersRepository->countAgeGroup(26, 35);
+    $age36_50 = $usersRepository->countAgeGroup(36, 50);
+    $age50plus = $usersRepository->countAgeGroup(51, 100);
+
+    return $this->render('dashbord/index.html.twig', [
+        'totalUsers' => $totalUsers,
+        'organisateurs' => $organisateurs,
+        'participants' => $participants,
+        'maleCount' => $maleCount,
+        'femaleCount' => $femaleCount,
+        'otherGenderCount' => $otherGenderCount,
+        'organisateurStatut1' => $organisateurStatut1,
+        'organisateurStatut0' => $organisateurStatut0,
+        'ageGroups' => [
+            '18-25' => $age18_25,
+            '26-35' => $age26_35,
+            '36-50' => $age36_50,
+            '50+' => $age50plus,
+        ]
+    ]);
+}
+
 
     }
 

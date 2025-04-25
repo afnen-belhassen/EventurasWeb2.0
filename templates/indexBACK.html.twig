@@ -13,6 +13,131 @@
     <link rel="stylesheet" href="{{ asset('css/plugins.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/kaiadmin.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/demo.css') }}">
+    <style>
+/* Style de la notification */
+.notif {
+  position: fixed;
+  top: 20px;
+  right: -350px; /* Cachée initialement hors de l'écran */
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, right 0.5s ease-in-out; /* Animation fluide */
+  background: #fff; /* Fond blanc */
+  color: #333; /* Texte sombre */
+  border-radius: 15px; /* Coins arrondis */
+  padding: 20px;
+  max-width: 350px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Ombre douce pour donner l'effet carte */
+  font-family: 'Arial', sans-serif;
+}
+
+.notif.show {
+  right: 20px; /* L'élément se déplace à cette position pour l'affichage */
+  opacity: 1;
+}
+
+.notif.hide {
+  right: -350px;
+  opacity: 0;
+}
+
+.notif-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notif-count {
+  background: #ff4c4c; /* Rouge vif */
+  color: white;
+  padding: 10px 14px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: bold;
+  position: relative;
+  top: -5px;
+}
+
+.notif-text {
+  margin-left: 15px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.notif-list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 20px;
+}
+
+.notif-list li {
+  margin: 10px 0;
+  padding: 12px;
+  background-color: rgba(0, 0, 0, 0.05); /* Fond clair pour les éléments de liste */
+  border-radius: 10px;
+  font-size: 14px;
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Effet sur le survol */
+}
+
+.notif-list li:hover {
+  background-color: rgba(0, 0, 0, 0.1); /* Légère couleur de fond au survol */
+  transform: translateX(5px); /* Déplacement au survol pour effet dynamique */
+}
+
+.notif-list a {
+  color: #4caf50; /* Vert pour les liens */
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.notif-list a:hover {
+  color: #fff; /* Blanc au survol */
+}
+
+/* Style du bouton dans la notification */
+.notif-btn {
+  display: inline-block;
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-decoration: none;
+  margin-top: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.notif-btn:hover {
+  background-color: #45a049; /* Légère nuance de vert au survol */
+  transform: scale(1.05); /* Effet de zoom sur le bouton au survol */
+}
+
+/* Design d'une card stylée pour le contenu de la notification */
+.notif-card {
+  background-color: #f9f9f9; /* Fond clair pour la carte */
+  border-radius: 15px; /* Coins arrondis */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Ombre douce pour la carte */
+  padding: 20px;
+  font-size: 16px;
+  font-family: 'Arial', sans-serif;
+  color: #555;
+}
+
+.notif-card h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.notif-card p {
+  margin-bottom: 20px;
+  line-height: 1.5;
+  color: #666;
+}
+
+    </style>
   {% endblock %}
 </head>
 
@@ -36,7 +161,7 @@
         <div class="sidebar-content">
           <ul class="nav nav-secondary">
             <li class="nav-item active">
-              <a href="#">
+              <a href="{{path('app_dashboard')}}">
                 <i class="fas fa-home"></i>
                 <p>Dashboard</p>
               </a>
@@ -112,8 +237,23 @@
 
     <!-- Main Content -->
     <div class="main-panel">
-      {% block body %}{% endblock %}
+      
+      
+       <div id="notif-area" class="notif hide">
+        <span id="notif-count" class="notif-count">0</span>
+        <span class="notif-text">Nouveaux organisateurs</span>
+        <div class="notif-content">
+          <ul id="notif-list" class="notif-list"></ul>
+        </div>
       </div>
+
+      {% block body %}
+
+    
+    
+    <ul id="notif-list"></ul>
+      
+      {% endblock %}
 {%block footer%}
      
       {% endblock %}
@@ -125,6 +265,57 @@
     <script src="{{ asset('js/plugin/chart.js/chart.min.js') }}"></script>
     <script src="{{ asset('js/kaiadmin.min.js') }}"></script>
     <script src="{{ asset('js/demo.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+   function checkNotifications() {
+    fetch("{{ path('admin_notifications') }}")
+        .then(response => response.json())
+        .then(data => {
+            const countEl = document.getElementById('notif-count');
+            const listEl = document.getElementById('notif-list');
+            const notifArea = document.getElementById('notif-area');
+
+            if (!countEl || !listEl || !notifArea) return;
+
+            // Mise à jour du nombre de notifications
+            countEl.innerText = data.count;
+            listEl.innerHTML = '';
+
+            if (data.count > 0) {
+                // Remplir la liste des notifications
+                data.users.forEach(user => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `👤 ${user.username} (${user.email}) 
+                        <a href="/user/${user.id}/edit/status">[Accepter]</a>`;
+                    listEl.appendChild(li);
+                });
+
+                // Afficher la notification
+                notifArea.classList.remove('hide');
+                notifArea.classList.add('show');
+
+                // Masquer la notification après 5 secondes
+                setTimeout(() => {
+                    notifArea.classList.remove('show');
+                    notifArea.classList.add('hide');
+                }, 5000); // Masquer après 5 secondes
+            } else {
+                // Si aucune notification, on cache l'élément
+                notifArea.classList.remove('show');
+                notifArea.classList.add('hide');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur de récupération des notifications :', error);
+        });
+}
+
+// Appeler la fonction toutes les 5 secondes pour vérifier les notifications
+setInterval(checkNotifications, 5000);
+
+  
+</script>
+    
      <!-- Fonts and icons -->
   <script src="{{ asset('js/plugin/webfont/webfont.min.js') }}"></script>
   <script>

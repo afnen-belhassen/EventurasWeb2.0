@@ -88,9 +88,12 @@
         <h1>🏠 Modifier Votre Profile</h1>
 
     
-        {{ include('_form.html.twig', {'button_label': 'Update'}) }}
+        {{ include('Profile/_form.html.twig', {'button_label': 'Update'}) }}
+
     
-        <a href="{{ path('app_users_index_profile_organisateur') }}">back to list</a>
+        <a href="{{ path('edit_profile_organisateur', {'id': user.userId}) }}">back</a>
+
+
     
     
     </div>

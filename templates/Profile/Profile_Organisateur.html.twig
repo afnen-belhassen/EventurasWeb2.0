@@ -99,7 +99,9 @@
                 <img src="{{ asset('uploads/qrcodes/' ~ app.user.userId ~ '.png') }}" alt="QR Code utilisateur">
             </div>
 
-            <a href="">Edit Profile</a>
+            <a href="{{ path('edit_profile_organisateur', {'id': app.user.userId}) }}" class="btn btn-sm btn-warning" title="Edit">
+                <i class="fas fa-edit"></i>Edit Profile
+            </a>
             
         {% else %}
             <p class="no-user">Aucun utilisateur connecté.</p>

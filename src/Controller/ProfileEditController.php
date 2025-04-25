@@ -11,12 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-#[Route(path: '/PROFILE')]
 
 class ProfileEditController extends AbstractController
 {
    
-    #[Route('/{id}/editprofile', name: 'app_users_edit_profile', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
+    #[Route('/editprofile/{id}/', name: 'app_users_edit_profile_par', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function editprofileparticipant(RoleRepository $roleRepository,Request $request, Users $user, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(UsersMofiType::class, $user);
@@ -43,7 +42,7 @@ class ProfileEditController extends AbstractController
             }
             
             $user->setRole($role);
-            $user->setUserRole('PARTICIPANT');
+            $user->setRole($role);
             $em->flush();
 
             return $this->redirectToRoute('homeProfile', [], Response::HTTP_SEE_OTHER);
@@ -54,7 +53,7 @@ class ProfileEditController extends AbstractController
             'form' => $form,
         ]);
     }
-    #[Route('/{id}/EditProfileOrganisateur', name: 'app_users_edit_profile_organisateur', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
+    #[Route('/EditOrganisateur/{id}/', name: 'edit_profile_organisateur', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function editprofileorganisateur(RoleRepository $roleRepository,Request $request, Users $user, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(UsersMofiType::class, $user);
@@ -81,13 +80,13 @@ class ProfileEditController extends AbstractController
             }
             
             $user->setRole($role);
-            $user->setUserRole('ORGANISATEUR');
+            $user->setRole($role);
             $em->flush();
 
-            return $this->redirectToRoute('homeProfile', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('ProfileOrganisateur', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('Profile/edit.html.twig', [
+        return $this->renderForm('Profile/EditProfileOrganisateur.html.twig', [
             'user' => $user,
             'form' => $form,
         ]);

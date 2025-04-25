@@ -2,7 +2,6 @@
 
 {% block body %}
     <style>
-       
         .home-container {
             max-width: 900px;
             margin: 60px auto;
@@ -12,29 +11,20 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
             animation: fadeIn 0.8s ease-in-out;
+            position: relative;
+            overflow: hidden;
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        h1 {
-            color: #2c3e50;
-            font-size: 28px;
-            margin-bottom: 15px;
-        }
+        h1 { color: #2c3e50; font-size: 32px; margin-bottom: 20px; }
 
         .welcome {
-            font-size: 18px;
-            color: #555;
-            margin-bottom: 25px;
+            font-size: 18px; color: #555;
+            margin-bottom: 30px; line-height: 1.6;
         }
 
         .qr-code {
@@ -44,32 +34,19 @@
             border-radius: 8px;
             background: #fff;
             padding: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
-        .qr-code img {
-            width: 100%;
-            height: auto;
-            border-radius: 4px;
-        }
+        .qr-code img { width: 100%; height: auto; border-radius: 4px; }
 
-        .no-user {
-            color: #888;
-            font-style: italic;
-        }
+        .no-user { color: #888; font-style: italic; }
 
         .btn-edit-profile {
-            display: inline-block;
-            margin-top: 25px;
-            padding: 12px 24px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 30px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
+            margin-top: 25px; padding: 12px 24px;
+            background-color: #3498db; color: white;
+            text-decoration: none; border-radius: 30px;
+            font-weight: 500; transition: all 0.3s ease;
+            border: none; display: inline-block; cursor: pointer;
             box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
         }
 
@@ -79,35 +56,59 @@
             box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
         }
 
-        .btn-edit-profile:active {
-            transform: translateY(0);
+        .celebration {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; overflow: hidden;
+        }
+
+        .celebration span {
+            position: absolute; display: block;
+            width: 10px; height: 10px; background: #f39c12;
+            animation: confetti 3s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(600px) rotate(360deg); opacity: 0; }
         }
     </style>
-<br><br><br><br>
+
     <div class="home-container">
         <h1>🏠 Bienvenue sur votre espace personnel</h1>
 
         {% if app.user %}
-            <p class="welcome">
-                Bonjour <strong>{{ app.user.userUsername }}</strong>,<br>
-                <br>
-                votre Role est : <strong>{{ app.user.role }}</strong>
-                <br>
-                <br>
-                votre identifiant est : <strong>{{ app.user.userId }}</strong>
-            </p>
+            {% if isBirthday %}
+                <div class="celebration">
+                    {% for i in 1..30 %}
+                        <span style="left: {{ random(0, 100) }}%; background-color: hsl({{ random(0, 360) }}, 70%, 60%); animation-delay: {{ random(0, 2000) / 1000 }}s;"></span>
+                    {% endfor %}
+                </div>
 
-            <div class="qr-code">
-                <img src="{{ asset('uploads/qrcodes/' ~ app.user.userId ~ '.png') }}" alt="QR Code utilisateur">
+                <p class="welcome" style="color:#e67e22; font-size:20px;">
+                    🎉 Joyeux anniversaire <strong>{{ app.user.userUsername }}</strong> ! 🎂<br>
+                    Que cette journée te soit belle et pleine de surprises !
+                </p>
+            {% endif %}
+
+            <div class="user-info">
+                <p class="welcome">
+                    Bonjour <strong>{{ app.user.userUsername }}</strong> 👋<br><br>
+                    Rôle : <strong>{{ app.user.role }}</strong><br>
+                    Identifiant : <strong>{{ app.user.userId }}</strong>
+                </p>
+
+                <div class="qr-code">
+                    <img src="{{ asset('uploads/qrcodes/' ~ app.user.userId ~ '.png') }}" alt="QR Code utilisateur">
+                </div>
+
+                <a href="{{ path('app_users_edit_profile_par', {'id': app.user.userId}) }}" class="btn-edit-profile">
+                    ✏️ Modifier mon profil
+                </a>
             </div>
-
-            <a href="{{ path('app_users_edit_profile', {'id': app.user.userId}) }}" class="btn btn-sm btn-warning" title="Edit">
-                <i class="fas fa-edit"></i>
-            </a>
-          
         {% else %}
             <p class="no-user">Aucun utilisateur connecté.</p>
         {% endif %}
     </div>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 {% endblock %}

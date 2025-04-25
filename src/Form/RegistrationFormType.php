@@ -14,6 +14,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use App\Entity\Role;
+use Doctrine\ORM\EntityRepository;
+
 class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -84,7 +86,18 @@ class RegistrationFormType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
-            ->add(child: 'role')
+           # ->add(child: 'role')
+           ->add('role', EntityType::class, [
+            'class' => Role::class,
+            'choice_label' => 'roleName',  // <--- correct property
+            'label' => 'Role',
+            'query_builder' => function (EntityRepository $er) {
+                return $er->createQueryBuilder('r')
+                          ->where('r.roleName != :admin')
+                          ->setParameter('admin', 'ROLE_ADMIN');
+            },
+            'attr' => ['class' => 'form-control'],
+        ])
 
             
             ;

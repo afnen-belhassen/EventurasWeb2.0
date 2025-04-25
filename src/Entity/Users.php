@@ -20,7 +20,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'user_username', type: 'string', length: 255)]
     #[Assert\NotBlank(message: 'Username is required')]
     #[Assert\Length(
-        min: 6,
+        min: 3,
         max: 50,
         minMessage: 'Username must be at least {{ limit }} characters long',
         maxMessage: 'Username cannot be longer than {{ limit }} characters'
@@ -55,7 +55,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'user_firstname', type: 'string', length: 255, nullable: true)]
     #[Assert\NotBlank(message: 'First name is required')]
     #[Assert\Length(
-        min: 5,
+        min: 3,
         max: 255,
         minMessage: 'First name must be at least {{ limit }} character long',
         maxMessage: 'First name cannot be longer than {{ limit }} characters'
@@ -65,7 +65,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'user_lastname', type: 'string', length: 255, nullable: true)]
     #[Assert\NotBlank(message: 'Last name is required')]
     #[Assert\Length(
-        min: 5,
+        min: 3,
         max: 255,
         minMessage: 'Last name must be at least {{ limit }} character long',
         maxMessage: 'Last name cannot be longer than {{ limit }} characters'
@@ -119,7 +119,19 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->statut = 1; // par défaut = 1
     }
     
-    
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+private ?string $resetToken = null;
+
+public function getResetToken(): ?string
+{
+    return $this->resetToken;
+}
+
+public function setResetToken(?string $resetToken): self
+{
+    $this->resetToken = $resetToken;
+    return $this;
+}
 public function getStatut(): int
 {
     return $this->statut;

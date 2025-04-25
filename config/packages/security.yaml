@@ -29,3 +29,6 @@ security:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/home, roles: ROLE_PARTICIPANT }
         - { path: ^/user, roles: ROLE_ADMIN }
+        - { path: ^/EditProfileOrganisateur, roles: ROLE_ORGANISATEUR }
+        - { path: ^/forum, roles: ROLE_PARTICIPANT }
+        - { path: ^/forum, roles: ROLE_ORGANISATEUR }
