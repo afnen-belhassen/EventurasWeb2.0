@@ -1,0 +1,118 @@
+{% extends 'base_front.html.twig' %}
+
+{% block body %}
+    <style>
+    
+
+        .login-container {
+            max-width: 800px; /* Augmentation de la largeur */
+            margin: 80px auto; /* Augmentation de la marge pour centrer le contenu */
+            padding: 50px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 36px;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        .form-label {
+            font-size: 18px;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        .form-control {
+            padding: 20px;
+            font-size: 18px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            width: 100%;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #4d94ff;
+            box-shadow: 0 0 10px rgba(0, 0, 255, 0.3);
+        }
+
+        .btn-primary {
+            background-color: #4d94ff;
+            color: white;
+            padding: 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 20px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #337ab7;
+        }
+
+        .text-center {
+            font-size: 18px;
+            color: #555;
+        }
+
+        .text-decoration-none {
+            color: #4d94ff;
+        }
+
+        .text-decoration-none:hover {
+            text-decoration: underline;
+        }
+
+        .mt-3 {
+            margin-top: 30px;
+        }
+
+        .alert {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="login-container">
+                    <h2 class="text-center">Se connecter</h2>
+
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                    {% endfor %}
+
+                    <form method="post" action="{{ path('app_login') }}">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" name="email" id="email" class="form-control" placeholder="Entrez votre email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mot de passe</label>
+                            <input type="password" name="password" id="password" class="form-control" placeholder="Entrez votre mot de passe" required>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <button type="submit" class="btn btn-primary">Se connecter</button>
+                           
+                        </div>
+                        <a href="{{path('app_forgot_password')}}" class="text-decoration-none">Mot de passe oublié ?</a>
+
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <p>Vous n'avez pas de compte ? <a href="{{ path('app_register') }}" class="text-decoration-none">Inscrivez-vous ici</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
