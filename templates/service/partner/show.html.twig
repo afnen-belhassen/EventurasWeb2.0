@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Partner Details{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Partner Details</h1>
+            <div>
+                <a href="{{ path('app_partner_edit', {'id': partner.id}) }}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{{ path('app_partner_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="card-title">Basic Information</h5>
+                        <table class="table">
+                            <tr>
+                                <th>Name:</th>
+                                <td>{{ partner.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Description:</th>
+                                <td>{{ partner.description }}</td>
+                            </tr>
+                            <tr>
+                                <th>Website:</th>
+                                <td>
+                                    {% if partner.website %}
+                                        <a href="{{ partner.website }}" target="_blank">{{ partner.website }}</a>
+                                    {% else %}
+                                        <span class="text-muted">Not provided</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h5 class="card-title">Contact Information</h5>
+                    <table class="table">
+                        <tr>
+                            <th>Email:</th>
+                            <td>{{ partner.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Phone:</th>
+                            <td>{{ partner.phone }}</td>
+                        </tr>
+                        <tr>
+                            <th>Address:</th>
+                            <td>{{ partner.address }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    <h5 class="card-title">Additional Information</h5>
+                    <table class="table">
+                        <tr>
+                            <th>Created At:</th>
+                            <td>{{ partner.createdAt ? partner.createdAt|date('Y-m-d H:i:s') : 'Not set' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Updated At:</th>
+                            <td>{{ partner.updatedAt ? partner.updatedAt|date('Y-m-d H:i:s') : 'Not set' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

@@ -1,0 +1,59 @@
+{% extends 'back/basePartner.html.twig' %}
+
+{% block title %}Partner Details{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Partner Details</h1>
+            <div>
+                <a href="{{ path('app_partner_edit', {'id': partner.id}) }}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{{ path('app_partner_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        {% if partner.imagePath %}
+                            <img src="{{ asset('uploads/partners/' ~ partner.imagePath) }}" alt="{{ partner.name }}" class="img-fluid rounded">
+                        {% else %}
+                            <div class="bg-light text-center p-5 rounded">
+                                <i class="fas fa-image text-muted fa-3x"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 200px;">Name</th>
+                                    <td>{{ partner.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Description</th>
+                                    <td>{{ partner.description|raw }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Website</th>
+                                    <td>
+                                        {% if partner.website %}
+                                            <a href="{{ partner.website }}" target="_blank">{{ partner.website }}</a>
+                                        {% else %}
+                                            <span class="text-muted">Not provided</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 
