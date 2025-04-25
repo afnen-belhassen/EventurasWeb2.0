@@ -160,6 +160,8 @@ class Reclamation
 
     public function __construct()
     {
+         // ← set creation timestamp to “now”
+        $this->created_at = new \DateTime();
         $this->reclamationAttachments = new ArrayCollection();
         $this->reclamationConversations = new ArrayCollection();
     }
