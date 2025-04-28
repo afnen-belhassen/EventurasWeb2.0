@@ -28,10 +28,12 @@ class ForumController extends AbstractController
         $this->uploadDirectory = $uploadDirectory;
     }
 
-    #[Route('/forum', name: 'app_forum')]
-    public function index(PostRepository $postRepository,EntityManagerInterface $em,BadWordRepository $badWordRepository): Response
+    #[Route('/forum', name: 'app_forum', methods: ['GET'])]
+    public function index( Request $request, PostRepository $postRepository,EntityManagerInterface $em,BadWordRepository $badWordRepository): Response
     {
-
+        $search   = $request->query->get('q', '');
+        $category = $request->query->get('category', '');
+        $sort     = $request->query->get('sort', 'date');  // 'date' ou 'likes'
         // Récupération de l'utilisateur courant
         //$user = $this->getUser();
         $user = 1;
@@ -55,7 +57,7 @@ class ForumController extends AbstractController
         $badWords = $badWordRepository->findAll();
         $badWordsArray = array_map(fn($bw) => $bw->getWord(), $badWords);
 
-        $posts = $postRepository->findAllOrderedByDate();
+        $posts = $postRepository->findByCriteria($search, $category, $sort);
 
         // Récupération du repository des likes
         $likeRepository = $em->getRepository(\App\Entity\Like::class);
@@ -79,10 +81,33 @@ class ForumController extends AbstractController
             // Ajout dynamique des propriétés au post
             $post->likeCount = $likeCount;
             $post->likedByCurrent = $likedByCurrent;
+
+            foreach ($post->getComments() as $comment) {
+                $cCount = (int) $likeRepository->createQueryBuilder('l')
+                    ->select('COUNT(l.id)')
+                    ->andWhere('l.postId = :cid')
+                    ->setParameter('cid', $comment->getId())
+                    ->getQuery()
+                    ->getSingleScalarResult();
+    
+                $cLiked = $likeRepository->findOneBy([
+                    'postId' => $comment->getId(),
+                    'userId' => $user,
+                ]) !== null;
+    
+                // on ajoute dynamiquement ces propriétés au comment
+                $comment->likeCount       = $cCount;
+                $comment->likedByCurrent  = $cLiked;
+            }
         }
 
         return $this->render('forum/index.html.twig', [
             'posts' => $posts, 'postedToday' => $postedToday,'badWords' => $badWordsArray,
+            'criteria'    => [
+                'q'        => $search,
+                'category' => $category,
+                'sort'     => $sort,
+            ],
         ]);
     }
 
@@ -94,6 +119,7 @@ class ForumController extends AbstractController
         $post->setContent($request->request->get('content'));
         $post->setUserId(1); // Hardcoded user_id
         $post->setCreatedAt(new \DateTime());
+        $post->setCategory($request->request->get('category'));
 
         // Handle image upload
         $imageFile = $request->files->get('image');
@@ -321,4 +347,44 @@ class ForumController extends AbstractController
 
         return $this->redirectToRoute('app_admin_forum');
     }
+
+    // src/Controller/ForumController.php
+
+    #[Route("/forum/comment/like/{commentId}", name:"app_forum_comment_like", methods:['POST'])]
+    public function toggleCommentLike(int $commentId, EntityManagerInterface $em): JsonResponse
+    {
+        $userId = 1; // ou $this->getUser()->getId()
+
+        $repo = $em->getRepository(Like::class);
+        $existing = $repo->findOneBy([
+            'postId' => $commentId,   // on stocke l’ID du comment ici
+            'userId' => $userId,
+        ]);
+
+        if ($existing) {
+            $em->remove($existing);
+            $liked = false;
+        } else {
+            $like = new Like();
+            $like->setPostId($commentId);
+            $like->setUserId($userId);
+            $like->setLikedAt(new \DateTimeImmutable());
+            $em->persist($like);
+            $liked = true;
+        }
+        $em->flush();
+
+        $count = (int) $repo->createQueryBuilder('l')
+            ->select('COUNT(l.id)')
+            ->andWhere('l.postId = :cid')
+            ->setParameter('cid', $commentId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return new JsonResponse([
+            'liked'     => $liked,
+            'likeCount' => $count,
+        ]);
+    }
+
 } 

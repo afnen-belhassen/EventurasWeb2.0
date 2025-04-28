@@ -34,6 +34,10 @@ class Post
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Comment::class, orphanRemoval: true)]
     private Collection $comments;
 
+    #[ORM\Column(length: 255)]
+    private ?string $category = null;
+
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -126,4 +130,17 @@ class Post
         }
         return $this;
     }
+
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(string $category): static
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
 } 
