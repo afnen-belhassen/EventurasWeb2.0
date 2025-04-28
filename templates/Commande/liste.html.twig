@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Commandes{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center bg-dark">
+                <h2 class="mb-0 text-white">Liste des Commandes</h2>
+                <div>
+                    <a href="{{ path('app_boutique') }}" class="btn btn-primary me-2">
+                        <i class="bi bi-shop"></i> Boutique
+                    </a>
+                    <a href="{{ path('app_dashboard') }}" class="btn btn-info">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+
+                <div class="table-responsive">
+                    <table class="table table-hover text-center align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Nom Client</th>
+                                <th scope="col">Téléphone</th>
+                                <th scope="col">Adresse</th>
+                                <th scope="col">Produit</th>
+                                <th scope="col">Quantité</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Total</th>
+                                <th scope="col" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for commande in commandes %}
+                                <tr>
+                                    <td>{{ commande.id }}</td>
+                                    <td>{{ commande.nomClient }}</td>
+                                    <td>{{ commande.telephone }}</td>
+                                    <td>{{ commande.adresse }}</td>
+                                    <td>{{ commande.produit ? commande.produit.nom : 'Produit non disponible' }}</td>
+
+                                    <td>{{ commande.quantite }}</td>
+                                    <td>{{ commande.dateCommande ? commande.dateCommande|date('d/m/Y H:i') : '' }}</td>
+                                    <td>
+                                        {{ commande.getTotal() is not null ? commande.getTotal()|number_format(2, '.', ' ') ~ ' DT' : '0.00 DT' }}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('modifier_commande', {'id': commande.id}) }}"
+                                               class="btn btn-sm btn-outline-warning"
+                                               title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a href="{{ path('supprimer_commande', {'id': commande.id}) }}"
+                                               class="btn btn-sm btn-outline-danger"
+                                               title="Supprimer"
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                            <p class="mt-2 mb-0">Aucune commande trouvée</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

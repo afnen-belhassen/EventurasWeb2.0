@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Passer une commande{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h2 class="text-center mb-4 text-white">
+            Passer une commande
+        </h2>
+
+        {{ form_start(form, {'method': 'POST', 'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    {{ form_label(form.produit, 'Produit', {'label_attr': {'class': 'text-white'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-box"></i></span>
+                        {{ form_widget(form.produit, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    {{ form_errors(form.produit) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.quantite, 'Quantité', {'label_attr': {'class': 'text-white'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-cart"></i></span>
+                        {{ form_widget(form.quantite, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    {{ form_errors(form.quantite) }}
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    {{ form_label(form.nom_client, 'Nom du client', {'label_attr': {'class': 'text-white'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        {{ form_widget(form.nom_client, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    {{ form_errors(form.nom_client) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.adresse, 'Adresse', {'label_attr': {'class': 'text-white'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-house-door"></i></span>
+                        {{ form_widget(form.adresse, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    {{ form_errors(form.adresse) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.telephone, 'Numéro de téléphone', {'label_attr': {'class': 'text-white'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                        {{ form_widget(form.telephone, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    {{ form_errors(form.telephone) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-success btn-lg">Confirmer la commande</button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

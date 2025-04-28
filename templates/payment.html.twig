@@ -1,0 +1,45 @@
+{# templates/commande/payment.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement de la Commande{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="bg-dark p-3 rounded mb-4">
+            <h2 class="text-white mb-0"><i class="bi bi-credit-card me-2"></i> Paiement de la Commande</h2>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h3 style="color: white;">Détails de la Commande</h3>
+                <p style="color: white;"><strong>Numéro de Commande:</strong> {{ commande.id }}</p>
+                <p style="color: white;"><strong>Montant Total:</strong> {{ commande.montantTotal|number_format(2, ',', ' ') }} DT</p>
+                <p style="color: white;"><strong>Adresse de Livraison:</strong> {{ commande.adresse }}</p>
+
+                <h4 style="color: white;">Produits dans la Commande :</h4>
+                <ul>
+                    {% for produit in commande.produit %}
+                        <li style="color: white;">{{ produit.nom }} - {{ produit.quantite }} x {{ produit.prix|number_format(2, ',', ' ') }} DT</li>
+                    {% endfor %}
+                </ul>
+
+                <form action="{{ path('app_boutique') }}" method="POST">
+                    <div class="form-group">
+                        <label for="paymentMethod" style="color: white;">Méthode de Paiement</label>
+                        <select class="form-control" id="paymentMethod" name="paymentMethod" required>
+                            <option value="">Choisissez une méthode de paiement</option>
+                            <option value="card">Carte de Crédit</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="cash">Paiement à la Livraison</option>
+                        </select>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-success">Confirmer le Paiement</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

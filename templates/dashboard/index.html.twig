@@ -1,0 +1,219 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block body %}
+<main>
+    <header class="site-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-12 d-flex flex-wrap">
+                    <p class="d-flex me-4 mb-0">
+                        <i class="bi-speedometer2 custom-icon me-2"></i>
+                        <strong class="text-dark">Aperçu du tableau de bord</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_dashboard') }}">
+                Tableau de bord Eventuras
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_dashboard') }}">Tableau de bord</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('liste_commandes') }}">Commandes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('liste_produits') }}">Produits</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="dashboard-section section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="section-title-wrap mb-5">
+                        <h2 class="text-white">Aperçu du tableau de bord</h2>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-12 mb-4">
+                    <div class="custom-block custom-block-bg">
+                        <div class="custom-block-icon">
+                            <i class="bi-cash-coin"></i>
+                        </div>
+                        <h5 class="text-white mb-2">Chiffre d'affaires total</h5>
+                        <p class="text-white mb-0">{{ chiffre_affaires|number_format(2, '.', ',') }} TND</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-12 mb-4">
+                    <div class="custom-block custom-block-bg">
+                        <div class="custom-block-icon">
+                            <i class="bi-cart"></i>
+                        </div>
+                        <h5 class="text-white mb-2">Nombre de commandes</h5>
+                        <p class="text-white mb-0">{{ commandes|length }}</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-12 mb-4">
+                    <div class="custom-block custom-block-bg">
+                        <div class="custom-block-icon">
+                            <i class="bi-box"></i>
+                        </div>
+                        <h5 class="text-white mb-2">Nombre de produits</h5>
+                        <p class="text-white mb-0">{{ produit|length }}</p>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="custom-block custom-block-bg">
+                        <h5 class="text-white mb-3">Commandes récentes</h5>
+                        <div class="table-responsive">
+                            <table class="table table-dark">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Client</th>
+                                        <th>Adresse</th>
+                                        <th>Telephone</th>
+                                        <th>Produit</th>
+                                        <th>Quantité</th>
+                                        <th>Total</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for commande in commandes|slice(0, 5) %}
+                                        <tr>
+                                            <td>#{{ commande.id }}</td>
+                                            <td>{{ commande.nomclient }}</td>
+                                            <td>{{ commande.adresse }}</td>
+                                            <td>{{ commande.telephone }}</td>
+                                            <td>{{ commande.produit.nom ?? 'Nom non disponible' }}</td>
+                                            <td>{{ commande.quantite }}</td>
+                                            <td>{{ commande.total|number_format(2, '.', ',') }} TND</td>
+                                            <td>{{ commande.dateCommande|date('d/m/Y H:i') }}</td>                                           </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ventesCtx = document.getElementById('ventesChart').getContext('2d')
+        new Chart(ventesCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ventes mensuelles (TND)',
+                    data: ventesParMois,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        })
+
+        const produitsCtx = document.getElementById('produitsChart').getContext('2d')
+        new Chart(produitsCtx, {
+            type: 'bar',
+            data: {
+                labels: topProduitsLabels,
+                datasets: [{
+                    label: 'Quantité vendue',
+                    data: topProduitsData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        })
+    </script>
+{% endblock %}

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boutique</title>
+    <style>
+        body {
+            background-color: #001e33; /* Bleu plus foncé */
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* En-tête */
+        h1 {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* Conteneur principal */
+        .container {
+            padding: 30px;
+        }
+
+        /* Grille de produits */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px; /* Espacement entre les éléments */
+            justify-content: center; /* Centrer les produits */
+        }
+
+        .col-md-4 {
+            flex: 0 0 30%; /* Chaque carte occupe environ 30% de la largeur (3 produits par ligne) */
+            max-width: 30%;
+        }
+
+        /* Style pour les cards */
+        .card {
+            background-color: #003366; /* Bleu foncé pour les cartes */
+            color: white;
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-body {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            color: #d9d9d9;
+            margin-bottom: 10px;
+        }
+
+        .card-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #f8b400;
+        }
+
+        /* Boutons */
+        .btn {
+            background-color: #004080; /* Bleu foncé pour le bouton */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .btn:hover {
+            background-color: #003366; /* Bleu plus foncé au survol */
+        }
+
+        .btn-primary {
+            background-color: #006699; /* Bleu plus clair pour "Agrandir" */
+        }
+
+        .btn-primary:hover {
+            background-color: #004d66; /* Bleu plus foncé au survol */
+        }
+
+        /* Modal */
+        .modal-toggle {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding-top: 60px;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 900px;
+            text-align: center;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .modal-toggle:checked + .modal {
+            display: block;
+        }
+
+        .pagination {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination a {
+            color: #fff;
+            padding: 8px 15px;
+            margin: 0 5px;
+            background-color: #003366; /* Bleu foncé pour la pagination */
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .pagination a:hover {
+            background-color: #004080; /* Bleu plus clair au survol */
+        }
+    </style>
+</head>
+<body>
+
+<h1 class="text-center">Boutique</h1>
+
+<div class="container">
+    <div class="row">
+        {% for produit in produits %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="produit text-center mt-3">
+                        <img 
+                            src="{{ asset('uploads/produits/' ~ produit.image) }}"
+                            alt="{{ produit.nom }}"
+                            class="product-image img-fluid"
+                            style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                    </div>
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{ produit.nom }}</h5>
+                        <p class="card-text">{{ produit.description }}</p>
+                        <p class="card-price">{{ produit.prix|number_format(2, ',', ' ') }} DT</p>
+                        <p class="card-text">Quantité : {{ produit.quantite }}</p>
+
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{{ path('ajouter_commande', {'id': produit.id}) }}" class="btn">Commander</a>
+                            <!-- Lien pour ouvrir le modal -->
+                            <label for="modal-toggle-{{ produit.id }}" class="btn btn-primary">Agrandir</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination mt-4">
+        {{ knp_pagination_render(produits) }}
+    </div>
+</div>
+
+{% for produit in produits %}
+    <input type="checkbox" id="modal-toggle-{{ produit.id }}" class="modal-toggle">
+    <div class="modal">
+        <div class="modal-content">
+            <label for="modal-toggle-{{ produit.id }}" class="close">&times;</label>
+            <h2>{{ produit.nom }}</h2>
+            <img src="{{ asset('uploads/produits/' ~ produit.image) }}" alt="{{ produit.nom }}">
+        </div>
+    </div>
+{% endfor %}
+
+</body>
+</html>
