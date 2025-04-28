@@ -323,4 +323,55 @@ class OrganizerController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    #[Route('/partner/{partnerId}/rate', name: 'rate_partner', methods: ['POST'])]
+    public function ratePartner(Request $request, int $partnerId, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $rating = $request->request->get('rating');
+        
+        if (!is_numeric($rating) || $rating < 0 || $rating > 5) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Invalid rating value'
+            ]);
+        }
+        
+        try {
+            // Get the partner from the database
+            $partner = $entityManager->getRepository(Partner::class)->find($partnerId);
+            
+            if (!$partner) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Partner not found'
+                ]);
+            }
+            
+            // Get current rating and count
+            $currentRating = $partner->getRating() ?? 0;
+            $currentCount = $partner->getRatingCount() ?? 0;
+            
+            // Calculate new average
+            $newCount = $currentCount + 1;
+            $newRating = (($currentRating * $currentCount) + $rating) / $newCount;
+            
+            // Update partner
+            $partner->setRating($newRating);
+            $partner->setRatingCount($newCount);
+            
+            // Save to database
+            $entityManager->flush();
+            
+            return $this->json([
+                'success' => true,
+                'newRating' => round($newRating, 1),
+                'newCount' => $newCount
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error saving rating: ' . $e->getMessage()
+            ]);
+        }
+    }
 } 

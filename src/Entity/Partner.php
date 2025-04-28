@@ -52,6 +52,12 @@ class Partner
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $website = null;
 
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $rating = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $ratingCount = null;
+
     #[ORM\OneToMany(mappedBy: 'partnerId', targetEntity: Partnership::class)]
     private Collection $partnerships;
 
@@ -60,6 +66,8 @@ class Partner
         $this->partnerships = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
+        $this->rating = 0.0;
+        $this->ratingCount = 0;
     }
 
     public function getId(): ?int
@@ -196,6 +204,28 @@ class Partner
     public function setWebsite(?string $website): static
     {
         $this->website = $website;
+        return $this;
+    }
+
+    public function getRating(): ?float
+    {
+        return $this->rating;
+    }
+
+    public function setRating(?float $rating): static
+    {
+        $this->rating = $rating;
+        return $this;
+    }
+
+    public function getRatingCount(): ?int
+    {
+        return $this->ratingCount;
+    }
+
+    public function setRatingCount(?int $ratingCount): static
+    {
+        $this->ratingCount = $ratingCount;
         return $this;
     }
 

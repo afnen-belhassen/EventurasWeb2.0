@@ -27,6 +27,15 @@
         .btn-group .btn {
             margin: 0 5px;
         }
+        .rating {
+            color: #ffc107;
+            font-size: 1.2em;
+        }
+        .rating-count {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
     </style>
 {% endblock %}
 
@@ -49,6 +58,7 @@
                                 <th>Nom</th>
                                 <th>Description</th>
                                 <th>Site web</th>
+                                <th>Note</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -74,6 +84,24 @@
                                         {% endif %}
                                     </td>
                                     <td>
+                                        <div class="rating">
+                                            {% if partner.rating is not null %}
+                                                {% for i in 1..5 %}
+                                                    {% if i <= partner.rating %}
+                                                        <i class="fas fa-star"></i>
+                                                    {% elseif i <= partner.rating + 0.5 %}
+                                                        <i class="fas fa-star-half-alt"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <span class="rating-count">({{ partner.ratingCount ?: 0 }})</span>
+                                            {% else %}
+                                                <span class="text-muted">Pas encore noté</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
                                         <div class="btn-group">
                                             <a href="{{ path('app_partner_show', {'id': partner.id}) }}" class="btn btn-info btn-sm">
                                                 <i class="fas fa-eye"></i>
@@ -92,7 +120,7 @@
                                 </tr>
                             {% else %}
                                 <tr>
-                                    <td colspan="5" class="text-center">Aucun partenaire trouvé</td>
+                                    <td colspan="6" class="text-center">Aucun partenaire trouvé</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

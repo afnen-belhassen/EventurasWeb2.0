@@ -153,6 +153,9 @@
                                             <div class="mb-3">
                                                 {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label text-white'}}) }}
                                                 {{ form_widget(form.description, {'attr': {'class': 'form-control bg-dark text-white border-secondary', 'rows': '5'}}) }}
+                                                <div class="form-text text-white-50">
+                                                    <span id="charCount">0</span>/200 caractères
+                                                </div>
                                                 {{ form_errors(form.description, {'attr': {'class': 'text-danger'}}) }}
                                             </div>
 
@@ -177,4 +180,26 @@
             </div>
         </section>
     </main>
+
+    {% block javascripts %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const descriptionField = document.querySelector('#partnership_description');
+                const charCount = document.querySelector('#charCount');
+                
+                function updateCharCount() {
+                    const length = descriptionField.value.length;
+                    charCount.textContent = length;
+                    if (length > 200) {
+                        charCount.classList.add('text-danger');
+                    } else {
+                        charCount.classList.remove('text-danger');
+                    }
+                }
+                
+                descriptionField.addEventListener('input', updateCharCount);
+                updateCharCount(); // Initial count
+            });
+        </script>
+    {% endblock %}
 {% endblock %} 
