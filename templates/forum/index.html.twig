@@ -26,6 +26,19 @@
     .bi-heart {
         transition: all 0.3s ease;
     }
+
+    .gif-modal {
+  position: fixed; top:0; left:0; width:100%; height:100%; z-index:1050;
+    }
+    .gif-modal-backdrop {
+    position:absolute; top:0; left:0; width:100%; height:100%; background:#000; opacity:0.5;
+    }
+    .gif-modal-content {
+    position:relative; max-width:600px; margin:5% auto; z-index:1060;
+    }
+    .gif-thumb { cursor:pointer; }
+    .gif-thumb img { max-width:120px; max-height:120px; }
+
 </style>
 
 <nav class="navbar navbar-expand-lg">
@@ -281,7 +294,7 @@
                                                 </div>
                                             </div>
                         
-                                            <p class="card-text">{{ comment.content }}</p>
+                                            <p class="card-text">{{ comment.content|raw  }}</p>
                                         </div>
                         
                                         <div class="comment-edit-form" style="display: none;">
@@ -315,12 +328,38 @@
 
 
                         <!-- Add Comment Form -->
-                        <form action="{{ path('app_forum_comment', {id: post.id}) }}" method="POST" class="mt-3">
-                            <div class="mb-3">
-                                <textarea class="form-control" name="content" rows="2" placeholder="Add a comment..." required></textarea>
+                        <form id="comment-form-{{ post.id }}" action="{{ path('app_forum_comment', {id: post.id}) }}" method="POST" class="mt-3">
+                            <div class="mb-3 position-relative">
+                            <textarea id="comment-content-{{ post.id }}" 
+                                        class="form-control" 
+                                        name="content" 
+                                        rows="2" 
+                                        placeholder="Add a comment..."
+                                        required></textarea>
+                        
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 mt-2 me-2"
+                                    onclick="openGifPicker({{ post.id }})">
+                                Add GIF
+                            </button>
                             </div>
+                        
                             <button type="submit" class="btn btn-sm btn-primary">Add Comment</button>
                         </form>
+  
+                        <!-- GIF Picker Modal (peut être en dehors du form) -->
+                        <div id="gif-modal-{{ post.id }}" class="gif-modal" style="display:none;">
+                            <div class="gif-modal-backdrop" onclick="closeGifPicker({{ post.id }})"></div>
+                            <div class="gif-modal-content p-3 bg-white shadow rounded">
+                            <div class="d-flex mb-2">
+                                <input type="text" id="gif-search-{{ post.id }}" class="form-control me-2" placeholder="Search GIFs…">
+                                <button class="btn btn-primary" onclick="searchGifs({{ post.id }})">Search</button>
+                            </div>
+                            <div id="gif-results-{{ post.id }}" class="d-flex flex-wrap gap-2" style="max-height:300px; overflow:auto;"></div>
+                            <button class="btn btn-sm btn-secondary mt-2" onclick="closeGifPicker({{ post.id }})">Close</button>
+                            </div>
+                        </div>
+  
                     </div>
                 </div>
             </div>
@@ -610,5 +649,51 @@ function toggleCommentEdit(commentId) {
               btn.classList.toggle('text-muted', !isHidden);
             }
             </script>
-            
+            <script>
+                window.GIPHY_API_KEY = 'Gsaeg8PQFRMhpwwZQ113uYCZAMi94m8K';
+              </script>
+              <script>
+                async function searchGifs(postId) {
+                  const query = document.getElementById('gif-search-' + postId).value;
+                  if (!query) return;
+                  const res = await fetch(
+                    `https://api.giphy.com/v1/gifs/search?api_key=${window.GIPHY_API_KEY}`
+                    + `&q=${encodeURIComponent(query)}&limit=12&rating=G`
+                  );
+                  const json = await res.json();
+                  const container = document.getElementById('gif-results-' + postId);
+                  container.innerHTML = '';
+                  json.data.forEach(gif => {
+                    const url = gif.images.fixed_width.url;
+                    const thumb = document.createElement('div');
+                    thumb.className = 'gif-thumb';
+                    thumb.innerHTML = `<img src="${url}" alt="gif">`;
+                    thumb.addEventListener('click', () => insertGifAndSubmit(postId, url));
+                    container.appendChild(thumb);
+                  });
+                }
+                
+                function openGifPicker(postId) {
+                  document.getElementById('gif-modal-' + postId).style.display = 'block';
+                }
+                
+                function closeGifPicker(postId) {
+                  document.getElementById('gif-modal-' + postId).style.display = 'none';
+                }
+                
+                // Nouvelle fonction : insère le GIF et soumet
+                function insertGifAndSubmit(postId, url) {
+                  const textarea = document.getElementById('comment-content-' + postId);
+                  const form     = document.getElementById('comment-form-' + postId);
+                  const tag      = `<img src="${url}" alt="gif" />`;
+                
+                  // Insère le tag dans le textarea
+                  textarea.value = tag;
+                  // Ferme la modale
+                  closeGifPicker(postId);
+                  // Soumet immédiatement
+                  form.submit();
+                }
+                </script>
+                
 {% endblock %} 
