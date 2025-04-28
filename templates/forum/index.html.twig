@@ -221,14 +221,17 @@
                         </button>
 
                         <!-- Bouton Commentaire (optionnel) -->
-                        <button class="btn btn-sm btn-link text-muted">
-                            <i class="bi bi-chat"></i>
-                            {{ post.comments|length }}
+                        <button type="button"
+                                class="btn btn-sm btn-link text-muted"
+                                onclick="toggleComments({{ post.id }})"
+                                id="toggle-comments-{{ post.id }}">
+                        <i class="bi bi-chat"></i>
+                        {{ post.comments|length }}
                         </button>
                     </div>
 
                     <!-- Comments Section -->
-                    <div class="mt-4">
+                    <div id="comments-section-{{ post.id }}" class="mt-4" style="display: none;">
                         <h6>Comments</h6>
                         
                         <div class="mb-3">
@@ -591,5 +594,21 @@ function toggleCommentEdit(commentId) {
         });
         </script>
         
-        
+        <script>
+            function toggleComments(postId) {
+              // récupère le conteneur et le bouton
+              const section = document.getElementById('comments-section-' + postId);
+              const btn     = document.getElementById('toggle-comments-'  + postId);
+              if (!section || !btn) return;
+            
+              // bascule l’affichage
+              const isHidden = section.style.display === 'none';
+              section.style.display = isHidden ? 'block' : 'none';
+            
+              // optionnel : change le style du bouton pour indiquer l’état
+              btn.classList.toggle('text-primary', isHidden);
+              btn.classList.toggle('text-muted', !isHidden);
+            }
+            </script>
+            
 {% endblock %} 
