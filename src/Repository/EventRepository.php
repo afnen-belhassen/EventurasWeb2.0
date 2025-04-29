@@ -50,4 +50,39 @@ public function searchByName(string $query): array
         ->getQuery()
         ->getResult();
 }
+    public function findByCriteria(string $criteria): array
+    {
+         $qb = $this->createQueryBuilder('e')
+        ->andWhere('e.status = :status')
+        ->setParameter('status', 'Accepté');
+        $now = new \DateTime();
+
+        switch ($criteria) {
+            case 'passed':
+                $qb->andWhere('e.date_event < :now')
+                   ->setParameter('now', $now)
+                   ->orderBy('e.date_event', 'DESC');
+                break;
+
+            case 'upcoming':
+                $qb->andWhere('e.date_event >= :now')
+                   ->setParameter('now', $now)
+                   ->orderBy('e.date_event', 'ASC');
+                break;
+
+            case 'price_asc':
+                $qb->orderBy('e.prix', 'ASC');
+                break;
+
+            case 'price_desc':
+                $qb->orderBy('e.prix', 'DESC');
+                break;
+
+            default:
+                // par défaut, on renvoie tous, triés par date_event croissante
+                $qb->orderBy('e.date_event', 'ASC');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

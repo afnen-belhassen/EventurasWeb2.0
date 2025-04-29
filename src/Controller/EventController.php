@@ -2,8 +2,10 @@
 namespace App\Controller;
 
 use App\Entity\Event;
-use App\Entity\Categorie; // Import the Categorie entity
+use App\Entity\Categorie; 
+use App\Entity\Rating;
 use App\Form\EventType;
+use App\Entity\Reservation;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,7 +54,7 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
     $event = new Event();
 
     // Set default values
-    $event->setUser_id(1); // Set user_id to 1 by default
+    $event->setUser_id(2); // Set user_id to 1 by default
     $event->setStatus('En cours de traitement'); // Set status
     $event->setCreation_date(new \DateTime()); // Set creation date to current timestamp
 
@@ -293,13 +295,15 @@ public function newBack(Request $request, EntityManagerInterface $entityManager)
         'form' => $form->createView(),
     ]);
 }
-#[Route('/events/accepted', name: 'app_accepted_events')]
-    public function showAcceptedEvents(EventRepository $eventRepository): Response
+    #[Route('/events/accepted', name: 'app_accepted_events')]
+    public function showAcceptedEvents(EventRepository $eventRepository, Request $request): Response
     {
-        $events = $eventRepository->findBy(['status' => 'Accepté']);
-
+        $criteria = $request->query->get('sort', 'upcoming');
+        $events = $eventRepository->findByCriteria($criteria);
+        
         return $this->render('service/displayEventFRONT.html.twig', [
             'events' => $events,
+            'criteria' => $criteria
         ]);
     }
     #[Route('/event/{id}/deleteBACK', name: 'app_evedelBACK', methods: ['POST'])]
@@ -312,5 +316,49 @@ public function newBack(Request $request, EntityManagerInterface $entityManager)
 
         return $this->redirectToRoute('app_show_all_eventsBack');
     }
-      
+    // src/Controller/EventController.php
+
+#[Route('/event/{id_event}/rate/{value}', name: 'app_event_rate', methods: ['POST'])]
+public function rateEvent(
+    Event $event,
+    int $value,
+    EntityManagerInterface $em,
+    Request $request
+): Response {
+    // For testing, we'll use user_id = 1
+    $userId = 2;
+
+    // Check if event is in the past
+    if ($event->getDateEvent() > new \DateTime()) {
+        return $this->json([
+            'success' => false,
+            'message' => 'You can only rate past events.'
+        ]);
+    }
+
+    // Check if user already rated this event
+    $existingRating = $em->getRepository(Rating::class)->findOneBy([
+        'event' => $event,
+        'user_id' => $userId
+    ]);
+
+    if ($existingRating) {
+        $existingRating->setValue($value);
+    } else {
+        $rating = new Rating();
+        $rating->setEvent($event);
+        $rating->setUser_id($userId);
+        $rating->setValue(max(1, min(5, $value)));
+        $em->persist($rating);
+    }
+
+    $em->flush();
+    
+    return $this->json([
+        'success' => true,
+        'averageRating' => $event->getAverageRating(),
+        'ratingCount' => $event->getRatings()->count()
+    ]);
+}      
+
 }

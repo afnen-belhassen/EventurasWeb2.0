@@ -17,7 +17,11 @@ class Event
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id_event = null;
-
+    public function __construct()
+    {
+        $this->ratings = new ArrayCollection();
+    }
+    
     public function getId_event(): ?int
     {
         return $this->id_event;
@@ -265,20 +269,41 @@ public function setDate_event(?\DateTimeInterface $date_event): self
         return $this;
     }
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-#[Assert\NotBlank(message: 'La date de fin de l\'événement est requise.')]
-#[Assert\GreaterThanOrEqual(propertyPath: "date_event", message: 'La date de fin de l\'événement doit être après la date de début.')]
-private ?\DateTimeInterface $date_fin_eve = null;
+    #[Assert\NotBlank(message: 'La date de fin de l\'événement est requise.')]
+    #[Assert\GreaterThanOrEqual(propertyPath: "date_event", message: 'La date de fin de l\'événement doit être après la date de début.')]
+    private ?\DateTimeInterface $date_fin_eve = null;
 
-    public function getDateFinEve(): ?\DateTimeInterface
-    {
-        return $this->date_fin_eve;
-    }
+        public function getDateFinEve(): ?\DateTimeInterface
+        {
+            return $this->date_fin_eve;
+        }
 
-    public function setDateFinEve(?\DateTimeInterface $date_fin_eve): static
-    {
-        $this->date_fin_eve = $date_fin_eve;
+        public function setDateFinEve(?\DateTimeInterface $date_fin_eve): static
+        {
+            $this->date_fin_eve = $date_fin_eve;
 
-        return $this;
-    }
+            return $this;
+        }
+        #[ORM\OneToMany(targetEntity: Rating::class, mappedBy: 'event')]
+        private Collection $ratings;
+        public function getRatings(): Collection
+        {
+        return $this->ratings;
+        }
+        public function getAverageRating(): float
+        {
+            $ratings = $this->ratings; // Assuming you have a relation with Rating
+            if (count($ratings) === 0) {
+                return 0;
+            }
+
+            $sum = 0;
+            foreach ($ratings as $rating) {
+                $sum += $rating->getValue();
+            }
+
+            return $sum / count($ratings); // Return the average rating
+        }
+
 
 }
