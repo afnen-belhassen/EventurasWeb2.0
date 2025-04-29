@@ -1,0 +1,217 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Event Seat Booking{% endblock %}
+
+{% block body %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px; font-family: 'Lato', sans-serif; color: #333; background-color: #f8f9fa;">
+    <h1 style="text-align: center; margin-bottom: 20px;">Sélectionnez vos places</h1>
+    
+    <div style="text-align: center; margin-bottom: 30px; font-size: 18px; color: #666;">
+        {{ event.nb_places - reservedSeats|length }} places libres
+    </div>
+    
+    <hr style="border: 1px solid #ddd; margin-bottom: 30px;">
+    
+    <div style="background-color: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 style="margin-top: 0; color: #242333;">{{ event.title }}</h2>
+        <div style="color: #666; margin-bottom: 15px;">{{ event.location }}</div>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center;">
+                <span style="margin-right: 5px;">✔</span> {{ event.date_event|date('F Y') }}
+            </div>
+            <div style="display: flex; align-items: center;">
+                <span style="margin-right: 5px;">✔</span> {{ event.dateFinEve|date('H:i') }}
+            </div>
+        </div>
+    </div>
+    
+    <hr style="border: 1px solid #ddd; margin-bottom: 30px;">
+    
+    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 30px;">
+        <div style="display: flex; align-items: center;">
+            <div class="seat" style="display: inline-block; width: 50px; height: 50px; background-color: #6feaf6; border-radius: 5px; margin-right: 10px;"></div>
+            <span>Mes places</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <div class="seat" style="display: inline-block; width: 50px; height: 50px; background-color: #444; border-radius: 5px; margin-right: 10px;"></div>
+            <span>Places libres</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <div class="seat" style="display: inline-block; width: 50px; height: 50px; background-color: #fff; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px;"></div>
+            <span>Places occupées</span>
+        </div>
+    </div>
+    
+    <div style="background-color: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div id="seats-container" style="display: flex; flex-direction: column; align-items: center;">
+            {% set seatsPerRow = 12 %}
+            {% set totalRows = (event.nb_places / seatsPerRow)|round(0, 'ceil') %}
+            {% for row in 1..totalRows %}
+                <div style="display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 10px;">
+                    {% for seat in 1..seatsPerRow %}
+                        {% set seat_number = (row - 1) * seatsPerRow + seat %}
+                        {% if seat_number <= event.nb_places %}
+                            <div class="seat {% if seat_number in reservedSeats %}occupied{% endif %}" 
+                                data-seat="{{ seat_number }}"
+                                style="width: 40px; 
+                                       height: 40px; 
+                                       margin: 5px; 
+                                       background-image: url('{{ asset('Reservation/seat.png') }}'); 
+                                       background-size: cover; 
+                                       background-position: center;
+                                       cursor: pointer;
+                                       position: relative;
+                                       transition: all 0.2s ease;
+                                       {% if seat_number in reservedSeats %} 
+                                           background-color: #fff; 
+                                           opacity: 0.7; 
+                                           cursor: not-allowed;
+                                       {% endif %}">
+                                <span style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #333;">{{ seat_number }}</span>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+        <p style="font-size: 16px;">
+            You have selected <span id="count" style="color: #6feaf6; font-weight: bold;">0</span> seat(s)
+        </p>
+    </div>
+    
+    <!-- Payment Form -->
+    <div style="max-width: 500px; margin: 0 auto;">
+        <form id="payment-form" style="text-align: center;">
+            <input type="hidden" name="event_id" value="{{ event.id_event }}">
+            <input type="hidden" name="seat_number" id="selectedSeat">
+            
+            <!-- Stripe Card Element -->
+            <div id="card-element" style="padding: 12px; border: 1px solid #ddd; border-radius: 4px; margin: 20px 0;"></div>
+            <div id="card-errors" role="alert" style="color: #ff0000; margin-bottom: 20px;"></div>
+            
+            <button type="submit" id="submit-payment" style="background-color: #6feaf6; color: white; border: none; padding: 12px 24px; border-radius: 5px; font-size: 16px; cursor: pointer; width: 100%;" disabled>
+                Payer maintenant ({{ event.prix }} TND)
+            </button>
+        </form>
+    </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    // Initialize Stripe
+    const stripe = Stripe('{{ stripe_public_key }}');
+    const elements = stripe.elements();
+    const cardElement = elements.create('card');
+    cardElement.mount('#card-element');
+    
+    // Handle seat selection
+    let selectedSeat = null;
+    const container = document.querySelector('#seats-container');
+    const count = document.getElementById('count');
+    const submitButton = document.getElementById('submit-payment');
+    
+    container.addEventListener('click', (e) => {
+        const seatElement = e.target.closest('.seat');
+        if (seatElement && !seatElement.classList.contains('occupied')) {
+            if (selectedSeat) {
+                selectedSeat.style.transform = 'scale(1)';
+                selectedSeat.style.backgroundColor = '';
+            }
+            
+            seatElement.style.transform = 'scale(1.1)';
+            seatElement.style.backgroundColor = '#6feaf6';
+            selectedSeat = seatElement;
+            document.getElementById('selectedSeat').value = seatElement.dataset.seat;
+            submitButton.disabled = false;
+            count.innerText = 1;
+        }
+    });
+    
+    // Handle form submission
+   const form = document.getElementById('payment-form');
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (!selectedSeat) {
+        alert('Veuillez sélectionner une place');
+        return;
+    }
+    const eventId = document.querySelector('input[name="event_id"]').value;
+    // Disable button during processing
+    submitButton.disabled = true;
+    submitButton.textContent = 'Traitement en cours...';
+    
+    try {
+        // 1. Create payment intent
+        const response = await fetch('{{ path('app_create_payment_intent') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                event_id: eventId,
+                seat_number: selectedSeat.dataset.seat
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Échec du paiement');
+        }
+        
+        // 2. Confirm payment
+        const { error, paymentIntent } = await stripe.confirmCardPayment(
+            data.clientSecret, {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: {
+                        name: 'Client' // Vous devriez collecter ceci depuis un champ de formulaire
+                    }
+                }
+            }
+        );
+        
+        if (error) {
+            throw error;
+        }
+
+        // 3. Payment succeeded - maintenant on confirme la réservation d'abord
+        const confirmResponse = await fetch('{{ path("app_confirm_reservation") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                payment_intent_id: paymentIntent.id,
+                event_id: eventId,
+                seat_number: selectedSeat.dataset.seat
+            })
+        });
+
+        if (confirmResponse.ok) {
+            window.location.href = '{{ path('app_payment_success') }}?payment_intent=' + paymentIntent.id;
+        } else {
+            const errorData = await confirmResponse.json();
+            throw new Error(errorData.error || 'Failed to confirm reservation');
+        }
+        
+    } catch (err) {
+        console.error('Payment error:', err);
+        document.getElementById('card-errors').textContent = err.message;
+        submitButton.disabled = false;
+        submitButton.textContent = `Payer maintenant (${event.prix} TND)`;
+    }
+});
+    
+    // Handle card errors
+    cardElement.addEventListener('change', ({error}) => {
+        const displayError = document.getElementById('card-errors');
+        displayError.textContent = error ? error.message : '';
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Payment for Seat {{ seat_number }}</h1>
+    <p>Event: {{ event.event_name }}</p>
+    <p>Price: {{ event.prix }} TND</p>
+    
+    <form id="payment-form">
+        <div id="card-element">
+            <!-- Stripe card element will be inserted here -->
+        </div>
+        <button id="submit-button" class="btn btn-primary">
+            Pay Now
+        </button>
+    </form>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe('your_publishable_key');
+        const elements = stripe.elements();
+        const cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+        
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const {error, paymentMethod} = await stripe.createPaymentMethod({
+                type: 'card',
+                card: cardElement,
+            });
+            
+            if (error) {
+                alert(error.message);
+            } else {
+                // Send to your server
+                const response = await fetch('/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        event_id: {{ event.id }},
+                        seat_number: {{ seat_number }},
+                        payment_method_id: paymentMethod.id
+                    }),
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    window.location.href = result.redirect_url;
+                } else {
+                    alert('Payment failed');
+                }
+            }
+        });
+    </script>
+{% endblock %}
