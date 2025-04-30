@@ -44,3 +44,7 @@ services:
             $sid: '%twilio.account_sid%'
             $token: '%twilio.auth_token%'
             $from: '%twilio.phone_number%'
+    App\Twig\MarkdownExtension:
+        tags: ['twig.extension']
+    
+    App\Service\MarkdownHelper: ~
