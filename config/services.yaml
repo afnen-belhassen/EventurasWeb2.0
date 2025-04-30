@@ -48,3 +48,7 @@ services:
         tags: ['twig.extension']
     
     App\Service\MarkdownHelper: ~
+
+    App\Service\SignatureVerificationService:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads/organizer/signed_contracts'

@@ -10,7 +10,7 @@
             <p class="lead text-white">Partnership #{{ partnership.id }} with {{ partnership.partnerId.name }}</p>
         </div>
         <div class="col-md-4 text-md-end">
-            <a href="{{ path('contract_management', {'id': partnership.id}) }}" class="btn btn-light">
+            <a href="{{ path('app_organizer_contract_management', {'id': partnership.id}) }}" class="btn btn-light">
                 <i class="fas fa-arrow-left"></i> Back to Contract
             </a>
         </div>

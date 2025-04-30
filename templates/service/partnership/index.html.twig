@@ -34,9 +34,14 @@
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Liste des Partenariats</h1>
-            <a href="{{ path('app_partnership_new') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Ajouter un partenariat
-            </a>
+            <div>
+                <a href="{{ path('app_admin_statistics') }}" class="btn btn-info me-2">
+                    <i class="fas fa-chart-bar"></i> Statistiques
+                </a>
+                <a href="{{ path('app_partnership_new') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Ajouter un partenariat
+                </a>
+            </div>
         </div>
 
         <div class="card">
