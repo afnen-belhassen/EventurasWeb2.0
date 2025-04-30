@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-
+use App\Repository\ReservationRepository;
 use App\Entity\Event;
 use App\Entity\Reservation;
 use App\Entity\Ticket;
@@ -287,7 +287,7 @@ class ReservationController extends AbstractController
         $ticket = new Ticket();
         $ticket->setSeatNumber($seatNumber);
         $ticket->setTicketCode($this->generateTicketCode($seatNumber, $event->getTitle()));
-
+       
         $em->persist($ticket);
         $em->flush();
 
@@ -310,4 +310,5 @@ class ReservationController extends AbstractController
             'payment_intent' => $paymentIntentId
         ]);
     }
+
 }

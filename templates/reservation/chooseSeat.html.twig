@@ -115,7 +115,7 @@
     const submitButton = document.getElementById('submit-payment');
     
     container.addEventListener('click', (e) => {
-        const seatElement = e.target.closest('.seat');
+        const seatElement = e.target.classList.contains('seat') ? e.target : e.target.closest('.seat');
         if (seatElement && !seatElement.classList.contains('occupied')) {
             if (selectedSeat) {
                 selectedSeat.style.transform = 'scale(1)';

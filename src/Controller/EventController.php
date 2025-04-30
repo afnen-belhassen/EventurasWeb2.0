@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\EventRepository;
-
+use App\Repository\ReservationRepository;
 final class EventController extends AbstractController
 {
     #[Route('/homeOrg', name: 'app_home')]
@@ -39,13 +39,16 @@ final class EventController extends AbstractController
         ]);
     }
     #[Route('/homeBACK', name: 'app_home_back')]
-    public function indexBack(EntityManagerInterface $entityManager): Response
+    public function indexBack(EntityManagerInterface $entityManager,ReservationRepository $reservationRepository): Response
     {
         $events = $entityManager->getRepository(Event::class)->findAll();
-
+        $reservations = $reservationRepository->findAll();
         return $this->render('back/indexBACK.html.twig', [
             'events' => $events,
+            'reservations' => $reservations
         ]);
+
+          
     }
   
     #[Route('/event/new', name: 'app_event_new')]

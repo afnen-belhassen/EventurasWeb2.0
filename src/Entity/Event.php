@@ -304,6 +304,30 @@ public function setDate_event(?\DateTimeInterface $date_event): self
 
             return $sum / count($ratings); // Return the average rating
         }
+        #[ORM\Column(type: 'float', nullable: false)]
+        private ?float $latitude = null;
+        #[ORM\Column(type: 'float', nullable: false)]
+        private ?float $longitude = null;
+        public function getLatitude(): ?int
+        {
+            return $this->latitude;
+        }
 
+        public function setLatitude(int $latitude): static
+        {
+            $this->latitude = $latitude;
 
+            return $this;
+        }
+        public function getLongitude(): ?int
+        {
+            return $this->longitude;
+        }
+
+        public function setLongitude(int $longitude): static
+        {
+            $this->longitude = $longitude;
+
+            return $this;
+        }
 }

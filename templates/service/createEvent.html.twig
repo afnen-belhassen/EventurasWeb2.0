@@ -91,9 +91,16 @@
 
         <div class="mb-3">
             {{ form_row(form.location, {
-                'attr': {'class': 'form-control' ~ (form.location.vars.errors|length > 0 ? ' is-invalid' : '')}
+                'attr': {'id': 'location', 'class': 'form-control' ~ (form.location.vars.errors|length > 0 ? ' is-invalid' : '')}
             }) }}
         </div>
+
+
+        <input type="hidden" id="latitude" name="event[latitude]">
+        <input type="hidden" id="longitude" name="event[longitude]">
+
+        <div id="map" style="height: 400px; margin-bottom: 20px;"></div>
+
 
         <div class="mb-3">
             {{ form_row(form.category, {
@@ -132,5 +139,67 @@
     {{ form_end(form) }}
 </div>
 
-    </div>
+</div>
+ <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuhMXPLehtquvzRFHuVE20n5an1v1SVoE&callback=initMap" async defer></script>
+    <script>
+    let map, marker;
+
+    function initMap() {
+        const defaultPosition = { lat: 36.8065, lng: 10.1815 }; // Tunis
+
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: defaultPosition,
+            zoom: 12
+        });
+
+        marker = new google.maps.Marker({
+            position: defaultPosition,
+            map,
+            draggable: true
+        });
+
+        updateFields(defaultPosition);
+
+        marker.addListener("dragend", () => {
+            const pos = marker.getPosition();
+            updateFields(pos);
+        });
+
+        map.addListener("click", (e) => {
+            marker.setPosition(e.latLng);
+            updateFields(e.latLng);
+        });
+    }
+
+    function updateFields(position) {
+        const lat = position.lat();
+        const lng = position.lng();
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+            console.log("Geocoding results:", results);
+            console.log("Geocoding status:", status);
+            
+            // Try both possible field selectors
+            const locationField = document.querySelector('[name="event[location]"]') || 
+                                document.getElementById('location');
+            
+            if (status === 'OK' && results[0]) {
+                locationField.value = results[0].formatted_address;
+                console.log("Setting address to:", results[0].formatted_address);
+            } else {
+                console.error("Geocoder failed due to:", status);
+                locationField.value = 'Adresse introuvable';
+            }
+        });
+    }
+
+    // Ensure DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // The Google Maps API will call initMap when ready
+    });
+</script>
+
 {% endblock %}

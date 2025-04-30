@@ -3,10 +3,6 @@
 {% block title %}Liste des Événements{% endblock %}
 
 {% block stylesheets %}
-{{ parent() }}
-<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
-<link rel="stylesheet" href="{{ asset('css/plugins.min.css') }}" />
-<link rel="stylesheet" href="{{ asset('css/kaiadmin.min.css') }}" />
 <style>
     .main-panel {
         margin-left: 250px; /* Should match your sidebar width */
@@ -75,6 +71,250 @@
   display: block !important;
   z-index: 9999 !important;
 }
+
+
+.category-popup select {
+    font-size: 16px;
+    height: 40px; /* Adjust height as needed */
+    width: 100%;
+    padding: 8px 20px;
+    border: 1px solid #f3f4f6;
+    border-radius: 15px;
+    background-color: #f3f4f6;
+    margin-bottom: 20px;
+  
+  }
+  
+  
+  .category-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    overflow: hidden;
+  }
+  
+  .category-popup.open {
+    display: flex;
+  }
+  
+  .category-popup-content {
+    background: rgb(255, 255, 255);
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    overflow: auto;
+    max-height:600px;
+  }
+  
+  .category-popup .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+  
+  .category-popup .form-group {
+    max-width: 500px;
+    margin: auto;
+    margin-bottom: 30px;
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+  }
+  
+  .category-popup .close {
+    color: #272343;
+    border-radius: 5px;
+    text-transform: uppercase;
+    font-size: 12px;
+    position: absolute;
+    right: 15px;
+    top: 8px;
+    text-decoration: none;
+    display: inline-block;
+    background: #fff;
+    padding: 10px 18px;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .category-popup .close:hover {
+    background: #272343;
+    color: #fff;
+  }
+  
+  .category-popup .form-control {
+    display: block;
+    padding: 8px 16px;
+    font-size: 16px;
+    width: 94%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    color: #000000;
+    font-weight: 400;
+  }
+  
+  .category-popup .form-control:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline: -webkit-focus-ring-color auto 5px;
+  }
+  
+  .category-popup label {
+    font-weight: 500;
+    display: block;
+    margin: 4px 0;
+    font-size: 13px;
+    overflow: hidden;
+  }
+  
+  .category-popup label span {
+    float: right;
+    text-transform: none;
+    font-weight: 200;
+    line-height: 1em;
+    font-style: italic;
+    opacity: 0.8;
+  }
+  
+  .category-popup-input{
+    width: 100%; /* Make inputs fill the available space */
+    font-size: 14px;
+    height: 35px;
+    padding: 8px 20px;
+    border: 1px solid #f3f4f6; /* Add border for input */
+    border-radius: 15px; /* Add border-radius for input */
+    background-color: #f3f4f6;
+    margin-bottom: 20px; /* Adjust spacing between label and input */
+  }
+  
+  .add-button {
+    padding: 8px 30px;
+    height: 55px;
+    width: 100%;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 400;
+    margin-top: 30px;
+    border-color: rgba(0, 0, 0, 0);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #101d2d;
+  }
+  .add-button:hover {
+    background-color: #2f7deb;
+  }
+  .add-button.is-loading::after {
+    border-color: #fff;
+  }
+  .close-button {
+    padding: 8px 30px;
+    background-color: #272343;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+    border: 0;
+    color: #ccc;
+    cursor: pointer;
+  }
+  .category-popup .file-area {
+    width: 100%;
+    position: relative;
+  }
+  
+  .file-area {
+    background-color: #fff; /* White background to match the form */
+    margin-top: 20px;
+    display: flex; /* Use flexbox for internal centering */
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
+    padding: 15px; /* Inner padding */
+    text-align: center;
+  }
+  
+  .file-area input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  
+  .file-area .file-dummy {
+    width: 100%;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px dashed #101d2d;
+    text-align: center;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .file-area:hover .file-dummy {
+    background: #007fff;
+    color: white;
+  }
+  
+  .file-area input[type="file"]:focus + .file-dummy {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline: -webkit-focus-ring-color auto 5px;
+  }
+  
+  .file-area input[type="file"]:valid + .file-dummy {
+    border-color: rgba(0, 255, 0, 0.4);
+    background-color: rgba(0, 255, 0, 0.3);
+  }
+  
+  .file-area .file-dummy .success {
+    display: none;
+  }
+  
+  .file-area .file-dummy .success.show {
+    display: inline-block;
+  }
+  .default {
+    display: block;
+  }
+  
+  .default.hide {
+    display: none;
+    background-color: #707070;
+  }
+  
+  .form .input-box {
+    width: 100%;
+    margin-top: 20px;
+  }
+  .input-box label {
+    color: #333;
+  }
+  
+    .remove-item-btn {
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: #f44336;
+    }
+    h5{
+        color: rgb(0, 255, 170) !important;
+        }
+  
+  
+  
     
 </style>
 {% endblock %}
@@ -105,7 +345,7 @@
       <div class="sidebar-content">
         <ul class="nav nav-secondary">
           <li class="nav-item active">
-            <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+            <a data-bs-toggle="collapse" href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
               <i class="fas fa-home"></i>
               <p>Dashboard</p>
               <span class="caret"></span>
@@ -598,6 +838,19 @@
       <div class="page-inner">
         <h1>Liste des Événements</h1>
         <a href="{{ path('app_eventback') }}" class="btn btn-primary">Créer un événement</a>
+        <button class="create-button" onclick="openCategoryPopup()">
+        <i class="fa-solid fa-plus"></i> Réclamation
+        </button>
+        <div id="categoryPopup" class="category-popup">
+    <div class="category-popup-content p-4 rounded shadow bg-white">
+      <!-- Close Button -->
+      <button type="button" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Close" onclick="closeCategoryPopup()"></button>
+  
+      <h5 class="mb-4 text-center">selem ena popup</h5>
+  
+      
+    </div>
+  </div>
         <table class="table event-list">
           <thead>
             <tr>
@@ -628,8 +881,8 @@
                 <td>
                   <div class="button-group">
               <a href="{{ path('app_event_edit_back', {'id': event.id_event}) }}" class="btn btn-warning">
-  Modifier
-</a>
+                 Modifier
+                    </a>
 
                     <form action="{{ path('app_evedelBACK', { id: event.id_event }) }}" method="post" style="display:inline;">
                       <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">Supprimer</button>
@@ -711,6 +964,14 @@
     <!-- End Custom template -->
   </div>
 </div>
-{% endblock %}
+<script>
+function openCategoryPopup() {
+  document.getElementById('categoryPopup').classList.add('open');
+}
+function closeCategoryPopup() {
+  document.getElementById('categoryPopup').classList.remove('open');
+}
 
+</script>
+{% endblock %}
 
