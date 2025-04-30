@@ -21,27 +21,6 @@
         <link href="{{asset('css/templatemo-festava-live.css')}}" rel="stylesheet">
         {% endblock %}
 
-        {% block javascripts %}
-        <script src="{{asset('js/jquery.min.js')}}"></script>
-        <script src="{{asset('js/bootstrap.min.js')}}"></script>
-        <script src="{{asset('js/jquery.sticky.js')}}"></script>
-        <script src="{{asset('js/click-scroll.js')}}"></script>
-        <script src="{{asset('js/custom.js')}}"></script>
-        <script>
-            // Initialize all Bootstrap tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-
-            // Initialize all Bootstrap modals
-            var modalTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="modal"]'))
-            var modalList = modalTriggerList.map(function (modalTriggerEl) {
-                return new bootstrap.Modal(document.getElementById(modalTriggerEl.getAttribute('data-bs-target').substring(1)))
-            });
-        </script>
-        {% endblock %}
-
     </head>
     
     <body>
@@ -684,6 +663,15 @@
             </div>
         </footer>
 
+
+        {% block js %}
+        <!-- JAVASCRIPT FILES -->
+        <script src="js/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/jquery.sticky.js"></script>
+        <script src="js/click-scroll.js"></script>
+        <script src="js/custom.js"></script>
+        {% endblock %}
         {% endblock %}
     </body>
   
