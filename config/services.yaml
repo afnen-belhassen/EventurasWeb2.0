@@ -32,3 +32,7 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\SignatureVerificationService:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads/organizer/signed_contracts'

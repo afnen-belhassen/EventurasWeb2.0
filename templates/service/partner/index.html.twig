@@ -36,6 +36,33 @@
             font-size: 0.9em;
             margin-left: 5px;
         }
+        .sort-link {
+            color: inherit;
+            text-decoration: none;
+        }
+        .sort-link:hover {
+            color: #007bff;
+        }
+        .star {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .star:hover,
+        .star.active {
+            color: #ffc107;
+        }
+        .star.inactive {
+            color: #ddd;
+        }
+        .rating-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .badge {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
     </style>
 {% endblock %}
 
@@ -55,7 +82,20 @@
                         <thead>
                             <tr>
                                 <th>Image</th>
-                                <th>Nom</th>
+                                <th>
+                                    <a href="{{ path('app_partner_index', {'sort': 'name', 'direction': sortBy == 'name' and direction == 'asc' ? 'desc' : 'asc'}) }}" class="sort-link">
+                                        Nom
+                                        {% if sortBy == 'name' %}
+                                            {% if direction == 'asc' %}
+                                                <i class="fas fa-sort-up"></i>
+                                            {% else %}
+                                                <i class="fas fa-sort-down"></i>
+                                            {% endif %}
+                                        {% else %}
+                                            <i class="fas fa-sort"></i>
+                                        {% endif %}
+                                    </a>
+                                </th>
                                 <th>Description</th>
                                 <th>Site web</th>
                                 <th>Note</th>
@@ -84,21 +124,18 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <div class="rating">
-                                            {% if partner.rating is not null %}
+                                        <div class="rating-container" data-partner-id="{{ partner.id }}">
+                                            <div class="rating">
                                                 {% for i in 1..5 %}
-                                                    {% if i <= partner.rating %}
-                                                        <i class="fas fa-star"></i>
-                                                    {% elseif i <= partner.rating + 0.5 %}
-                                                        <i class="fas fa-star-half-alt"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star"></i>
-                                                    {% endif %}
+                                                    <i class="fas fa-star star {% if partner.totalRating is not null and i <= partner.totalRating %}active{% else %}inactive{% endif %}" 
+                                                       data-rating="{{ i }}"
+                                                       title="Cliquez pour noter"></i>
                                                 {% endfor %}
                                                 <span class="rating-count">({{ partner.ratingCount ?: 0 }})</span>
-                                            {% else %}
-                                                <span class="text-muted">Pas encore noté</span>
-                                            {% endif %}
+                                                {% if partner.partnerships|length > 0 %}
+                                                    <span class="badge bg-info ms-2" title="Bonus de partenariats">+{{ partner.partnerships|length }}</span>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </td>
                                     <td>
@@ -129,4 +166,73 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing star rating...');
+    
+    // Handle star clicks
+    document.querySelectorAll('.star').forEach(star => {
+        console.log('Found star element:', star);
+        
+        star.addEventListener('click', function() {
+            console.log('Star clicked!');
+            const container = this.closest('.rating-container');
+            const partnerId = container.dataset.partnerId;
+            const rating = this.dataset.rating;
+            
+            console.log('Rating data:', {
+                partnerId: partnerId,
+                rating: rating
+            });
+            
+            // Send rating to server
+            fetch(`/organizer/partner/${partnerId}/rate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `rating=${rating}`
+            })
+            .then(response => {
+                console.log('Server response:', response);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Server data:', data);
+                if (data.success) {
+                    // Update all stars in this container
+                    const stars = container.querySelectorAll('.star');
+                    stars.forEach((s, index) => {
+                        if (index + 1 <= data.newRating) {
+                            s.classList.add('active');
+                            s.classList.remove('inactive');
+                        } else {
+                            s.classList.remove('active');
+                            s.classList.add('inactive');
+                        }
+                    });
+                    
+                    // Update rating count
+                    const ratingCount = container.querySelector('.rating-count');
+                    ratingCount.textContent = `(${data.newCount})`;
+                    
+                    console.log('Stars updated successfully');
+                } else {
+                    console.error('Error:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
 {% endblock %} 

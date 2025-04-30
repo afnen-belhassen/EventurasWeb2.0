@@ -258,4 +258,16 @@ class Partner
 
         return $this;
     }
+
+    public function getTotalRating(): float
+    {
+        $baseRating = $this->rating ?? 0;
+        $partnershipCount = $this->partnerships->count();
+        
+        // Calculate bonus based on number of partnerships
+        // Each partnership adds 0.2 to the rating, up to a maximum of 1.0 bonus
+        $bonus = min($partnershipCount * 0.2, 1.0);
+        
+        return min($baseRating + $bonus, 5.0);
+    }
 } 
