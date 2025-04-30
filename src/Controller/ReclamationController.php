@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Entity\Reclamation;
 use App\Entity\ReclamationAttachment;
+use App\Entity\ReclamationConversation;
 use App\Form\ReclamationType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -146,6 +147,13 @@ public function edit(
 public function accept(Reclamation $reclamation, EntityManagerInterface $em): JsonResponse
 {
     $reclamation->setStatus('En cours');
+
+    $conversation = new ReclamationConversation();
+    $conversation->setReclamation($reclamation);
+    $conversation->setCreatedAt(new \DateTimeImmutable());
+    $conversation->setStatus('active');
+
+    $em->persist($conversation);
     $em->flush();
 
     return new JsonResponse(['success' => true]);
@@ -168,5 +176,16 @@ public function refuse(Request $request, Reclamation $reclamation, EntityManager
     return new JsonResponse(['success' => true]);
     
 }
+
+
+#[Route('/reclamation/{id}/conversation', name: 'reclamation_conversation')]
+public function showConversation(Reclamation $reclamation): Response
+{
+    return $this->render('reclamation/reclamConvo.html.twig', [
+        'reclamation' => $reclamation,
+    ]);
+}
+
+
 
 }

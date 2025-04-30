@@ -164,6 +164,7 @@ class Reclamation
         $this->created_at = new \DateTime();
         $this->reclamationAttachments = new ArrayCollection();
         $this->reclamationConversations = new ArrayCollection();
+        
     }
 
     /**

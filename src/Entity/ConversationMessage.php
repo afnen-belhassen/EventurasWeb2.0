@@ -154,4 +154,23 @@ class ConversationMessage
         return $this;
     }
 
+    #[ORM\ManyToOne(
+        targetEntity: ReclamationConversation::class,
+        inversedBy: 'messages'
+    )]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?ReclamationConversation $conversation = null;
+
+    public function getConversation(): ?ReclamationConversation
+    {
+        return $this->conversation;
+    }
+
+    public function setConversation(?ReclamationConversation $conv): static
+    {
+        $this->conversation = $conv;
+        return $this;
+    }
+    
+
 }
