@@ -37,6 +37,8 @@ class Post
     #[ORM\Column(length: 255)]
     private ?string $category = null;
 
+    #[ORM\OneToOne(mappedBy: 'post', targetEntity: Poll::class, cascade: ['persist','remove'])]
+    private ?Poll $poll = null;
 
     public function __construct()
     {
@@ -142,5 +144,8 @@ class Post
 
         return $this;
     }
+
+    public function getPoll(): ?Poll { return $this->poll; }
+    public function setPoll(Poll $p): static { $this->poll = $p; return $this; }
 
 } 
