@@ -46,15 +46,6 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
                     <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_1">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_2">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_3">Features</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link click-scroll" href="#section_4">Contact</a>
                     </li>
                 </ul>
@@ -64,89 +55,82 @@
                         <i class="bi bi-plus-circle me-2"></i>Créer Événement
                     </a>
                     <a href="{{ path('app_show_all_events') }}"class="btn custom-btn d-lg-block d-none">Vos événements</a>
+                   {{ include('service/sidebar.html.twig') }}
                 </div>
             </div>
         </div>
     </nav>
 
     <div class="container mt-5">
-        <div class="event-form">
-            <h2>Créer votre événement</h2>
-            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                <div class="mb-3">
-                    {% if form.title.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.title.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.title, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.description.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.description.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.description, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.date_event.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.date_event.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.date_event, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.location.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.location.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.location, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.category.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.category.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.category, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.image.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.image.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.image, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.activities.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.activities.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.activities, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.prix.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.prix.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.prix, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.nb_places.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.nb_places.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.nb_places, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <button type="submit" class="btn btn-custom">Créer l'événement</button>
-            {{ form_end(form) }}
+         <div class="event-form">
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+        <div class="mb-3">
+            {{ form_row(form.title, {
+                'attr': {'class': 'form-control' ~ (form.title.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
         </div>
+
+        <div class="mb-3">
+            {{ form_row(form.description, {
+                'attr': {'class': 'form-control' ~ (form.description.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.date_event, {
+                'attr': {'class': 'form-control' ~ (form.date_event.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.date_finEve, {
+                'attr': {'class': 'form-control' ~ (form.date_finEve.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.location, {
+                'attr': {'class': 'form-control' ~ (form.location.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.category, {
+                'attr': {'class': 'form-control' ~ (form.category.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.image, {
+                'attr': {'class': 'form-control' ~ (form.image.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.activities, {
+                'attr': {'class': 'form-control' ~ (form.activities.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.prix, {
+                'attr': {'class': 'form-control' ~ (form.prix.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.nb_places, {
+                'attr': {'class': 'form-control' ~ (form.nb_places.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-custom">Créer l'événement</button>
+        </div>
+
+    {{ form_end(form) }}
+</div>
+
     </div>
 {% endblock %}

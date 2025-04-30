@@ -7,6 +7,11 @@ parameters:
     images_events_directory: '%kernel.project_dir%/assets/ImagesEvents'
     attachments_directory:   '%kernel.project_dir%/assets/ImagesReclamations'
     partners_directory: '%kernel.project_dir%/public/uploads/partners'
+    stripe_public_key: '%env(STRIPE_PUBLIC_KEY)%'
+    stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
+    twilio.account_sid: '%env(TWILIO_ACCOUNT_SID)%'
+    twilio.auth_token: '%env(TWILIO_AUTH_TOKEN)%'
+    twilio.phone_number: '%env(TWILIO_PHONE_NUMBER)%'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -32,6 +37,17 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    #Twilio
+    App\Service\TwilioService:
+        arguments:
+            $sid: '%twilio.account_sid%'
+            $token: '%twilio.auth_token%'
+            $from: '%twilio.phone_number%'
+    App\Twig\MarkdownExtension:
+        tags: ['twig.extension']
+    
+    App\Service\MarkdownHelper: ~
 
     App\Service\SignatureVerificationService:
         arguments:
