@@ -29,6 +29,12 @@ class ReclamationConversation
         return $this;
     }
 
+    public function __toString(): string
+    {
+        return 'Conversation #' . $this->id;
+    }
+    
+
     #[ORM\ManyToOne(targetEntity: Reclamation::class, inversedBy: 'reclamationConversations')]
     #[ORM\JoinColumn(name: 'reclamation_id', referencedColumnName: 'id')]
     private ?Reclamation $reclamation = null;

@@ -6,6 +6,7 @@
 parameters:
     images_events_directory: '%kernel.project_dir%/assets/ImagesEvents'
     attachments_directory:   '%kernel.project_dir%/assets/ImagesReclamations'
+    conversations_directory:   '%kernel.project_dir%/public/ImagesConversations'
     partners_directory: '%kernel.project_dir%/public/uploads/partners'
 services:
     # default configuration for services in *this* file

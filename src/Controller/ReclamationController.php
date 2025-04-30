@@ -1,10 +1,14 @@
 <?php
 namespace App\Controller;
 
+use App\Entity\ConversationMessage;
+use App\Entity\MessageAttachment;
 use App\Entity\Reclamation;
 use App\Entity\ReclamationAttachment;
 use App\Entity\ReclamationConversation;
+use App\Form\ConversationMessageType;
 use App\Form\ReclamationType;
+use App\Repository\ReclamationConversationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,6 +63,9 @@ final class ReclamationController extends AbstractController
 
         return $this->redirectToRoute('app_show_all_reclamations');
     }
+
+
+
     #[Route('/reclamation/new', name: 'app_reclamation_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
@@ -111,6 +118,8 @@ final class ReclamationController extends AbstractController
         return $this->redirectToRoute('app_show_all_reclamations');
     }
 
+
+
 #[Route('/reclamation/{id}/edit', name: 'app_reclamation_edit', methods: ['POST'])]
 public function edit(
     Reclamation $reclamation,
@@ -159,6 +168,8 @@ public function accept(Reclamation $reclamation, EntityManagerInterface $em): Js
     return new JsonResponse(['success' => true]);
 }
 
+
+
 #[Route('/reclamation/{id}/refuse', name: 'reclamation_refuse', methods: ['POST'])]
 public function refuse(Request $request, Reclamation $reclamation, EntityManagerInterface $em): JsonResponse
 {
@@ -178,12 +189,185 @@ public function refuse(Request $request, Reclamation $reclamation, EntityManager
 }
 
 
-#[Route('/reclamation/{id}/conversation', name: 'reclamation_conversation')]
-public function showConversation(Reclamation $reclamation): Response
-{
+/*  get and post msg in 1 api
+ 
+  #[Route('/reclamation/{id}/conversation', name: 'reclamation_conversation')]
+ public function showConversation(
+     Reclamation $reclamation,
+     Request $request,
+     ReclamationConversationRepository $conversationRepo,
+     EntityManagerInterface $em
+ ): Response {
+     $conversation = $conversationRepo->findOneBy(['reclamation' => $reclamation]);
+ 
+     if (!$conversation) {
+         throw $this->createNotFoundException('No conversation found.');
+     }
+ 
+     $message = new ConversationMessage();
+     $message->setConversation($conversation);
+     $message->setCreatedAt(new \DateTime());
+     $message->setSenderId(1);
+ 
+     $form = $this->createForm(ConversationMessageType::class, $message);
+     $form->handleRequest($request);
+ 
+     if ($form->isSubmitted() && $form->isValid()) {
+         $em->persist($message);
+         $em->flush();
+ 
+         return $this->redirectToRoute('reclamation_conversation', ['id' => $reclamation->getId()]);
+     }
+ 
+     return $this->render('reclamation/reclamConvo.html.twig', [
+         'reclamation' => $reclamation,
+         'conversation' => $conversation,
+         'messages' => $conversation->getMessages(),
+         'form' => $form->createView(),
+     ]);
+ } 
+ */
+
+
+
+
+#[Route('/reclamation/{id}/conversation', name: 'reclamation_conversation', methods: ['GET'])]
+public function showConversation(
+    Reclamation $reclamation,
+    ReclamationConversationRepository $conversationRepo
+): Response {
+    $conversation = $conversationRepo->findOneBy(['reclamation' => $reclamation]);
+
+    if (!$conversation) {
+        throw $this->createNotFoundException('No conversation found.');
+    }
+
+    $form = $this->createForm(ConversationMessageType::class);
+
     return $this->render('reclamation/reclamConvo.html.twig', [
         'reclamation' => $reclamation,
+        'conversation' => $conversation,
+        'messages' => $conversation->getMessages(),
+        'form' => $form->createView(),
     ]);
+}
+
+
+/* #[Route('/reclamation/{id}/conversation/send', name: 'reclamation_conversation_send', methods: ['POST'])]
+public function createMessage(
+    Reclamation $reclamation,
+    Request $request,
+    ReclamationConversationRepository $conversationRepo,
+    EntityManagerInterface $em
+): Response {
+    $conversation = $conversationRepo->findOneBy(['reclamation' => $reclamation]);
+
+    if (!$conversation) {
+        throw $this->createNotFoundException('No conversation found.');
+    }
+
+    $message = new ConversationMessage();
+    $message->setConversation($conversation);
+    $message->setCreatedAt(new \DateTime());
+    $message->setSenderId(1); // replace later with $this->getUser()->getId()
+
+    $form = $this->createForm(ConversationMessageType::class, $message);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->persist($message);
+        $em->flush();
+    }
+
+    return $this->redirectToRoute('reclamation_conversation', [
+        'id' => $reclamation->getId()
+    ]);
+} */
+
+#[Route('/reclamation/{id}/conversation/send', name: 'reclamation_conversation_send', methods: ['POST'])]
+public function createMessage(
+    Reclamation $reclamation,
+    Request $request,
+    ReclamationConversationRepository $conversationRepo,
+    EntityManagerInterface $em
+): Response {
+    $conversation = $conversationRepo->findOneBy(['reclamation' => $reclamation]);
+
+    if (!$conversation) {
+        throw $this->createNotFoundException('No conversation found.');
+    }
+
+    $message = new ConversationMessage();
+    $message->setConversation($conversation);
+    $message->setCreatedAt(new \DateTime());
+    $message->setSenderId(1); // Replace later with $this->getUser()->getId()
+
+    $form = $this->createForm(ConversationMessageType::class, $message);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) 
+    if (!$form->isValid()) {
+        dump($form->getErrors(true, false));
+        die('Form is invalid');
+    }
+    {
+        $em->persist($message);
+
+        $files = $form->get('attachments')->getData();
+
+        foreach ($files as $file) {
+            if (!$file) {
+                continue;
+            }
+
+            $origName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeName = preg_replace('/[^a-z0-9_]+/i', '_', $origName);
+            $newFilename = $safeName . '-' . uniqid() . '.' . $file->guessExtension();
+
+            try {
+                $file->move(
+                    $this->getParameter('conversations_directory'),
+                    $newFilename
+                );
+            } catch (FileException $e) {
+                continue; // or log the error
+            }
+
+            $attachment = new MessageAttachment();
+            $attachment->setMessage($message);
+            $attachment->setFilePath($newFilename);
+            $attachment->setUploadedAt(new \DateTime());
+
+            $em->persist($attachment);
+        }
+
+        $em->flush();
+    }
+
+    return $this->redirectToRoute('reclamation_conversation', ['id' => $reclamation->getId()]);
+}
+
+
+#[Route('/conversation/attachment/{id}/delete', name: 'conversation_attachment_delete', methods: ['DELETE'])]
+public function deleteAttachment(MessageAttachment $attachment, EntityManagerInterface $em): Response {
+    $em->remove($attachment);
+    $em->flush();
+    return new Response(null, 204);
+}
+
+#[Route('/conversation/message/{id}/update', name: 'conversation_message_update', methods: ['POST'])]
+public function updateMessage(ConversationMessage $message, Request $request, EntityManagerInterface $em): Response {
+    $newContent = $request->request->get('message');
+    $message->setMessage($newContent);
+    $em->flush();
+    return new Response(null, 200);
+}
+
+#[Route('/conversation/message/{id}/delete', name: 'conversation_message_delete', methods: ['DELETE'])]
+public function deleteMessage(ConversationMessage $message, EntityManagerInterface $em): Response {
+    $em->remove($message);
+    $em->flush();
+    return new Response(null, 204);
 }
 
 

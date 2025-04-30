@@ -85,7 +85,7 @@ class ConversationMessage
         return $this;
     }
 
-    #[ORM\OneToMany(targetEntity: MessageAttachment::class, mappedBy: 'conversationMessage')]
+    #[ORM\OneToMany(mappedBy: 'message', targetEntity: MessageAttachment::class, cascade: ['persist', 'remove'])]
     private Collection $messageAttachments;
 
     public function __construct()
@@ -98,12 +98,8 @@ class ConversationMessage
      */
     public function getMessageAttachments(): Collection
     {
-        if (!$this->messageAttachments instanceof Collection) {
-            $this->messageAttachments = new ArrayCollection();
-        }
         return $this->messageAttachments;
     }
-
     public function addMessageAttachment(MessageAttachment $messageAttachment): self
     {
         if (!$this->getMessageAttachments()->contains($messageAttachment)) {

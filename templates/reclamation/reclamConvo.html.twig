@@ -601,23 +601,146 @@
     <div class="container">
       <div class="page-inner">
         <div class="reclam-convo">
-          <h1>Reclamation ID: {{ reclamation.id }}</h1>
+         <!--  <h1>Reclamation ID: {{ reclamation.id }} -->
+          </h1>
+
+          <div class="parent-convo">
+            <div class="messagerie-reclam"> 
+<!--               <div class="zone-messages">
+                {% for message in messages %}
+                    <div class="{% if message.sender_id == 1 %}message-left{% else %}message-right{% endif %}">
+                        <div class="message-bubble">
+                            {{ message.message }}
+                        </div>
+                    </div>
+                {% else %}
+                    <p>No messages yet.</p>
+                {% endfor %}
+            </div> -->
+            <div class="zone-messages">
+              {% for message in messages %}
+
+              {% set attachmentData = [] %}
+                {% for a in message.messageAttachments %}
+                {% set attachmentData = attachmentData|merge([{ id: a.id, filePath: a.filePath }]) %}
+                {% endfor %}
+                <div class="{% if message.sender_id == 1 %}message-left{% else %}message-right{% endif %}">
+                  <div class="message-bubble"
+                  onclick="openCategoryPopup(this)"
+                  data-id="{{ message.id }}"
+                  data-message="{{ message.message|e('html_attr') }}"
+                  data-attachments='{{ attachmentData|json_encode() }}'>
+                  
 
 
-        <div class="parent-convo">
-          <div class="messagerie-reclam"> 
-            <div class="zone-messages"> <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Id repellat, atque earum esse sunt officia sed voluptates dicta sequi magnam eum minima similique perferendis exercitationem magni alias iste sint animi, facere, eveniet recusandae hic. Saepe laboriosam, tempore neque ratione velit quis? Eum voluptate porro temporibus pariatur omnis accusamus vel dignissimos accusantium modi eligendi, repellat, reprehenderit esse, praesentium qui repudiandae? Accusantium quis error placeat culpa reiciendis ut dicta deleniti, doloremque numquam eveniet nam ipsam fugit voluptatem dolore rerum. Voluptatibus animi veritatis sapiente culpa quas hic soluta eveniet alias rerum ratione. Neque in ullam consectetur sapiente unde? Nobis, possimus magni, consequuntur error placeat nesciunt assumenda reiciendis ipsam vero repellendus accusamus ea? Eos voluptates beatae dolores deserunt voluptas consequuntur fugiat corrupti non incidunt doloremque, maxime necessitatibus cupiditate, aliquid natus sapiente sint accusamus architecto? Aliquid odio in optio doloremque dolorem facilis dignissimos illo omnis impedit praesentium incidunt, sapiente quae natus illum, voluptates hic pariatur. Eaque ut reiciendis distinctio voluptatum, animi optio dignissimos adipisci perspiciatis libero magni neque error repellendus ipsam ex similique vel et! Voluptates numquam, asperiores quam fugiat illo praesentium neque error minima. Nam iste sequi quo rerum quasi explicabo ab id asperiores? Tenetur eligendi sunt ex voluptate excepturi voluptatibus ut molestiae? In repudiandae quisquam voluptatem maiores quidem optio commodi eum quaerat, id harum et, hic maxime dolorum exercitationem a earum odio suscipit natus corporis sunt? Sint quaerat corporis omnis, debitis earum, necessitatibus saepe reprehenderit excepturi ratione explicabo soluta hic dolores sunt praesentium voluptas voluptates vel cum sit repellat odit, molestiae ea inventore. Commodi aut et fuga, ea a libero sequi ad itaque, dolor quis excepturi culpa rerum vel praesentium repellat cupiditate quod ipsam impedit ex eveniet inventore incidunt minus? Alias labore eaque quo! Accusamus exercitationem dolorum cupiditate! Facilis nemo illum quam maiores excepturi. Impedit perferendis sequi id esse placeat hic sint minima assumenda, optio tempore quasi itaque debitis suscipit dolore, necessitatibus quos nemo velit tempora eum aut aliquam rerum nam delectus ipsa. Consectetur nesciunt vel a! Distinctio quis rem ipsum sint corporis fuga recusandae, nihil dolorem aperiam doloremque, soluta, placeat aut debitis molestias! Adipisci ducimus a aspernatur repudiandae ipsam quis, accusamus consectetur sunt recusandae asperiores exercitationem reiciendis, voluptatibus eius pariatur blanditiis fugit expedita dignissimos vel omnis tempore dolore! Maiores, quae animi. Inventore, consequatur suscipit error, iure possimus itaque temporibus similique pariatur assumenda eveniet quibusdam natus provident perspiciatis quisquam repellat veritatis alias eos nulla! Ad nemo cumque eaque nesciunt facere non voluptates quas? Non nihil ipsa delectus saepe id voluptatibus assumenda atque, quasi sint molestiae alias omnis eaque optio distinctio illo aliquam aliquid ea voluptatum labore cumque animi! Atque saepe molestiae alias a iure dolorem impedit debitis architecto cumque. Quisquam omnis voluptas est sit vero, excepturi laudantium commodi officia totam earum qui. Ducimus labore id sint adipisci dignissimos porro amet optio in aliquid exercitationem sed rerum veritatis accusantium aliquam assumenda, corporis cum expedita repellendus! Provident quibusdam vel dolorem ipsum a nulla sequi molestiae voluptates. Adipisci aliquam, illum eaque neque fugiat eius? Ea, repellendus architecto est laboriosam repellat provident doloribus libero cumque facilis atque. Debitis, modi omnis tempore adipisci velit illo maxime in vero exercitationem hic sint at facere quasi id laborum beatae, odio nostrum tenetur perferendis optio nam? Ut, est perspiciatis architecto consequatur quae tempora consectetur, similique ipsum beatae, nesciunt sed. Omnis architecto repellat rem, aspernatur sunt temporibus quam quasi incidunt explicabo aliquam asperiores officiis nulla iusto modi quidem exercitationem magni facilis voluptas praesentium. Asperiores quae autem repellendus architecto modi quasi commodi eligendi? Commodi facilis explicabo nobis minima consectetur amet recusandae labore, optio magnam cum culpa ab aut eaque est vitae porro nesciunt odio! Architecto, ab sunt consectetur iure voluptatem delectus velit exercitationem, ratione, cum eius vero temporibus nesciunt aperiam modi ipsam debitis autem quasi libero quo. Laborum non, at quo modi asperiores autem. Sit corporis rem ad tempore. Necessitatibus cupiditate aut quisquam fugiat facilis nam voluptatum sequi eaque modi libero itaque et placeat sapiente, praesentium laboriosam dolor eos pariatur accusantium! Dolorem corporis ratione laudantium, soluta nisi cupiditate repellendus natus aperiam libero, blanditiis sit. Quia dolore autem excepturi sunt aliquid fugiat alias nisi eveniet in tempore corrupti at qui quidem rerum odio dolorem odit inventore quibusdam impedit doloremque, cum voluptates saepe soluta porro? Labore, reiciendis? Dolorem atque vel soluta suscipit. Corporis necessitatibus eaque quo! Eveniet nisi nihil cupiditate accusantium sed ipsum repellendus, sunt obcaecati natus recusandae optio maiores repudiandae porro. Repellat, ut alias. Modi enim repellat natus ducimus minus quaerat soluta quis, amet voluptas, exercitationem maxime, quia accusantium illum nisi rerum cupiditate. Delectus, dolor officiis! Quod illum aut facilis sapiente voluptate necessitatibus. Illo consequatur consectetur obcaecati ea reprehenderit quae repudiandae sapiente! Placeat sequi nihil et inventore, incidunt similique voluptatum ullam! Esse magnam quis accusantium, vel maxime ab, quae molestias quos velit explicabo voluptas officia natus nemo nesciunt repudiandae facilis, quibusdam veritatis. Expedita qui illum quisquam dolor temporibus incidunt minus in, dignissimos totam. Ex saepe ea deserunt delectus illum eligendi dignissimos atque quibusdam doloribus vel quia maxime optio est facilis perferendis, esse eius ipsa dolorem asperiores impedit, necessitatibus dolorum, voluptas temporibus? Totam id deserunt ipsam? Commodi cumque sit eum officia. Temporibus velit non neque quisquam libero quod cumque praesentium quas laboriosam ducimus quasi repudiandae adipisci incidunt, architecto obcaecati animi explicabo soluta laborum in nesciunt nisi corrupti labore saepe reiciendis? Minus laudantium perspiciatis sed officiis obcaecati esse nam, soluta autem. Quos culpa placeat exercitationem quae nam dolores itaque minus quidem libero. Expedita cupiditate tempora totam mollitia repellendus, atque, exercitationem animi, odit reprehenderit ipsum architecto omnis impedit iste dolorum quisquam praesentium! Quidem voluptates repudiandae vitae porro similique quisquam, asperiores esse consequuntur accusamus, modi cum illo beatae est doloremque nesciunt ipsum dolores natus quia facilis. Aliquam vel sapiente aspernatur labore repudiandae vitae quod nobis dicta aut excepturi ratione incidunt impedit voluptate est ipsa assumenda commodi eligendi omnis cupiditate, ullam esse molestiae voluptatibus! Perspiciatis placeat nihil assumenda eveniet beatae! Doloremque iste ullam odio beatae maiores ab numquam, cumque, commodi, amet vel quaerat distinctio molestiae sit alias sapiente. Adipisci voluptatem facilis beatae a itaque modi voluptate reiciendis iure debitis, animi quam maxime rerum molestiae corporis ipsam? Rem, fugit autem?</p>
+
+                  
+                  
+                    <div class="message-text">
+                      {{ message.message }}
+                    </div>
+            
+                    {% if message.messageAttachments|length > 0 %}
+                    <div class="message-attachments" style="margin-top: 10px;">
+                        {% for attachment in message.messageAttachments %}
+                          {% set filePath = 'ImagesConversations/' ~ attachment.filePath %}
+                          {% if attachment.filePath matches '/\.(jpe?g|png|gif)$/i' %}
+                            <img src="{{ asset(filePath) }}" alt="image" style="max-width: 120px; max-height: 120px; margin-right: 5px; border-radius: 6px;" />
+                          {% else %}
+                            <a href="{{ asset(filePath) }}" target="_blank" style="display: block; color: #0056b3; font-weight: bold;">
+                              📎 {{ attachment.filePath }}
+                            </a>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              {% else %}
+                <p>No messages yet.</p>
+              {% endfor %}
             </div>
-            <div class="zone-writing">
+
+            <div id="categoryPopup" class="category-popup">
+              <div class="category-popup-content p-4 rounded shadow bg-white">
+                <!-- Close Button -->
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Close" onclick="closeCategoryPopup()"></button>
+            
+                <h5 class="mb-4 text-center">selem</h5>
+                <input type="hidden" id="popup-message-id">
+
+                <textarea id="popup-message-text" class="form-control mb-3"></textarea>
+                
+                <h6>Pièces jointes:</h6>
+                <table class="table" id="nonImageAttachments"></table>
+                
+                <h6>Images</h6>
+                <div id="imageAttachments" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+                
+                <button class="btn btn-success mt-3" onclick="saveMessage()">Sauvegarder</button>
+                <button class="btn btn-danger mt-3" onclick="deleteMessage()">Supprimer le message</button>
+  
+              </div>
             </div>
+        
+            
+            
+            <div class="zone-writing mt-2">
+              <div class="d-flex align-items-center mb-2 gap-3">
+                <label class="btn p-2 d-flex align-items-center justify-content-center"
+                       style="background-color: #f8f9fa; border-radius: 12px; width: 42px; height: 42px;">
+                  📎
+                  {{ form_widget(form.attachments, {
+                    attr: {
+                      multiple: true,
+                      class: 'd-none',
+                      id: 'live-attachments'
+                    }
+                  }) }}
+                </label>
+                <span id="file-label" style="color: #888; display: none;">Aucun fichier choisi</span>
+              </div>
+
+              
+              {{ form_start(form, {
+                action: path('reclamation_conversation_send', { id: reclamation.id }),
+                attr: { enctype: 'multipart/form-data' },
+                method: 'POST'
+              }) }}
+            
+                <div class="input-group mb-2">
+                  {{ form_widget(form.message) }}
+                  <button type="submit" class="btn btn-danger">Envoyer</button>
+                </div>
+            
+
+            
+                <div id="attachmentTableWrapper" style="display: none;">
+                  <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Nom du fichier</th>
+                        <th style="width: 100px;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="liveAttachmentPreview"></tbody>
+                  </table>
+                </div>
+            
+              {{ form_end(form) }}
+            </div>
+          
+            </div>
+  
+  
+            <div class="side-reclam-bar">
+              <p>          
+              </p>
+            </div>
+  
           </div>
+          
 
-
-          <div class="side-reclam-bar">
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus vero voluptate magni, ad minima placeat doloremque quidem aspernatur ab atque, quibusdam ut veniam id vel asperiores eum similique nisi nihil aliquam error pariatur nulla natus esse debitis. Distinctio esse tenetur quaerat, voluptas eligendi, aliquid molestiae iste modi id dolorem minima odio adipisci quis temporibus quod quam nulla obcaecati porro ullam praesentium asperiores beatae. Non, accusamus totam! Esse alias nemo ad! Iusto provident nam ullam quos quae minima, praesentium aspernatur at quis libero nulla optio officia adipisci porro quod omnis, sunt veniam similique saepe exercitationem eos! Repellendus aut unde iste autem recusandae vel alias obcaecati cum, iusto, possimus aspernatur blanditiis omnis at itaque corrupti magnam? Explicabo, placeat! Consequatur doloribus voluptatem, distinctio alias in laborum ipsum libero nostrum corrupti vero repudiandae eveniet accusantium aspernatur quos commodi maiores assumenda voluptates odio ea amet eius non. Quam quaerat, esse, culpa aspernatur quidem excepturi similique unde iusto suscipit consequuntur a dolore. Asperiores consequuntur, aliquam iure neque, dolorum deserunt in eos mollitia nisi impedit sit illo similique illum, ipsa ex quod enim sequi non? Facilis, a eius voluptatem libero culpa officia aliquam, repellendus cum ipsum ipsam autem ut odio. Velit minima, voluptas soluta nesciunt ex dolorum est ad perferendis commodi quia reiciendis ducimus quam obcaecati laboriosam expedita a. Optio voluptatem minima fugit officia magnam dolorum tempora excepturi adipisci culpa molestiae sit iste deleniti error totam, dolore distinctio ratione dolor iure quisquam vero beatae incidunt ad esse? Illum nesciunt quae itaque hic dicta, illo cumque sapiente voluptas cupiditate sit ut necessitatibus obcaecati enim incidunt explicabo fugit dolor sequi perferendis officiis error. Accusantium aliquam at deserunt ratione consequuntur fugit, enim similique illum dolore, rem, mollitia labore. Repudiandae aut delectus nihil tenetur inventore dolorem libero nulla cupiditate distinctio, animi reprehenderit fugit beatae accusantium unde corrupti totam temporibus eveniet, blanditiis nostrum. Quam, voluptate sint. Ullam iure eos quisquam magni! Laborum adipisci placeat vero ducimus recusandae vel amet alias impedit deserunt quidem modi dolores iusto, sint tempora atque perferendis! Atque numquam aperiam nobis magni. Vitae consequatur nulla ipsam. Ipsum, dolor! Hic culpa assumenda laborum saepe cumque, ab consectetur quas vero repudiandae fugit quis doloribus neque illum praesentium dolores consequatur suscipit temporibus? Similique esse eos quam explicabo doloremque animi, sed dignissimos veniam rerum a quibusdam molestias, error adipisci voluptates ipsam! Eaque, minima. Recusandae distinctio cumque consequatur, accusantium eum adipisci temporibus odio tempora atque quaerat ut id facilis commodi incidunt eveniet nobis fuga nemo! Nesciunt excepturi labore culpa ipsum corporis debitis aspernatur quibusdam! Perferendis blanditiis quam voluptatum atque debitis voluptas quidem excepturi ullam dolore quaerat autem quia aut ipsam consectetur, officia rerum aliquam dolor eos veniam fugit asperiores nam consequatur! Similique hic id rem obcaecati quas accusantium? Ipsam odio placeat minima vitae error, tenetur maiores inventore modi esse explicabo nemo nihil nesciunt aliquam harum natus hic, temporibus sequi, assumenda ea eaque! Cumque excepturi, sint voluptatibus at illum magni, nam non saepe ullam nesciunt dolores totam dolorum obcaecati! Illum numquam quo sint architecto, minima impedit, natus quod exercitationem minus, animi ex veniam neque iste!</p>
-          </div>
-
-        </div>
 
 
 
@@ -747,8 +870,151 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<script>
+  const fileInput = document.querySelector('input[type="file"]');
+  const fileLabel = document.getElementById('file-label');
+  fileInput.addEventListener('change', function () {
+    fileLabel.innerText = fileInput.files.length > 0
+      ? Array.from(fileInput.files).map(f => f.name).join(', ')
+      : 'Aucun fichier choisi';
+  });
+
+</script>
+
+<script>
+function openCategoryPopup(el) {
+
+  document.getElementById('categoryPopup').classList.add('open');
+
+
+  const id = el.dataset.id;
+  const msg = el.dataset.message;
+  const attachments = JSON.parse(el.dataset.attachments);
+
+  document.getElementById('popup-message-id').value = id;
+  document.getElementById('popup-message-text').value = msg;
+
+  // Reset containers
+  const table = document.getElementById('nonImageAttachments');
+  const grid = document.getElementById('imageAttachments');
+  table.innerHTML = '';
+  grid.innerHTML = '';
+
+  attachments.forEach(att => {
+  const isImage = att.filePath.match(/\.(jpe?g|png|gif)$/i);
+  const path = '/ImagesConversations/' + att.filePath;
+
+if (isImage) {
+  const imgBox = document.createElement('div');
+  imgBox.classList.add('img-box');
+  imgBox.innerHTML = `
+    <img src="${path}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;" />
+    <button class="btn btn-sm btn-danger delete-img-btn" onclick="deleteAttachment(${att.id})">✖</button>
+  `;
+  grid.appendChild(imgBox);
+} else {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><a href="${path}" target="_blank">${att.filePath}</a></td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteAttachment(${att.id})">Supprimer</button></td>
+    `;
+    table.appendChild(row);
+  }
+});
+
+
+  
+}
+
+
+function closeCategoryPopup() {
+  document.getElementById('categoryPopup').classList.remove('open');
+}
+
+
+function deleteAttachment(id) {
+  if (!confirm("Supprimer ce fichier ?")) return;
+
+  fetch(`/conversation/attachment/${id}/delete`, {
+    method: 'DELETE'
+  }).then(() => location.reload());
+}
+
+
+function saveMessage() {
+  const id = document.getElementById('popup-message-id').value;
+  const msg = document.getElementById('popup-message-text').value;
+
+  fetch(`/conversation/message/${id}/update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'message=' + encodeURIComponent(msg)
+  }).then(() => location.reload());
+}
+
+function deleteMessage() {
+  const id = document.getElementById('popup-message-id').value;
+  if (!confirm('Supprimer ce message ?')) return;
+
+  fetch(`/conversation/message/${id}/delete`, {
+    method: 'DELETE'
+  }).then(() => location.reload());
+}
+
+
+ </script>
 
 
 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const fileInput = document.querySelector('input[type="file"][multiple]');
+    const previewTable = document.getElementById('attachmentTableWrapper');
+    const previewTableBody = document.getElementById('liveAttachmentPreview');
+    const fileLabel = document.getElementById('file-label');
+    let selectedFiles = [];
+  
+    fileInput.addEventListener('change', function () {
+      selectedFiles = Array.from(fileInput.files);
+      updatePreviewTable();
+    });
+  
+    function updatePreviewTable() {
+      previewTableBody.innerHTML = '';
+  
+      if (selectedFiles.length === 0) {
+        previewTable.style.display = 'none';
+        fileLabel.textContent = 'Aucun fichier choisi';
+        return;
+      }
+  
+      previewTable.style.display = 'block';
+      fileLabel.textContent = `${selectedFiles.length} fichier(s) sélectionné(s)`;
+  
+      selectedFiles.forEach((file, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${file.name}</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeAttachment(${index})">
+              Supprimer
+            </button>
+          </td>
+        `;
+        previewTableBody.appendChild(row);
+      });
+  
+      // Sync with input
+      const dataTransfer = new DataTransfer();
+      selectedFiles.forEach(file => dataTransfer.items.add(file));
+      fileInput.files = dataTransfer.files;
+    }
+  
+    window.removeAttachment = function (index) {
+      selectedFiles.splice(index, 1);
+      updatePreviewTable();
+    };
+  });
+  </script>
 
 {% endblock %}
