@@ -43,7 +43,7 @@
         </div>
     </div>
     
-    <div style="background-color: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+   <div style="background-color: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div id="seats-container" style="display: flex; flex-direction: column; align-items: center;">
             {% set seatsPerRow = 12 %}
             {% set totalRows = (event.nb_places / seatsPerRow)|round(0, 'ceil') %}
@@ -54,21 +54,34 @@
                         {% if seat_number <= event.nb_places %}
                             <div class="seat {% if seat_number in reservedSeats %}occupied{% endif %}" 
                                 data-seat="{{ seat_number }}"
-                                style="width: 40px; 
-                                       height: 40px; 
-                                       margin: 5px; 
-                                       background-image: url('{{ asset('Reservation/seat.png') }}'); 
+                                style="width: 60px; 
+                                       height: 60px; 
+                                       margin: 8px; 
+                                       background-image: url('{{ seat_number in reservedSeats ? asset('Reservation/seatRESER.png') : asset('Reservation/seat2.png') }}'); 
                                        background-size: cover; 
                                        background-position: center;
                                        cursor: pointer;
                                        position: relative;
                                        transition: all 0.2s ease;
                                        {% if seat_number in reservedSeats %} 
-                                           background-color: #fff; 
                                            opacity: 0.7; 
                                            cursor: not-allowed;
                                        {% endif %}">
-                                <span style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #333;">{{ seat_number }}</span>
+                                <div class="seat-number-tooltip" 
+                                    style="position: absolute; 
+                                           bottom: -30px; 
+                                           left: 50%; 
+                                           transform: translateX(-50%); 
+                                           background-color: rgba(0,0,0,0.8); 
+                                           color: white; 
+                                           padding: 3px 8px; 
+                                           border-radius: 4px; 
+                                           font-size: 12px; 
+                                           visibility: hidden;
+                                           opacity: 0;
+                                           transition: opacity 0.2s ease;">
+                                    {{ seat_number }}
+                                </div>
                             </div>
                         {% endif %}
                     {% endfor %}
@@ -76,6 +89,7 @@
             {% endfor %}
         </div>
     </div>
+
     
     <div style="text-align: center; margin-bottom: 20px;">
         <p style="font-size: 16px;">
@@ -114,6 +128,21 @@
     const count = document.getElementById('count');
     const submitButton = document.getElementById('submit-payment');
     
+    // Add hover effect for seat numbers
+    document.querySelectorAll('.seat').forEach(seat => {
+        seat.addEventListener('mouseenter', () => {
+            const tooltip = seat.querySelector('.seat-number-tooltip');
+            tooltip.style.visibility = 'visible';
+            tooltip.style.opacity = '1';
+        });
+        
+        seat.addEventListener('mouseleave', () => {
+            const tooltip = seat.querySelector('.seat-number-tooltip');
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.opacity = '0';
+        });
+    });
+    
     container.addEventListener('click', (e) => {
         const seatElement = e.target.classList.contains('seat') ? e.target : e.target.closest('.seat');
         if (seatElement && !seatElement.classList.contains('occupied')) {
@@ -132,81 +161,81 @@
     });
     
     // Handle form submission
-   const form = document.getElementById('payment-form');
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    if (!selectedSeat) {
-        alert('Veuillez sélectionner une place');
-        return;
-    }
-    const eventId = document.querySelector('input[name="event_id"]').value;
-    // Disable button during processing
-    submitButton.disabled = true;
-    submitButton.textContent = 'Traitement en cours...';
-    
-    try {
-        // 1. Create payment intent
-        const response = await fetch('{{ path('app_create_payment_intent') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                event_id: eventId,
-                seat_number: selectedSeat.dataset.seat
-            })
-        });
+    const form = document.getElementById('payment-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Échec du paiement');
+        if (!selectedSeat) {
+            alert('Veuillez sélectionner une place');
+            return;
         }
+        const eventId = document.querySelector('input[name="event_id"]').value;
+        // Disable button during processing
+        submitButton.disabled = true;
+        submitButton.textContent = 'Traitement en cours...';
         
-        // 2. Confirm payment
-        const { error, paymentIntent } = await stripe.confirmCardPayment(
-            data.clientSecret, {
-                payment_method: {
-                    card: cardElement,
-                    billing_details: {
-                        name: 'Client' // Vous devriez collecter ceci depuis un champ de formulaire
+        try {
+            // 1. Create payment intent
+            const response = await fetch('{{ path('app_create_payment_intent') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    event_id: eventId,
+                    seat_number: selectedSeat.dataset.seat
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Échec du paiement');
+            }
+            
+            // 2. Confirm payment
+            const { error, paymentIntent } = await stripe.confirmCardPayment(
+                data.clientSecret, {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            name: 'Client' // Vous devriez collecter ceci depuis un champ de formulaire
+                        }
                     }
                 }
+            );
+            
+            if (error) {
+                throw error;
             }
-        );
-        
-        if (error) {
-            throw error;
-        }
 
-        // 3. Payment succeeded - maintenant on confirme la réservation d'abord
-        const confirmResponse = await fetch('{{ path("app_confirm_reservation") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                payment_intent_id: paymentIntent.id,
-                event_id: eventId,
-                seat_number: selectedSeat.dataset.seat
-            })
-        });
+            // 3. Payment succeeded - maintenant on confirme la réservation d'abord
+            const confirmResponse = await fetch('{{ path("app_confirm_reservation") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    payment_intent_id: paymentIntent.id,
+                    event_id: eventId,
+                    seat_number: selectedSeat.dataset.seat
+                })
+            });
 
-        if (confirmResponse.ok) {
-            window.location.href = '{{ path('app_payment_success') }}?payment_intent=' + paymentIntent.id;
-        } else {
-            const errorData = await confirmResponse.json();
-            throw new Error(errorData.error || 'Failed to confirm reservation');
+            if (confirmResponse.ok) {
+                window.location.href = '{{ path('app_payment_success') }}?payment_intent=' + paymentIntent.id;
+            } else {
+                const errorData = await confirmResponse.json();
+                throw new Error(errorData.error || 'Failed to confirm reservation');
+            }
+            
+        } catch (err) {
+            console.error('Payment error:', err);
+            document.getElementById('card-errors').textContent = err.message;
+            submitButton.disabled = false;
+            submitButton.textContent = `Payer maintenant (${event.prix} TND)`;
         }
-        
-    } catch (err) {
-        console.error('Payment error:', err);
-        document.getElementById('card-errors').textContent = err.message;
-        submitButton.disabled = false;
-        submitButton.textContent = `Payer maintenant (${event.prix} TND)`;
-    }
-});
+    });
     
     // Handle card errors
     cardElement.addEventListener('change', ({error}) => {

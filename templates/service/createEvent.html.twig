@@ -95,12 +95,15 @@
             }) }}
         </div>
 
+        <!-- Add a visible input field for the location -->
+        <div class="mb-3">
+            <input type="text" id="location" class="form-control" placeholder="Location" readonly>
+        </div>
 
         <input type="hidden" id="latitude" name="event[latitude]">
         <input type="hidden" id="longitude" name="event[longitude]">
 
         <div id="map" style="height: 400px; margin-bottom: 20px;"></div>
-
 
         <div class="mb-3">
             {{ form_row(form.category, {
@@ -137,34 +140,40 @@
         </div>
 
     {{ form_end(form) }}
+    {% if google_maps_api_key is empty %}
+    <div class="alert alert-warning">Google Maps ne peut pas être chargé sans une clé API.</div>
+    {% endif %}
 </div>
 
-</div>
- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuhMXPLehtquvzRFHuVE20n5an1v1SVoE&callback=initMap" async defer></script>
-    <script>
-    let map, marker;
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initMap" async defer></script>
+
+<script>
+    let map, marker, geocoder;
 
     function initMap() {
+        geocoder = new google.maps.Geocoder();
         const defaultPosition = { lat: 36.8065, lng: 10.1815 }; // Tunis
 
         map = new google.maps.Map(document.getElementById("map"), {
             center: defaultPosition,
-            zoom: 12
+            zoom: 12,
         });
 
         marker = new google.maps.Marker({
             position: defaultPosition,
-            map,
-            draggable: true
+            map: map,
+            draggable: true,
         });
 
+        // Initial update
         updateFields(defaultPosition);
 
+        // Update on marker drag
         marker.addListener("dragend", () => {
-            const pos = marker.getPosition();
-            updateFields(pos);
+            updateFields(marker.getPosition());
         });
 
+        // Update on map click
         map.addListener("click", (e) => {
             marker.setPosition(e.latLng);
             updateFields(e.latLng);
@@ -172,34 +181,26 @@
     }
 
     function updateFields(position) {
-        const lat = position.lat();
-        const lng = position.lng();
+        const latLng = position instanceof google.maps.LatLng 
+            ? position 
+            : new google.maps.LatLng(position.lat, position.lng);
+
+        const lat = latLng.lat();
+        const lng = latLng.lng();
         document.getElementById('latitude').value = lat;
         document.getElementById('longitude').value = lng;
 
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-            console.log("Geocoding results:", results);
-            console.log("Geocoding status:", status);
-            
-            // Try both possible field selectors
-            const locationField = document.querySelector('[name="event[location]"]') || 
-                                document.getElementById('location');
-            
-            if (status === 'OK' && results[0]) {
-                locationField.value = results[0].formatted_address;
-                console.log("Setting address to:", results[0].formatted_address);
-            } else {
-                console.error("Geocoder failed due to:", status);
-                locationField.value = 'Adresse introuvable';
+        geocoder.geocode({ location: latLng }, (results, status) => {
+            const locationField = document.getElementById('location');
+            if (locationField) { // Ensure locationField exists
+                if (status === 'OK' && results[0]) {
+                    locationField.value = results[0].formatted_address;
+                } else {
+                    locationField.value = "Adresse introuvable";
+                }
             }
         });
     }
-
-    // Ensure DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        // The Google Maps API will call initMap when ready
-    });
 </script>
 
 {% endblock %}

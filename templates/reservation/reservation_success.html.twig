@@ -3,22 +3,187 @@
 {% block title %}Reservation Confirmed{% endblock %}
 
 {% block body %}
-<div style="max-width: 800px; margin: 0 auto; padding: 40px; text-align: center;">
-    <h1 style="color: #4CAF50;">🎉 Reservation Confirmed!</h1>
-    <div style="background: white; padding: 30px; border-radius: 10px; margin-top: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-        <h2>Your Ticket Details</h2>
-        {# In your reservation_success.html.twig #}
-        <p><strong>Event:</strong> {{ reservation.event.title }}</p>
-        <p><strong>Seat Number:</strong> {{ reservation.ticket.seat_number }}</p>
-        <p><strong>Ticket Code:</strong> {{ reservation.ticket.ticket_code }}</p>
-        <p><strong>Date:</strong> {{ event.date_event|date('F j, Y') }}</p>
-        
-        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
-            <p>A confirmation has been sent to your email.</p>
-            <p>Please present this ticket code at the venue.</p>
-        </div>
-        
-        <a href="{{ path('app_home') }}" style="display: inline-block; margin-top: 30px; padding: 10px 20px; background: #6feaf6; color: white; text-decoration: none; border-radius: 5px;">Back to Home</a>
+<style>
+.ticket {
+  width: 800px;
+  height: 400px;
+  background-color: #f8dcb9;
+  border: 2px solid black;
+  border-radius: 10px;
+  display: flex;
+  font-family: Arial, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Left section */
+.ticket-left {
+  flex: 3;
+  padding: 20px;
+  border-right: 2px dashed black;
+  position: relative;
+}
+
+/* Right section */
+.ticket-right {
+  flex: 1.2;
+  padding: 20px;
+  position: relative;
+}
+
+/* Decorative stripe */
+.stripe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    blue,
+    blue 5px,
+    transparent 5px,
+    transparent 10px
+  );
+  z-index: 0;
+}
+
+/* Box layout */
+.box {
+  border: 1px solid black;
+  margin-top: 20px;
+  display: flex;
+}
+
+.box .seat,
+.box .assigned {
+  padding: 10px;
+  flex: 1;
+}
+
+.box .seat {
+  background-color: #1f1f22;
+  color: white;
+}
+
+/* Ticket type */
+.ticket-type {
+  border: 3px solid #0047ff;
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  position: relative;
+}
+
+.ticket-type::before {
+  content: '';
+  width: 60px;
+  height: 10px;
+  background-color: #0047ff;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+}
+
+.ticket-type span {
+  margin-left: auto;
+  padding: 0 20px;
+  font-weight: bold;
+}
+
+/* Right content */
+.register-box {
+  background-color: #0047ff;
+  height: 100px;
+  margin-bottom: 20px;
+  padding: 10px;
+  color: white;
+}
+
+.date-time {
+  margin-top: 30px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.logo {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  font-size: 14px;
+  text-align: right;
+}
+
+.logo strong {
+  font-family: 'Courier New', monospace;
+}
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f2e5d5; /* une couleur douce pour l'arrière-plan */
+}
+@font-face {
+  font-family: 'BritannicBold';
+  src: url('/fonts/BritannicBoldRegular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.event-title {
+  font-family: 'BritannicBold', sans-serif;
+  font-size: 24px;
+}
+</style>
+
+
+
+<div class="ticket">
+  <div class="ticket-left">
+    <div class="stripe"></div>
+    <div style="margin-top: 15px;">Evenement:</div>
+     <div class="event-title">
+      <span>{{ reservation.event.title }}</span>
     </div>
+    <div class="box">
+      <div class="seat">
+        Siège:<br>{{ reservation.ticket.seat_number }}
+      </div>
+      <div class="assigned">
+        Assigné à:<br>{{ reservation.user_id }}
+      </div>
+    </div>
+
+    <div style="margin-top: 15px;">Tarif payé:</div>
+
+    <div class="ticket-type">
+      <span>{{ reservation.event.prix }}</span>
+    </div>
+  </div>
+
+  <div class="ticket-right">
+    <div class="register-box">
+      Enregistré<br><br>
+      <div style="background-color:rgb(18, 16, 14); height: 25px; margin-top: 10px;">
+        {{ reservation.ticket.ticket_code }}
+      </div>
+    </div>
+
+    <div class="date-time">
+      Date: {{ reservation.event.date_event|date('d/m/Y') }}<br>
+      Heure: {{ reservation.event.date_event|date('H:i') }}
+    </div>
+
+    <div class="logo">
+      <strong>eventura</strong><br>
+      Ce ticket doit être conservé.
+    </div>
+  </div>
 </div>
+
 {% endblock %}

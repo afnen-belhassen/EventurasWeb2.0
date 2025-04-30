@@ -287,10 +287,22 @@ class ReservationController extends AbstractController
         $ticket = new Ticket();
         $ticket->setSeatNumber($seatNumber);
         $ticket->setTicketCode($this->generateTicketCode($seatNumber, $event->getTitle()));
-       
+        $event = $em->getRepository(Event::class)->find($eventId);
         $em->persist($ticket);
         $em->flush();
-
+        $currentDate = new \DateTime();
+        if ($event->getDateEvent() < $currentDate) {
+            $this->addFlash('error', 'This event has already taken place.');
+            return $this->redirectToRoute('app_seat_selection', ['id_event' => $eventId]);
+        }
+        if ($event->getNbPlaces() <= 0) {
+            $this->addFlash('error', 'No available places left for this event.');
+            return $this->redirectToRoute('app_seat_selection', ['id_event' => $eventId]);
+        }
+        
+        // Decrease the number of available places
+        $event->setNbPlaces($event->getNbPlaces() - 1);
+        $em->persist($event);
         $reservation = new Reservation();
         $reservation->setEvent($event);
         $reservation->setUser_id(1); // Example user ID, replace as needed
@@ -298,7 +310,7 @@ class ReservationController extends AbstractController
         $reservation->setStripePaymentId($paymentIntentId);
         $reservation->setPaymentStatus('paid');
         $reservation->setTicket($ticket);
-
+        
         $em->persist($reservation);
         $em->flush();
 
