@@ -3,10 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-
 use App\Repository\ReservationRepository;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: 'reservation')]
@@ -15,32 +13,11 @@ class Reservation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private ?int $Id = null;
+    private ?int $id = null;
 
-    public function getId(): ?int
-    {
-        return $this->Id;
-    }
-
-    public function setId(int $Id): self
-    {
-        $this->Id = $Id;
-        return $this;
-    }
-
-    #[ORM\Column(type: 'integer', nullable: false)]
-    private ?int $event_Id = null;
-
-    public function getEvent_Id(): ?int
-    {
-        return $this->event_Id;
-    }
-
-    public function setEvent_Id(int $event_Id): self
-    {
-        $this->event_Id = $event_Id;
-        return $this;
-    }
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id_event')]
+    private ?Event $event = null;
 
     #[ORM\Column(type: 'integer', nullable: false)]
     private ?int $user_id = null;
@@ -56,8 +33,36 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
+    #[ORM\Column(type: 'string', length: 20)]
     private ?string $status = null;
+
+    #[ORM\OneToOne(targetEntity: Ticket::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'ticket_id', referencedColumnName: 'ticket_id')]
+    private ?Ticket $ticket = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripePaymentId = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $paymentStatus = null;
+
+    // Getters and Setters
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getEvent(): ?Event
+    {
+        return $this->event;
+    }
+
+    public function setEvent(?Event $event): self
+    {
+        $this->event = $event;
+        return $this;
+    }
 
     public function getStatus(): ?string
     {
@@ -70,54 +75,36 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $ticket_id = null;
-
-    public function getTicket_id(): ?int
+    public function getTicket(): ?Ticket
     {
-        return $this->ticket_id;
+        return $this->ticket;
     }
 
-    public function setTicket_id(?int $ticket_id): self
+    public function setTicket(?Ticket $ticket): self
     {
-        $this->ticket_id = $ticket_id;
+        $this->ticket = $ticket;
         return $this;
     }
 
-    public function getEventId(): ?int
+    public function getStripePaymentId(): ?string
     {
-        return $this->event_Id;
+        return $this->stripePaymentId;
     }
 
-    public function setEventId(int $event_Id): static
+    public function setStripePaymentId(?string $stripePaymentId): self
     {
-        $this->event_Id = $event_Id;
-
+        $this->stripePaymentId = $stripePaymentId;
         return $this;
     }
 
-    public function getUserId(): ?int
+    public function getPaymentStatus(): ?string
     {
-        return $this->user_id;
+        return $this->paymentStatus;
     }
 
-    public function setUserId(int $user_id): static
+    public function setPaymentStatus(?string $paymentStatus): self
     {
-        $this->user_id = $user_id;
-
+        $this->paymentStatus = $paymentStatus;
         return $this;
     }
-
-    public function getTicketId(): ?int
-    {
-        return $this->ticket_id;
-    }
-
-    public function setTicketId(?int $ticket_id): static
-    {
-        $this->ticket_id = $ticket_id;
-
-        return $this;
-    }
-
 }

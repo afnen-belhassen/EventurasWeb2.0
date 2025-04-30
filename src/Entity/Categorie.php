@@ -14,22 +14,16 @@ class Categorie
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $category_id = null;
+    #[ORM\Column(name: 'category_id', type: 'integer')] // Explicit column name mapping
+    private ?int $id = null;
 
-    public function getCategory_id(): ?int
-    {
-        return $this->category_id;
-    }
-
-    public function setCategory_id(int $category_id): self
-    {
-        $this->category_id = $category_id;
-        return $this;
-    }
-
-    #[ORM\Column(type: 'string', nullable: false)]
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $name = null;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
     public function getName(): ?string
     {
@@ -41,10 +35,4 @@ class Categorie
         $this->name = $name;
         return $this;
     }
-
-    public function getCategoryId(): ?int
-    {
-        return $this->category_id;
-    }
-
 }
