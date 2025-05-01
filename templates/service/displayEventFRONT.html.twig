@@ -206,7 +206,7 @@
 {% block body %}
     <nav class="navbar navbar-expand-lg">
         <div class="container ">
-            <a class="navbar-brand" href="{{ path('app_home') }}">
+            <a class="navbar-brand" href="{{ path('app_home_part') }}">
                 Eventura
             </a>
 
@@ -320,12 +320,16 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <button class="reserver-btn" disabled style="background-color: #6c757d; cursor: not-allowed;">
+                                    Événement terminé
+                                </button>
+                            {% else %}
+                                <!-- Added Reserve Button -->
+                                <a href="{{ path('app_seat_selection', {'id_event': event.id_event}) }}" class="reserver-btn">
+                                    Réserver une place
+                                </a>
                             {% endif %}
-
-                            <!-- Added Reserve Button -->
-                            <a href="{{ path('app_seat_selection', {'id_event': event.id_event}) }}" class="reserver-btn">
-                                Réserver une place
-                            </a>
                         </div>
                     </div>
                 </div>

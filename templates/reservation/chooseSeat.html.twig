@@ -2,120 +2,221 @@
 
 {% block title %}Event Seat Booking{% endblock %}
 
+{% block css %}
+<style>
+html, body {
+    background: #f8f9fa !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+    overflow-x: hidden !important;
+    font-family: 'Montserrat', sans-serif;
+}
+body > * {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+h1, h2, h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+.main-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    min-height: 100vh;
+    padding: 0;
+    gap: 20px;
+}
+.event-info {
+    position: sticky;
+    top: 0;
+    flex: 0 0 340px;
+    min-width: 300px;
+    max-width: 400px;
+    height: 100vh;
+    overflow-y: auto;
+    border-radius: 0 18px 18px 0;
+    background: transparent;
+}
+.seats-section {
+    flex: 1 1 auto;
+    padding: 20px;
+    max-width: 1700px;
+    overflow-y: auto;
+    height: 100vh;
+}
+@media (max-width: 1200px) {
+    .main-container {
+        flex-direction: column;
+    }
+    .event-info {
+        position: relative;
+        height: auto;
+        max-width: 100%;
+        flex: 0 0 auto;
+        width: 100%;
+        border-radius: 0;
+    }
+    .seats-section {
+        height: auto;
+    }
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
 {% block body %}
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px; font-family: 'Lato', sans-serif; color: #333; background-color: #f8f9fa;">
-    <h1 style="text-align: center; margin-bottom: 20px;">Sélectionnez vos places</h1>
-    
-    <div style="text-align: center; margin-bottom: 30px; font-size: 18px; color: #666;">
-        {{ event.nb_places - reservedSeats|length }} places libres
-    </div>
-    
-    <hr style="border: 1px solid #ddd; margin-bottom: 30px;">
-    
-    <div style="background-color: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="margin-top: 0; color: #242333;">{{ event.title }}</h2>
-        <div style="color: #666; margin-bottom: 15px;">{{ event.location }}</div>
-        
-        <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center;">
-                <span style="margin-right: 5px;">✔</span> {{ event.date_event|date('F Y') }}
+<div class="main-container">
+    <!-- Event Details with faded image (on extreme left) -->
+    <div class="event-info">
+        {% if event.image %}
+            <div style="
+                position: absolute;
+                inset: 0;
+                background: url('{{ asset('ImagesEvents/' ~ event.image) }}') center center/cover no-repeat;
+                opacity: 0.49;
+                z-index: 1;
+            "></div>
+        {% endif %}
+        <div style="position: relative; z-index: 2; padding: 32px 24px 24px 24px; color: #222;">
+            <h2 style="margin-top: 0; font-size: 2.2rem; font-weight: 600; font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">{{ event.title }}</h2>
+            <div style="margin-bottom: 18px; font-size: 1.1rem; font-weight: 500;">{{ event.location }}</div>
+            <div style="margin-bottom: 18px;">
+                <strong>Date :</strong> {{ event.date_event|date('d F Y') }}<br>
+                <strong>Heure :</strong> {{ event.date_event|date('H:i') }}<br>
+                <strong>Fin prévue :</strong> {{ event.dateFinEve|date('H:i') }}
             </div>
-            <div style="display: flex; align-items: center;">
-                <span style="margin-right: 5px;">✔</span> {{ event.dateFinEve|date('H:i') }}
+            <div style="margin-bottom: 18px;">
+                <strong>Places libres :</strong> {{ event.nb_places - reservedSeats|length }}
             </div>
-        </div>
-    </div>
-    
-    <hr style="border: 1px solid #ddd; margin-bottom: 30px;">
-    
-    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 30px;">
-        <div style="display: flex; align-items: center;">
-            <div class="seat" style="display: inline-block; width: 50px; height: 50px; background-color: #6feaf6; border-radius: 5px; margin-right: 10px;"></div>
-            <span>Mes places</span>
-        </div>
-        <div style="display: flex; align-items: center;">
-            <div class="seat" style="display: inline-block; width: 50px; height: 50px; background-color: #444; border-radius: 5px; margin-right: 10px;"></div>
-            <span>Places libres</span>
-        </div>
-        <div style="display: flex; align-items: center;">
-            <div class="seat" style="display: inline-block; width: 50px; height: 50px; background-color: #fff; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px;"></div>
-            <span>Places occupées</span>
-        </div>
-    </div>
-    
-   <div style="background-color: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <div id="seats-container" style="display: flex; flex-direction: column; align-items: center;">
-            {% set seatsPerRow = 12 %}
-            {% set totalRows = (event.nb_places / seatsPerRow)|round(0, 'ceil') %}
-            {% for row in 1..totalRows %}
-                <div style="display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 10px;">
-                    {% for seat in 1..seatsPerRow %}
-                        {% set seat_number = (row - 1) * seatsPerRow + seat %}
-                        {% if seat_number <= event.nb_places %}
-                            <div class="seat {% if seat_number in reservedSeats %}occupied{% endif %}" 
-                                data-seat="{{ seat_number }}"
-                                style="width: 60px; 
-                                       height: 60px; 
-                                       margin: 8px; 
-                                       background-image: url('{{ seat_number in reservedSeats ? asset('Reservation/seatRESER.png') : asset('Reservation/seat2.png') }}'); 
-                                       background-size: cover; 
-                                       background-position: center;
-                                       cursor: pointer;
-                                       position: relative;
-                                       transition: all 0.2s ease;
-                                       {% if seat_number in reservedSeats %} 
-                                           opacity: 0.7; 
-                                           cursor: not-allowed;
-                                       {% endif %}">
-                                <div class="seat-number-tooltip" 
-                                    style="position: absolute; 
-                                           bottom: -30px; 
-                                           left: 50%; 
-                                           transform: translateX(-50%); 
-                                           background-color: rgba(0,0,0,0.8); 
-                                           color: white; 
-                                           padding: 3px 8px; 
-                                           border-radius: 4px; 
-                                           font-size: 12px; 
-                                           visibility: hidden;
-                                           opacity: 0;
-                                           transition: opacity 0.2s ease;">
-                                    {{ seat_number }}
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            {% endfor %}
+            {% if event.image %}
+                <img src="{{ asset('ImagesEvents/' ~ event.image) }}" alt="event" style="width: 100%; max-width: 300px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); margin-bottom: 10px;">
+            {% endif %}
         </div>
     </div>
 
-    
-    <div style="text-align: center; margin-bottom: 20px;">
-        <p style="font-size: 16px;">
-            You have selected <span id="count" style="color: #6feaf6; font-weight: bold;">0</span> seat(s)
-        </p>
-    </div>
-    
-    <!-- Payment Form -->
-    <div style="max-width: 500px; margin: 0 auto;">
-        <form id="payment-form" style="text-align: center;">
-            <input type="hidden" name="event_id" value="{{ event.id_event }}">
-            <input type="hidden" name="seat_number" id="selectedSeat">
+    <!-- Seat selection and payment (right) -->
+    <div class="seats-section">
+        <h1 style="text-align: center; margin-bottom: 20px; font-family: 'Poppins', sans-serif; font-weight: 600; letter-spacing: -0.5px; font-size: 2.4rem;">Sélectionnez vos places</h1>
+        <div style="text-align: center; margin-bottom: 30px; font-size: 18px; color: #666; font-weight: 500;">
+            {{ event.nb_places - reservedSeats|length }} places libres
+        </div>
+        <hr style="border: 1px solid #ddd; margin-bottom: 30px;">
+        
+        <!-- Seat selection section -->
+        <div style="margin-bottom: 30px;">
+            <!-- Legend for seat status -->
+            <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 30px; height: 30px; background-color: #fff; border-radius: 5px; background-image: url('{{ asset('Reservation/seat2.png') }}'); background-size: cover; background-position: center; margin-right: 10px;"></div>
+                    <span style="font-size: 14px; font-weight: 500;">Fauteuil libre</span>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 30px; height: 30px; background-color: #fff; border-radius: 5px; background-image: url('{{ asset('Reservation/seatRESER.png') }}'); background-size: cover; background-position: center; margin-right: 10px;"></div>
+                    <span style="font-size: 14px; font-weight: 500;">Fauteuil occupé</span>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 30px; height: 30px; background-color: rgb(240, 228, 61); border-radius: 5px; background-image: url('{{ asset('Reservation/seat2.png') }}'); background-size: cover; background-position: center; margin-right: 10px;"></div>
+                    <span style="font-size: 14px; font-weight: 500;">Votre sélection</span>
+                </div>
+            </div>
             
-            <!-- Stripe Card Element -->
-            <div id="card-element" style="padding: 12px; border: 1px solid #ddd; border-radius: 4px; margin: 20px 0;"></div>
-            <div id="card-errors" role="alert" style="color: #ff0000; margin-bottom: 20px;"></div>
-            
-            <button type="submit" id="submit-payment" style="background-color: #6feaf6; color: white; border: none; padding: 12px 24px; border-radius: 5px; font-size: 16px; cursor: pointer; width: 100%;" disabled>
-                Payer maintenant ({{ event.prix }} TND)
-            </button>
-        </form>
+            <!-- Seat grid -->
+            <div style="background-color: white; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; width: 100%;">
+                <div class="container" style="margin: 0 auto; perspective: 1000px; display: flex; flex-direction: column; align-items: center;">
+                    <div id="seats-container" style="display: flex; flex-direction: column; align-items: center; min-width: min-content;">
+                    {% set seatLayout = [
+                        [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
+                        [0,1,1,1,1,1,1,1,1,1,1,1,1,0],
+                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                    ] %}
+                    {% set seat_number = 1 %}
+                    {% for row in seatLayout %}
+                        <div style="display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 10px;">
+                            {% for seat in row %}
+                                {% if seat == 1 %}
+                                    <div class="seat {% if seat_number in reservedSeats %}occupied{% endif %}" 
+                                        data-seat="{{ seat_number }}"
+                                        style="width: 60px; 
+                                               height: 60px; 
+                                               margin: 3px; 
+                                               background-image: url('{{ seat_number in reservedSeats ? asset('Reservation/seatRESER.png') : asset('Reservation/seat2.png') }}'); 
+                                               background-size: cover; 
+                                               background-position: center;
+                                               cursor: pointer;
+                                               position: relative;
+                                               transition: all 0.2s ease;
+                                               border-radius: 10px;
+                                               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                                               {% if seat_number in reservedSeats %} 
+                                                   opacity: 0.7; 
+                                                   cursor: not-allowed;
+                                               {% endif %}">
+                                        <div class="seat-number-tooltip" 
+                                            style="position: absolute; 
+                                                   bottom: -30px; 
+                                                   left: 50%; 
+                                                   transform: translateX(-50%); 
+                                                   background-color: rgba(0,0,0,0.8); 
+                                                   color: white; 
+                                                   padding: 5px 10px; 
+                                                   border-radius: 4px; 
+                                                   font-size: 12px;
+                                                   font-weight: 500;
+                                                   white-space: nowrap;
+                                                   visibility: hidden;
+                                                   opacity: 0;
+                                                   transition: opacity 0.2s ease;
+                                                   z-index: 10;">
+                                            {{ seat_number }} - Fauteuil {{ seat_number in reservedSeats ? 'occupé' : 'libre' }}
+                                        </div>
+                                    </div>
+                                    {% set seat_number = seat_number + 1 %}
+                                {% else %}
+                                    <div style="width: 60px; height: 60px; margin: 3px;"></div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    
+                    <!-- Screen below seats -->
+                    <div style="width: 90%; height: 20px; background-color: #444; margin-top: 50px; border-radius: 10px; text-align: center; font-size: 14px; color: #fff; padding: 3px 0; font-family: 'Poppins', sans-serif; font-weight: 500; letter-spacing: 1px;">ÉCRAN</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <p style="font-size: 16px; font-weight: 500;">
+                You have selected <span id="count" style="color: rgb(240, 228, 61); font-weight: 600;">0</span> seat(s)
+            </p>
+        </div>
+        <!-- Payment Form -->
+        <div style="max-width: 500px; margin: 0 auto;">
+            <form id="payment-form" style="text-align: center;">
+                <input type="hidden" name="event_id" value="{{ event.id_event }}">
+                <input type="hidden" name="seat_number" id="selectedSeat">
+                <div id="card-element" style="padding: 12px; border: 1px solid #ddd; border-radius: 4px; margin: 20px 0;"></div>
+                <div id="card-errors" role="alert" style="color: #ff0000; margin-bottom: 20px;"></div>
+                <button type="submit" id="submit-payment" style="background-color: rgb(240, 228, 61); color: white; border: none; padding: 12px 24px; border-radius: 5px; font-size: 16px; font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; width: 100%;" disabled>
+                    Payer maintenant ({{ event.prix }} TND)
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     // Initialize Stripe
     const stripe = Stripe('{{ stripe_public_key }}');
     const elements = stripe.elements();
@@ -124,40 +225,57 @@
     
     // Handle seat selection
     let selectedSeat = null;
-    const container = document.querySelector('#seats-container');
     const count = document.getElementById('count');
     const submitButton = document.getElementById('submit-payment');
     
-    // Add hover effect for seat numbers
+    // Add event listeners to seats
     document.querySelectorAll('.seat').forEach(seat => {
-        seat.addEventListener('mouseenter', () => {
-            const tooltip = seat.querySelector('.seat-number-tooltip');
-            tooltip.style.visibility = 'visible';
-            tooltip.style.opacity = '1';
+        seat.addEventListener('mouseover', function() {
+            if (!this.classList.contains('occupied')) {
+                this.style.transform = 'scale(1.05)';
+                this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+            }
+            // Show tooltip on hover
+            const tooltip = this.querySelector('.seat-number-tooltip');
+            if (tooltip) {
+                tooltip.style.visibility = 'visible';
+                tooltip.style.opacity = '1';
+            }
         });
         
-        seat.addEventListener('mouseleave', () => {
-            const tooltip = seat.querySelector('.seat-number-tooltip');
-            tooltip.style.visibility = 'hidden';
-            tooltip.style.opacity = '0';
+        seat.addEventListener('mouseout', function() {
+            if (!this.classList.contains('occupied') && this !== selectedSeat) {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+            }
+            // Hide tooltip on mouseout
+            const tooltip = this.querySelector('.seat-number-tooltip');
+            if (tooltip) {
+                tooltip.style.visibility = 'hidden';
+                tooltip.style.opacity = '0';
+            }
         });
     });
     
-    container.addEventListener('click', (e) => {
-        const seatElement = e.target.classList.contains('seat') ? e.target : e.target.closest('.seat');
-        if (seatElement && !seatElement.classList.contains('occupied')) {
-            if (selectedSeat) {
+    // Seat click event
+    document.querySelectorAll('.seat:not(.occupied)').forEach(seatElement => {
+        seatElement.addEventListener('click', function() {
+            if (selectedSeat !== null) {
                 selectedSeat.style.transform = 'scale(1)';
                 selectedSeat.style.backgroundColor = '';
+                selectedSeat.style.backgroundImage = "url('{{ asset('Reservation/seat2.png') }}')";
             }
             
             seatElement.style.transform = 'scale(1.1)';
-            seatElement.style.backgroundColor = '#6feaf6';
+            seatElement.style.backgroundColor = 'rgb(240, 228, 61)';
+            seatElement.style.backgroundImage = "url('{{ asset('Reservation/seat2.png') }}')";
             selectedSeat = seatElement;
             document.getElementById('selectedSeat').value = seatElement.dataset.seat;
+            document.getElementById('count').textContent = '1';
+            
+            // Enable payment button when seat is selected
             submitButton.disabled = false;
-            count.innerText = 1;
-        }
+        });
     });
     
     // Handle form submission
@@ -169,71 +287,84 @@
             alert('Veuillez sélectionner une place');
             return;
         }
+        
         const eventId = document.querySelector('input[name="event_id"]').value;
-        // Disable button during processing
         submitButton.disabled = true;
         submitButton.textContent = 'Traitement en cours...';
         
         try {
             // 1. Create payment intent
-            const response = await fetch('{{ path('app_create_payment_intent') }}', {
+            const paymentResponse = await fetch('{{ path('app_create_payment_intent') }}', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     event_id: eventId,
                     seat_number: selectedSeat.dataset.seat
                 })
             });
             
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Échec du paiement');
+            // Check response is JSON
+            const contentType = paymentResponse.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error("Invalid response format from server");
             }
             
-            // 2. Confirm payment
+            const paymentResult = await paymentResponse.json(); // Renamed from 'data' to 'paymentResult'
+            
+            if (!paymentResponse.ok) {
+                throw new Error(paymentResult.error || 'Échec du paiement');
+            }
+            
+            // 2. Confirm payment with Stripe
             const { error, paymentIntent } = await stripe.confirmCardPayment(
-                data.clientSecret, {
-                    payment_method: {
+                paymentResult.clientSecret, { // Using paymentResult instead of data
+                    payment_method: { 
                         card: cardElement,
                         billing_details: {
-                            name: 'Client' // Vous devriez collecter ceci depuis un champ de formulaire
+                            name: 'Client'
                         }
                     }
                 }
             );
             
-            if (error) {
-                throw error;
-            }
+            if (error) throw error;
 
-            // 3. Payment succeeded - maintenant on confirme la réservation d'abord
+            console.log("Payment succeeded with ID:", paymentIntent.id);
+
+            // 3. Confirm reservation - using same content-type as createPaymentIntent
             const confirmResponse = await fetch('{{ path("app_confirm_reservation") }}', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-                body: new URLSearchParams({
+                body: JSON.stringify({
                     payment_intent_id: paymentIntent.id,
                     event_id: eventId,
                     seat_number: selectedSeat.dataset.seat
                 })
             });
 
-            if (confirmResponse.ok) {
-                window.location.href = '{{ path('app_payment_success') }}?payment_intent=' + paymentIntent.id;
-            } else {
-                const errorData = await confirmResponse.json();
-                throw new Error(errorData.error || 'Failed to confirm reservation');
+            // Check confirmation response
+            const confirmContentType = confirmResponse.headers.get('content-type');
+            if (!confirmContentType || !confirmContentType.includes('application/json')) {
+                throw new Error("Invalid confirmation response format");
             }
+
+            const confirmResult = await confirmResponse.json();
+            
+            if (!confirmResponse.ok) {
+                throw new Error(confirmResult.error || 'Failed to confirm reservation');
+            }
+
+            // Redirect on success
+            window.location.href = '{{ path('app_payment_success') }}?payment_intent=' + paymentIntent.id;
             
         } catch (err) {
             console.error('Payment error:', err);
-            document.getElementById('card-errors').textContent = err.message;
+            document.getElementById('card-errors').textContent = err.message || 'Une erreur est survenue';
             submitButton.disabled = false;
-            submitButton.textContent = `Payer maintenant (${event.prix} TND)`;
+            submitButton.textContent = `Payer maintenant ({{ event.prix }} TND)`;
         }
     });
     
@@ -242,5 +373,6 @@
         const displayError = document.getElementById('card-errors');
         displayError.textContent = error ? error.message : '';
     });
+});
 </script>
-{% endblock %}
+{% endblock %} 
