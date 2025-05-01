@@ -91,7 +91,12 @@
                     Que cette journée te soit belle et pleine de surprises !
                 </p>
             {% endif %}
-
+            {% if app.user.userPicture %}
+            <div class="profile-picture" style="margin-bottom: 20px;">
+                <img src="{{ asset('uploads/users/' ~ app.user.userPicture) }}"
+                     alt="Photo de profil"
+                     style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 3px solid #3498db;">
+            </div>
             <div class="user-info">
                 <p class="welcome">
                     Bonjour <strong>{{ app.user.userUsername }}</strong> 👋<br><br>
@@ -102,6 +107,10 @@
                 <div class="qr-code">
                     <img src="{{ asset('uploads/qrcodes/' ~ app.user.userId ~ '.png') }}" alt="QR Code utilisateur">
                 </div>
+                <!-- IMAGE DE PROFIL -->
+
+{% endif %}
+
 
                 <a href="{{ path('app_users_edit_profile_par', {'id': app.user.userId}) }}" class="btn-edit-profile">
                     ✏️ Modifier mon profil

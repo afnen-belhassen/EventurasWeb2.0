@@ -82,6 +82,7 @@ class RegistrationController extends AbstractController
         // Persist the user and redirect
         $entityManager->persist($user);
         $entityManager->flush();
+
          // --- Génération du QR code sans autowiring ---
          $data = sprintf(
             "Username: %s\nEmail: %s\nFirst name: %s\nLast name: %s\nBirthday: %s\nGender: %s\nPhone: %s\nLevel: %s\nRole: %s",
@@ -131,6 +132,7 @@ class RegistrationController extends AbstractController
     {
         return $this->render('security/login.html.twig');
     }
+//+Birhtday celebration
 
     #[Route('/homeProfile', name: 'homeProfile', methods: ['GET', 'POST'])]
     public function home(Security $security): Response

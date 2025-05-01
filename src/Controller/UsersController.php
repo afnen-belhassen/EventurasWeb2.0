@@ -65,14 +65,22 @@ public function index(UsersRepository $usersRepository, RoleRepository $roleRepo
         10
     );
 
-    $roles = $roleRepository->findAll();  // récupérer la liste des rôles
+    $roles = $roleRepository->findAll();
 
+    // Gestion AJAX (rechargement partiel)
+    if ($request->isXmlHttpRequest()) {
+        return $this->render('users/index.html.twig', [
+            'pagination' => $pagination,
+            'roles' => $roles,
+        ]);
+    }
+
+    // Rendu complet
     return $this->render('users/index.html.twig', [
         'pagination' => $pagination,
-        'roles' => $roles,  // passer tous les rôles à la vue
+        'roles' => $roles,
     ]);
 }
-
 
     
     #[Route('/new_users', name: 'app_users_new', methods: ['GET', 'POST'])]
@@ -308,6 +316,7 @@ if ($pictureFile) {
         // Redirection vers la liste des utilisateurs
         return $this->redirectToRoute('app_dashboard', [], Response::HTTP_SEE_OTHER);
     }
+    //Notifications
     
             #[Route('/admin/notifications', name: 'admin_notifications', methods: ['GET'])]
 public function notifications(EntityManagerInterface $entityManager): JsonResponse
@@ -331,6 +340,8 @@ public function notifications(EntityManagerInterface $entityManager): JsonRespon
         'users' => $data
     ]);
 }
+//Fichier Excel
+
 #[Route('/users/export', name:'app_users_export')]
  
 public function export(UsersRepository $userRepository): Response
@@ -360,6 +371,9 @@ public function export(UsersRepository $userRepository): Response
 
     return $this->file($temp_file, 'users_list.xlsx', ResponseHeaderBag::DISPOSITION_INLINE);
 }
+
+//Statistics
+
 #[Route('/dashboard', name: 'app_dashboard', methods: ['GET'])]
 public function dashboard(UsersRepository $usersRepository, RoleRepository $roleRepository): Response
 {
