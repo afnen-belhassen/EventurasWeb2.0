@@ -14,7 +14,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 class EventType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -83,6 +83,14 @@ class EventType extends AbstractType
             ->add('nb_places', NumberType::class, [
                 'attr' => ['class' => 'form-control'],
                 'label' => 'Nombre de participants'
+            ])
+            ->add('latitude', HiddenType::class, [
+                'mapped' => true,
+                'required' => false,
+            ])
+            ->add('longitude', HiddenType::class, [
+                'mapped' => true,
+                'required' => false,
             ]);
     }
 
