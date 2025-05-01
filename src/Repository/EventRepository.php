@@ -85,4 +85,19 @@ public function searchByName(string $query): array
 
         return $qb->getQuery()->getResult();
     }
+<<<<<<< HEAD
+=======
+    // src/Repository/EventRepository.php
+
+    public function getEventsCountByCategory(): array
+{
+    return $this->createQueryBuilder('e')
+        ->select('c.name as category, COUNT(e.id_event) as count')
+        ->join('e.category', 'c')
+        ->groupBy('c.category_id')  // Changed from c.name to c.category_id
+        ->addGroupBy('c.name')      // Added to maintain consistency with select
+        ->getQuery()
+        ->getResult();
+}
+>>>>>>> origin/main
 }

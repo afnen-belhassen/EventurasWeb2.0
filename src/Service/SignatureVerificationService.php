@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use setasign\Fpdi\Fpdi;
 use Exception;
 use Psr\Log\LoggerInterface;
 
@@ -11,81 +10,100 @@ class SignatureVerificationService
 {
     private string $uploadDirectory;
     private LoggerInterface $logger;
+    private string $originalContractsDirectory;
 
-    public function __construct(string $uploadDirectory, LoggerInterface $logger)
-    {
+    public function __construct(
+        string $uploadDirectory,
+        LoggerInterface $logger,
+        string $originalContractsDirectory
+    ) {
         $this->uploadDirectory = $uploadDirectory;
         $this->logger = $logger;
+        $this->originalContractsDirectory = $originalContractsDirectory;
     }
 
-    public function verifySignature(string $filepath): bool
+    public function verifySignature(string $filepath, int $partnershipId): bool
     {
         try {
-            // Check if file exists and is readable
+            // Log the start of verification
+            $this->logger->info('Starting contract verification', [
+                'filepath' => $filepath,
+                'partnershipId' => $partnershipId
+            ]);
+
+            // Basic file validation
             if (!file_exists($filepath) || !is_readable($filepath)) {
+                $this->logger->error('File not found or not readable', ['filepath' => $filepath]);
                 throw new Exception('Le fichier n\'existe pas ou n\'est pas accessible');
             }
 
-            // Check file size (between 10KB and 10MB)
             $fileSize = filesize($filepath);
+            $this->logger->info('Uploaded file size', ['size' => $fileSize]);
+            
             if ($fileSize < 10240 || $fileSize > 10485760) {
+                $this->logger->error('File size out of range', ['size' => $fileSize]);
                 throw new Exception('La taille du fichier n\'est pas dans la plage acceptable (10KB - 10MB)');
             }
 
-            // Check if file is a PDF
             $mimeType = mime_content_type($filepath);
+            $this->logger->info('File MIME type', ['mimeType' => $mimeType]);
+            
             if ($mimeType !== 'application/pdf') {
+                $this->logger->error('Invalid file type', ['mimeType' => $mimeType]);
                 throw new Exception('Le fichier n\'est pas un PDF');
             }
 
-            // Initialize FPDI
-            $pdf = new Fpdi();
+            // Find the original contract
+            $originalContractPattern = $this->originalContractsDirectory . '/contract_' . $partnershipId . '_*.pdf';
+            $this->logger->info('Looking for original contract', ['pattern' => $originalContractPattern]);
             
-            // Get number of pages
-            $pageCount = $pdf->setSourceFile($filepath);
+            $originalContracts = glob($originalContractPattern);
+            $this->logger->info('Found original contracts', ['count' => count($originalContracts), 'files' => $originalContracts]);
             
-            if ($pageCount === 0) {
-                throw new Exception('Le PDF est vide ou corrompu');
+            if (empty($originalContracts)) {
+                $this->logger->error('No original contract found', ['partnershipId' => $partnershipId]);
+                throw new Exception('Original contract not found for partnership ID: ' . $partnershipId);
             }
+
+            // Get the most recent original contract
+            $originalContract = $originalContracts[count($originalContracts) - 1];
+            $originalSize = filesize($originalContract);
             
-            // For now, we'll check if the file is a valid PDF and can be opened
-            // Note: FPDI/FPDF doesn't provide direct signature verification
-            // For proper signature verification, you would need to use a library like
-            // itext7-php or call an external service
-            
-            // Import at least one page to verify PDF structure
-            try {
-                $pdf->importPage(1);
-                $this->logger->info('PDF structure verified successfully');
+            $this->logger->info('Comparing file sizes', [
+                'originalSize' => $originalSize,
+                'uploadedSize' => $fileSize,
+                'originalFile' => $originalContract
+            ]);
+
+            // Compare sizes
+            if ($fileSize > $originalSize) {
+                $this->logger->info('Verification successful - Uploaded contract is larger than original');
                 return true;
-            } catch (Exception $e) {
-                $this->logger->error('Invalid PDF structure: ' . $e->getMessage());
-                return false;
             }
+
+            $this->logger->error('Verification failed - Uploaded contract is not larger than original', [
+                'originalSize' => $originalSize,
+                'uploadedSize' => $fileSize
+            ]);
+            return false;
         } catch (Exception $e) {
-            $this->logger->error('Signature verification error: ' . $e->getMessage());
+            $this->logger->error('Verification error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
-    }
-
-    private function isValidSignature(array $signature): bool
-    {
-        // This method is kept for future implementation
-        // when proper signature verification is added
-        return true;
     }
 
     public function saveContract(UploadedFile $file, int $partnershipId): string
     {
         try {
-            // Ensure upload directory exists
             if (!file_exists($this->uploadDirectory)) {
                 if (!mkdir($this->uploadDirectory, 0777, true)) {
                     throw new Exception('Impossible de créer le répertoire de téléchargement');
                 }
             }
 
-            // Generate unique filename
             $filename = sprintf(
                 'contract_%d_%s.%s',
                 $partnershipId,
@@ -94,18 +112,20 @@ class SignatureVerificationService
             );
 
             $filepath = $this->uploadDirectory . '/' . $filename;
-
-            // Move the file to the upload directory
             $file->move($this->uploadDirectory, $filename);
-
-            // Set proper permissions
             chmod($filepath, 0644);
 
-            $this->logger->info('Contract saved successfully: ' . $filename);
-
+            $this->logger->info('Contract saved successfully', [
+                'filename' => $filename,
+                'filepath' => $filepath,
+                'size' => filesize($filepath)
+            ]);
             return $filename;
         } catch (Exception $e) {
-            $this->logger->error('Failed to save contract: ' . $e->getMessage());
+            $this->logger->error('Failed to save contract', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             throw new Exception('Échec de la sauvegarde du contrat: ' . $e->getMessage());
         }
     }
