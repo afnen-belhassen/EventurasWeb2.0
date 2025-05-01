@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Verify Contract - {{ partnership.partner.name }}{% endblock %}
+{% block title %}Verify Contract - {{ partnership.partnerId.name }}{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
@@ -13,11 +13,9 @@
                     <div class="card-body">
                         <div class="mb-4">
                             <h4>Partnership Details</h4>
-                            <p><strong>Partner:</strong> {{ partnership.partner.name }}</p>
-                            <p><strong>Type:</strong> {{ partnership.type }}</p>
-                            <p><strong>Status:</strong> {{ partnership.status }}</p>
-                            <p><strong>Start Date:</strong> {{ partnership.startDate|date('Y-m-d') }}</p>
-                            <p><strong>End Date:</strong> {{ partnership.endDate|date('Y-m-d') }}</p>
+                            <p><strong>Partner:</strong> {{ partnership.partnerId.name }}</p>
+                            <p><strong>Type:</strong> {{ partnership.contracttype }}</p>
+                            <p><strong>Status:</strong> {{ partnership.isSigned ? 'Signed' : 'Pending' }}</p>
                         </div>
 
                         <form method="post" enctype="multipart/form-data">
@@ -27,6 +25,7 @@
                                 <div class="form-text">Please upload the signed contract in PDF format.</div>
                             </div>
                             <button type="submit" class="btn btn-primary">Verify Contract</button>
+                            <a href="{{ path('app_organizer_contract_management', {'id': partnership.id}) }}" class="btn btn-secondary">Back to Contract Management</a>
                         </form>
 
                         {% for message in app.flashes('success') %}

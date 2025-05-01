@@ -170,10 +170,11 @@
                                                                     <i class="fas fa-download me-1"></i>Télécharger
                                                                 </a>
                                                             {% endif %}
-                                                            {# Show upload button for signed contract #}
-                                                            <button type="button" class="btn" style="background-color: #bd4c33; color: white; border: none;" data-bs-toggle="modal" data-bs-target="#uploadModal">
-                                                                <i class="fas fa-upload me-1"></i>Uploader Contrat Signé
-                                                            </button>
+                                                            {# New verify button implementation #}
+                                                            <a href="{{ path('app_organizer_verify_contract', {'id': partnership.id}) }}" class="btn" style="background-color: #bd4c33; color: white; border: none;">
+                                                                <i class="fas fa-check-circle me-1"></i>Vérifier
+                                                            </a>
+                                                            
                                                         {% else %}
                                                             {# Show signed contract buttons #}
                                                             {% if partnership.signedContractFile is not null and partnership.signedContractFile is not empty %}
@@ -202,28 +203,40 @@
     <!-- Modal pour le téléversement -->
     <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content" style="background-color: #1a2035;">
-                <div class="modal-header" style="background-color: #2c2e33; border-bottom: 1px solid #e9ecef;">
-                    <h5 class="modal-title text-white" id="uploadModalLabel">Vérifier le Contrat Signé</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Upload Contract Signé</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form method="POST" action="{{ path('app_organizer_upload_signed_contract', {'id': partnership.id}) }}" enctype="multipart/form-data">
-                        <input type="hidden" name="_token" value="{{ csrf_token('upload_contract') }}">
+                <form method="post" action="{{ path('app_organizer_upload_signed_contract', {'id': partnership.id}) }}" 
+                      enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <input type="hidden" name="_token" value="{{ csrf_token('upload_'~partnership.id) }}">
+                        
                         <div class="mb-3">
-                            <label for="file" class="form-label text-white">Sélectionnez le contrat signé (PDF)</label>
-                            <input type="file" class="form-control bg-dark text-white" id="file" name="file" accept=".pdf" required>
-                            <div class="form-text text-white">Seuls les fichiers PDF sont acceptés</div>
+                            <label for="signedContract" class="form-label">Select PDF File</label>
+                            <input class="form-control" type="file" id="signedContract" name="signedContract" 
+                                   accept="application/pdf" required>
+                            <div class="form-text">Please upload a PDF file containing the signed contract. Maximum file size: 10MB.</div>
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn" style="background-color: #bd4c33; color: white; border: none;">
-                                <i class="fas fa-upload me-2"></i>Téléverser
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary" style="background-color: #bd4c33; border: none;">
+                            <i class="fas fa-upload me-1"></i> Upload
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add any necessary JavaScript here
+        });
+    </script>
 {% endblock %} 
