@@ -20,10 +20,17 @@ use App\Form\PartnershipType;
 class PartnerController extends AbstractController
 {
     #[Route('/', name: 'app_partner_index', methods: ['GET'])]
-    public function index(PartnerRepository $partnerRepository): Response
+    public function index(PartnerRepository $partnerRepository, Request $request): Response
     {
+        $sortBy = $request->query->get('sort', 'name');
+        $direction = $request->query->get('direction', 'asc');
+
+        $partners = $partnerRepository->findAllSorted($sortBy, $direction);
+
         return $this->render('service/partner/index.html.twig', [
-            'partners' => $partnerRepository->findAll(),
+            'partners' => $partners,
+            'sortBy' => $sortBy,
+            'direction' => $direction,
         ]);
     }
 

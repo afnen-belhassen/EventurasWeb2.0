@@ -103,7 +103,7 @@
                                 <i class="custom-icon bi-geo-alt me-2"></i>
                                 Partenaires
                             </h5>
-                        </div>
+                            </div>
 
                         <div class="social-share">
                             <ul class="social-icon d-flex align-items-center justify-content-center">
@@ -118,7 +118,7 @@
                                     <a href="#" class="social-icon-link"><span class="bi-instagram"></span></a>
                                 </li>
                             </ul>
-                        </div>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -131,7 +131,7 @@
                         <div class="card shadow-lg" style="background-color: #1a2035;">
                             <div class="card-header" style="background-color: #2c2e33; border-bottom: 1px solid #e9ecef;">
                                 <h1 class="mb-0 text-white text-center"><i class="fas fa-file-contract me-2"></i>Contrats</h1>
-                            </div>
+            </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
                                     <table class="table table-hover mb-0">
@@ -160,15 +160,30 @@
                                                 </td>
                                                 <td class="text-center">
                                                     <div class="d-flex justify-content-center gap-2">
-                                                        {% if contractPath %}
-                                                            <a href="{{ path('app_organizer_contract_file', {'type': 'contracts', 'filename': contractPath|split('/')|last}) }}" class="btn" style="background-color: #00d2ff; color: white; border: none;">
-                                                                <i class="fas fa-eye me-1"></i>Voir
-                                                            </a>
-                                                        {% endif %}
                                                         {% if not partnership.isSigned %}
-                                                            <a href="{{ path('app_organizer_upload_signed_contract', {'id': partnership.id}) }}" class="btn" style="background-color: #bd4c33; color: white; border: none;">
-                                                                <i class="fas fa-upload me-1"></i>Téléverser et Vérifier
-                                                            </a>
+                                                            {# Show original contract buttons if contractPath exists #}
+                                                            {% if contractPath is not null and contractPath is not empty %}
+                                                                <a href="{{ path('app_organizer_contract_file', {'type': 'contracts', 'filename': contractPath}) }}" class="btn" style="background-color: #00d2ff; color: white; border: none;">
+                                                                    <i class="fas fa-eye me-1"></i>Voir Contrat Généré
+                                                                </a>
+                                                                <a href="{{ path('app_organizer_contract_file', {'type': 'contracts', 'filename': contractPath}) }}" class="btn" style="background-color: #28a745; color: white; border: none;" download>
+                                                                    <i class="fas fa-download me-1"></i>Télécharger
+                                                                </a>
+                                                            {% endif %}
+                                                            {# Show upload button for signed contract #}
+                                                            <button type="button" class="btn" style="background-color: #bd4c33; color: white; border: none;" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                                                <i class="fas fa-upload me-1"></i>Uploader Contrat Signé
+                                                            </button>
+                                                        {% else %}
+                                                            {# Show signed contract buttons #}
+                                                            {% if partnership.signedContractFile is not null and partnership.signedContractFile is not empty %}
+                                                                <a href="{{ path('app_organizer_contract_file', {'type': 'signed_contracts', 'filename': partnership.signedContractFile}) }}" class="btn" style="background-color: #00d2ff; color: white; border: none;">
+                                                                    <i class="fas fa-eye me-1"></i>Voir Contrat Signé
+                                                                </a>
+                                                                <a href="{{ path('app_organizer_contract_file', {'type': 'signed_contracts', 'filename': partnership.signedContractFile}) }}" class="btn" style="background-color: #28a745; color: white; border: none;" download>
+                                                                    <i class="fas fa-download me-1"></i>Télécharger
+                                                                </a>
+                                                            {% endif %}
                                                         {% endif %}
                                                     </div>
                                                 </td>
@@ -177,9 +192,9 @@
                                     </table>
                                 </div>
                             </div>
-                        </div>
                     </div>
-                </div>
+                    </div>
+                    </div>
             </div>
         </section>
     </main>
@@ -189,25 +204,26 @@
         <div class="modal-dialog">
             <div class="modal-content" style="background-color: #1a2035;">
                 <div class="modal-header" style="background-color: #2c2e33; border-bottom: 1px solid #e9ecef;">
-                    <h5 class="modal-title text-white" id="uploadModalLabel">Téléverser le Contrat Signé</h5>
+                    <h5 class="modal-title text-white" id="uploadModalLabel">Vérifier le Contrat Signé</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    {{ form_start(form, {'attr': {'class': 'needs-validation'}, 'action': path('app_organizer_upload_signed_contract', {'id': partnership.id})}) }}
+                    <form method="POST" action="{{ path('app_organizer_upload_signed_contract', {'id': partnership.id}) }}" enctype="multipart/form-data">
+                        <input type="hidden" name="_token" value="{{ csrf_token('upload_contract') }}">
                         <div class="mb-3">
-                            {{ form_label(form.signedContract, 'Sélectionnez le contrat signé (PDF)', {'label_attr': {'class': 'form-label text-white'}}) }}
-                            {{ form_widget(form.signedContract, {'attr': {'class': 'form-control bg-dark text-white'}}) }}
-                            {{ form_errors(form.signedContract, {'attr': {'class': 'text-danger'}}) }}
+                            <label for="file" class="form-label text-white">Sélectionnez le contrat signé (PDF)</label>
+                            <input type="file" class="form-control bg-dark text-white" id="file" name="file" accept=".pdf" required>
+                            <div class="form-text text-white">Seuls les fichiers PDF sont acceptés</div>
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn" style="background-color: #bd4c33; color: white; border: none;">
                                 <i class="fas fa-upload me-2"></i>Téléverser
                             </button>
                         </div>
-                        <input type="hidden" name="redirect_to" value="{{ path('contract_management', {'id': partnership.id}) }}">
-                    {{ form_end(form) }}
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+
 {% endblock %} 

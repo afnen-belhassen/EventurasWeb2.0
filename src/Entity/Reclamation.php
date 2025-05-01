@@ -71,6 +71,21 @@ class Reclamation
         return $this;
     }
 
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $created_at): static
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+
+    
+
     #[ORM\Column(type: 'text', nullable: false)]
     private ?string $description = null;
 
@@ -216,17 +231,6 @@ class Reclamation
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
 
     public function getRefuseReason(): ?string
     {
@@ -239,5 +243,51 @@ class Reclamation
 
         return $this;
     }
+
+
+    #[ORM\Column(type: 'boolean')]
+private bool $isRated = false;
+
+#[ORM\Column(type: 'smallint', nullable: true)]
+private ?int $rating = null;
+
+public function isRated(): bool
+{
+    return $this->isRated;
+}
+
+public function setIsRated(bool $isRated): self
+{
+    $this->isRated = $isRated;
+    return $this;
+}
+
+public function getRating(): ?int
+{
+    return $this->rating;
+}
+
+public function setRating(?int $rating): self
+{
+    $this->rating = $rating;
+    return $this;
+}
+
+
+#[ORM\Column(type: 'datetime', nullable: true)]
+private ?\DateTimeInterface $closed_at = null;
+
+public function getClosedAt(): ?\DateTimeInterface
+{
+    return $this->closed_at;
+}
+
+public function setClosedAt(?\DateTimeInterface $closed_at): self
+{
+    $this->closed_at = $closed_at;
+
+    return $this;
+}
+
 
 }

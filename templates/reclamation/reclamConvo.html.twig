@@ -79,7 +79,9 @@
   display: block !important;
   z-index: 9999 !important;
 }
-    
+
+
+
 </style>
 {% endblock %}
 
@@ -630,12 +632,7 @@
                   data-id="{{ message.id }}"
                   data-message="{{ message.message|e('html_attr') }}"
                   data-attachments='{{ attachmentData|json_encode() }}'>
-                  
 
-
-
-                  
-                  
                     <div class="message-text">
                       {{ message.message }}
                     </div>
@@ -686,35 +683,57 @@
             
             
             <div class="zone-writing mt-2">
-              <div class="d-flex align-items-center mb-2 gap-3">
-                <label class="btn p-2 d-flex align-items-center justify-content-center"
-                       style="background-color: #f8f9fa; border-radius: 12px; width: 42px; height: 42px;">
-                  📎
-                  {{ form_widget(form.attachments, {
-                    attr: {
-                      multiple: true,
-                      class: 'd-none',
-                      id: 'live-attachments'
-                    }
-                  }) }}
-                </label>
-                <span id="file-label" style="color: #888; display: none;">Aucun fichier choisi</span>
-              </div>
 
-              
+
+
+
               {{ form_start(form, {
                 action: path('reclamation_conversation_send', { id: reclamation.id }),
                 attr: { enctype: 'multipart/form-data' },
                 method: 'POST'
               }) }}
-            
-                <div class="input-group mb-2">
-                  {{ form_widget(form.message) }}
-                  <button type="submit" class="btn btn-danger">Envoyer</button>
-                </div>
-            
 
-            
+
+
+
+
+
+<div class="d-flex align-items-center mb-2 gap-3">
+  <label class="btn-attach ">
+    📎
+    {{ form_widget(form.attachments, {
+      attr: {
+        multiple: true,
+        class: 'd-none',
+        id: 'live-attachments'
+      }|merge(reclamation.status == 'Résolu' ? {'disabled': 'disabled'} : {})
+    }) }}
+  </label>
+  <span id="file-label" style="color: #888; display:none;">Aucun fichier choisi</span>
+</div>
+
+           
+
+<div class="input-group mb-2">
+  {{ form_widget(form.message, {
+    attr: {}|merge(reclamation.status == 'Résolu' ? {'disabled': 'disabled'} : {})
+  }) }}
+
+
+
+<button
+type="submit"
+class="btn btn-danger {{ reclamation.status == 'Résolu' ? 'btn-secondary' : '' }}"
+{% if reclamation.status == 'Résolu' %}disabled{% endif %}>
+Envoyer
+</button>
+
+</div>
+
+
+<p style="color:red">STATUS = "{{ reclamation.status }}"</p>
+
+
                 <div id="attachmentTableWrapper" style="display: none;">
                   <table class="table table-bordered table-sm">
                     <thead class="table-light">
@@ -734,8 +753,13 @@
   
   
             <div class="side-reclam-bar">
-              <p>          
-              </p>
+              {% if reclamation.status != 'Résolu' %}
+                <form action="{{ path('conversation_mark_resolved', { id: conversation.id }) }}" method="post">
+                  <button type="submit" class="btn btn-warning w-100"> Maruqer comme solvé</button>
+                </form>
+              {% else %}
+                <p class="text-success fw-bold text-center">Réclamation résolue ✅</p>
+              {% endif %}
             </div>
   
           </div>
@@ -798,6 +822,64 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+{% if showRatingPopup and reclamation.status|trim == 'Résolu' %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    Swal.fire({
+        title: 'Notez cette réclamation',
+        showConfirmButton: false,
+        showCloseButton: true,
+        html: `
+            <div class="star-rating" style="font-size: 2em; display: flex; gap: 10px; justify-content: center;">
+                <label for="rate1" style="cursor:pointer;">⭐</label>
+                <label for="rate2" style="cursor:pointer;">⭐</label>
+                <label for="rate3" style="cursor:pointer;">⭐</label>
+                <label for="rate4" style="cursor:pointer;">⭐</label>
+                <label for="rate5" style="cursor:pointer;">⭐</label>
+
+                <input type="radio" name="rating" value="1" id="rate1" style="display:none;">
+                <input type="radio" name="rating" value="2" id="rate2" style="display:none;">
+                <input type="radio" name="rating" value="3" id="rate3" style="display:none;">
+                <input type="radio" name="rating" value="4" id="rate4" style="display:none;">
+                <input type="radio" name="rating" value="5" id="rate5" style="display:none;">
+            </div>
+        `
+    });
+
+    // Bind click listeners directly after popup is shown
+    setTimeout(() => {
+        document.querySelectorAll('input[name="rating"]').forEach(input => {
+            const label = document.querySelector(`label[for="${input.id}"]`);
+            if (label) {
+                label.addEventListener('click', () => {
+                    // Auto-submit on click
+                    fetch("{{ path('rate_reclamation', { id: reclamation.id })|e('js') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ rating: input.value })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Merci !', 'Votre note a été enregistrée.', 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Erreur', data.message, 'error');
+                        }
+                    });
+                });
+            }
+        });
+    }, 100); // allow DOM to fully render
+});
+</script>
+{% endif %}
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 

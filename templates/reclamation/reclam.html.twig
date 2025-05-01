@@ -4,6 +4,50 @@
 {% block css %}
   {{ parent() }}
   <link rel="stylesheet" href="{{ asset('css/displayReclams.css') }}" />
+
+  <style>
+    .pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin-top: 2rem;
+}
+
+.pagination li {
+    margin: 0 6px;
+
+}
+
+.pagination span{
+  border: 1px solid black;
+
+}
+.pagination a,
+.pagination span {
+    display: inline-block;
+    padding: 8px 13px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+    background-color: #f0f8ff;
+    transition: background-color 0.3s ease;
+
+}
+
+
+.pagination .current {
+    background-color: #0dcaf0;
+    color: #000;
+    display: inline-block;
+    padding: 10px 16px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+    
+  </style>
 {% endblock %}
 
 {% block title %}Réclamations{% endblock %}
@@ -79,9 +123,9 @@
                     <button type="submit" class="btn btn-danger">Supprimer</button>
                   </form>
                 {% else %}
-                  <button type="button" class="btn btn-outline-light modifier-button-kitcat">
-                    Suivre
-                  </button>
+
+                  <a href="{{ path('reclamation_conversation', { id: reclamation.id }) }}" class="btn btn-outline-light modifier-button-kitcat">Suivre</a>
+
                 {% endif %}
               </div>
           </div>
@@ -90,6 +134,10 @@
     {% else %}
       <p class="text-center">No reclamations found.</p>
     {% endif %}
+  </div>
+  test
+  <div class="mt-4 d-flex justify-content-center">
+    {{ knp_pagination_render(reclamations) }}
   </div>
 </div>
 
@@ -189,7 +237,24 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        {% if label == 'rate_limit' %}
+            <script>
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Trop de réclamations',
+                    html: "{{ message|e('js') }}",
+                    confirmButtonText: 'OK'
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+
 <script>
+
 document.addEventListener('DOMContentLoaded', function() {
   // DELETE confirmation
   document.querySelectorAll('form[action*="delete"]').forEach(function(form) {

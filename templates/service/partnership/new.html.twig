@@ -28,7 +28,10 @@
 
                                     <div class="mb-3">
                                         {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
-                                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 5}}) }}
+                                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 5, 'maxlength': 200}}) }}
+                                        <div class="form-text">
+                                            <span id="charCount">0</span>/200 caractères
+                                        </div>
                                         {{ form_errors(form.description) }}
                                     </div>
 
@@ -52,4 +55,27 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const descriptionField = document.querySelector('#partnership_description');
+    const charCount = document.querySelector('#charCount');
+    
+    function updateCharCount() {
+        const length = descriptionField.value.length;
+        charCount.textContent = length;
+        if (length > 200) {
+            charCount.style.color = 'red';
+        } else {
+            charCount.style.color = 'inherit';
+        }
+    }
+    
+    descriptionField.addEventListener('input', updateCharCount);
+    updateCharCount(); // Initial count
+});
+</script>
 {% endblock %} 

@@ -4,6 +4,70 @@
 
 {% block body %}
 <style>
+    .poll {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .poll p {
+        margin: 0 0 1rem 0;
+        font-size: 1.1rem;
+        color: #2d3436;
+        font-weight: 600;
+    }
+    
+    #poll-options- {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    #poll-options- li {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .vote-btn {
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #4a9eff;
+        border-radius: 8px;
+        background: white;
+        color: #4a9eff;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .vote-btn:hover {
+        background: #4a9eff;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 12px rgba(74, 158, 255, 0.3);
+    }
+    
+    .vote-count {
+        background: #e3f2fd;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        color: #1a73e8;
+        min-width: 40px;
+        text-align: center;
+        margin-left: auto;
+    }
+    </style>
+<style>
     /* Style pour les menus d'actions */
     .action-menu {
         transition: all 0.2s ease;
@@ -26,6 +90,37 @@
     .bi-heart {
         transition: all 0.3s ease;
     }
+    .nav-link{
+        color:white !important;
+    }
+    .text-center{
+        color:white !important;
+    }
+
+    .gif-modal {
+  position: fixed; top:0; left:0; width:100%; height:100%; z-index:1050;
+    }
+    .gif-modal-backdrop {
+    position:absolute; top:0; left:0; width:100%; height:100%; background:#000; opacity:0.5;
+    }
+    .gif-modal-content {
+    position:relative; max-width:600px; margin:5% auto; z-index:1060;
+    }
+    .gif-thumb { cursor:pointer; }
+    .gif-thumb img { max-width:120px; max-height:120px; }
+
+    .emoji-picker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        }
+        .emoji-picker span {
+        cursor: pointer;
+        font-size: 1.2em;
+        line-height: 1;
+        padding: 2px;
+    }
+
 </style>
 
 <nav class="navbar navbar-expand-lg">
@@ -41,25 +136,11 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
                 <li class="nav-item">
-                    <a class="nav-link click-scroll" href="#section_1">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link click-scroll" href="#section_2">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link click-scroll" href="#section_3">Features</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link click-scroll" href="#section_4">Contact</a>
                 </li>
             </ul>
-
-            <div class="d-flex gap-2">
-                <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
-                    <i class="bi bi-plus-circle me-2"></i>Créer Événement
-                </a>
-                <a href="{{ path('app_show_all_events') }}"class="btn custom-btn d-lg-block d-none">Vos événements</a>
-            </div>
+         {{ include('service/sidebarPart.html.twig') }}
+            
         </div>
     </div>
 </nav>
@@ -68,11 +149,15 @@
     <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
             <h1 class="text-center mb-4">Forum Posts</h1>
-            
+            {% for iit in initialCounts %}
+                {{iit.0}}
+                {{iit.1}}
+            {%endfor%}
             <!-- Create Post Form -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Create New Post</h5>
+                    <h5 class="card-title">Create New Post </h5>
+
                     <form action="{{ path('app_forum_create') }}" method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="title" class="form-label">Title</label>
@@ -82,15 +167,77 @@
                             <label for="content" class="form-label">Content</label>
                             <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option disabled value="" selected>-- Select a category --</option>
+                                <option value="Question">Question</option>
+                                <option value="Recommendation">Recommendation</option>
+                                <option value="Announcement">Announcement</option>
+                                <option value="Feedback">Feedback</option>
+                                <option value="Discussion">Discussion</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
                         <div class="mb-3">
                             <label for="image" class="form-label">Image (optional)</label>
                             <input type="file" class="form-control" id="image" name="image" accept="image/*" onchange="previewImage(this, 'preview')">
                             <div id="preview" class="mt-2"></div>
                         </div>
+
+                         <!-- Poll section -->
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="enable-poll">
+                            <label class="form-check-label" for="enable-poll">Add a poll</label>
+                        </div>
+
+                        <div id="poll-builder" style="display:none; margin-bottom:1rem;">
+                            <label class="form-label"><strong>Poll options</strong></label>
+                            <div id="poll-options-list">
+                            <!-- Les options seront insérées ici -->
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-poll-option">
+                            + Add option
+                            </button>
+                            <!-- input caché qui contiendra le JSON des options -->
+                            <input type="hidden" name="poll_options" id="poll_options_input">
+                        </div>
+
                         <button type="submit" class="btn btn-primary">Create Post</button>
                     </form>
                 </div>
             </div>
+
+
+            <form method="get" class="row g-2 mb-4">
+                <div class="col-md-5">
+                    <input type="text" name="q" class="form-control" placeholder="Search posts..."
+                        value="{{ criteria.q }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">All categories</option>
+                        {% for cat in ['Question','Recommendation','Announcement','Feedback','Discussion','Other'] %}
+                            <option value="{{ cat }}"
+                                {{ criteria.category == cat ? 'selected' : '' }}>
+                                {{ cat }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="sort" class="form-select">
+                        <option value="date"  {{ criteria.sort=='date'  ? 'selected' : '' }}>Newest</option>
+                        <option value="likes" {{ criteria.sort=='likes' ? 'selected' : '' }}>Most liked</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+
 
             <!-- Posts List -->
             {% for post in posts %}
@@ -99,8 +246,10 @@
                     <div class="post-content">
                         <div class="d-flex align-items-center gap-2">
                             <!-- Avatar -->
-                            <div class="rounded-circle bg-secondary p-2">
-                                <i class="bi bi-person-fill text-white"></i>
+                            <div class="rounded-circle p-2">
+                                <img src="{{ asset('images/artists/avatar.jpg') }}" 
+                                     class="img-fluid rounded-circle"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
                             </div>
                             <div>
                                 <h6 class="mb-0 fw-bold">Ahmed</h6>
@@ -109,6 +258,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-1">
                             <h5 class="card-title">{{ post.title }}</h5>
+                            
                             <div class="mt-3 position-relative">
                                 <button class="btn btn-sm btn-light rounded-2" onclick="toggleActionMenu({{ post.id }})">
                                     <i class="bi bi-three-dots"></i>
@@ -126,12 +276,38 @@
                                     </form>
                                 </div>
                             </div>
+                            
                         </div>
-                        <p class="card-text">{{ post.content }}</p>
+                        <span class="badge bg-primary">{{ post.category }}</span>
+                        <p class="card-text mt-1">{{ post.content }}</p>
                         {% if post.imagePath %}
                             <img src="{{ asset('uploads/posts/' ~ post.imagePath) }}" class="img-fluid mb-3" alt="Post image">
                         {% endif %}
                         
+                            
+                            {% if post.poll %}
+                                {% set poll = post.poll %}
+                                <div class="poll" data-poll-id="{{ poll.id }}">
+                                    <ul id="poll-options-{{ poll.id }}">
+                                    {% set counts = initialCounts[poll.id] ?? {} %}
+                                    
+                                    {% for option in poll.options %}
+                                    {% set idx = loop.index0 %}
+                                        <li>
+                                            <button class="vote-btn"
+                                                    data-idx="{{ loop.index0 }}">
+                                                <span>{{ option }}</span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-left: 8px;">
+                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                                </svg>
+                                            </button>
+                                            <span class="vote-count">{{ counts[idx] ?? 0 }}</span>
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
                         
                     </div>
                     <small class="text-muted">
@@ -170,75 +346,154 @@
                         </button>
 
                         <!-- Bouton Commentaire (optionnel) -->
-                        <button class="btn btn-sm btn-link text-muted">
-                            <i class="bi bi-chat"></i>
-                            {{ post.comments|length }}
+                        <button type="button"
+                                class="btn btn-sm btn-link text-muted"
+                                onclick="toggleComments({{ post.id }})"
+                                id="toggle-comments-{{ post.id }}">
+                        <i class="bi bi-chat"></i>
+                        {{ post.comments|length }}
                         </button>
                     </div>
 
                     <!-- Comments Section -->
-                    <div class="mt-4">
+                    <div id="comments-section-{{ post.id }}" class="mt-4" style="display: none;">
                         <h6>Comments</h6>
-                        {% for comment in post.comments %}
-                            <div class="card mb-2" data-comment-id="{{ comment.id }}">
-                                <div class="card-body">
-                                    <div class="comment-content">
-                                        <div class="d-flex justify-content-between align-items-center mt-1">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <!-- Avatar -->
-                                                <div class="rounded bg-secondary p-1">
-                                                    <i class="bi bi-person-fill text-white"></i>
+                        
+                        <div class="mb-3">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary"
+                                    id="sort-by-popularity-{{ post.id }}"
+                                    data-post-id="{{ post.id }}"
+                                    aria-pressed="false">
+                                Trier par popularité
+                            </button>
+                        </div>
+                        
+                        <div id="comments-container-{{ post.id }}">
+                            {% for comment in post.comments %}
+                                <div class="card mb-2" data-comment-id="{{ comment.id }}" data-like-count="{{ comment.likeCount|default(0) }}" data-created-at="{{ comment.createdAt|date('U') }}">
+                                    <div class="card-body">
+                                        <div class="comment-content">
+                                            <div class="d-flex justify-content-between align-items-center mt-1">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <!-- Avatar -->
+                                                    <div class="rounded-circle" style="width: 30px; height: 30px;">
+                                                        <img src="{{ asset('images/artists/avatar2.jpg') }}"
+                                                             class="img-fluid rounded-circle"
+                                                             style="width: 30px; height: 30px; object-fit: cover;">
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0 fw-bold">Sarra</h6>
+                                                        <small class="text-muted">@Sarra</small>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h6 class="mb-0 fw-bold">Ahmed</h6>
-                                                    <small class="text-muted">@ahmed</small>
-                                                </div>
-                                            </div>
-                                            <div class="position-relative">
-                                                <button class="btn btn-sm btn-light rounded-2" onclick="toggleCommentActionMenu({{ comment.id }})">
-                                                    <i class="bi bi-three-dots"></i>
-                                                </button>
-                                                <div id="actionMenuComment-{{ comment.id }}" class="action-menu bg-white shadow rounded p-2" 
-                                                    style="display: none; position: absolute; right: 0; z-index: 100; min-width: 120px;">
-                                                    <button class="btn btn-sm btn-link text-primary w-100 text-start" onclick="toggleCommentEdit({{ comment.id }})">
-                                                        <i class="bi bi-pencil-square me-2"></i>Edit
+                                                <div class="position-relative">
+                                                    <button class="btn btn-sm btn-light rounded-2" onclick="toggleCommentActionMenu({{ comment.id }})">
+                                                        <i class="bi bi-three-dots"></i>
                                                     </button>
-                                                    <form action="{{ path('app_forum_comment_delete', {id: comment.id}) }}" method="POST">
-                                                        <button type="submit" class="btn btn-sm btn-link text-danger w-100 text-start" 
-                                                                onclick="return confirm('Are you sure?')">
-                                                            <i class="bi bi-trash me-2"></i>Delete
+                                                    <div id="actionMenuComment-{{ comment.id }}" class="action-menu bg-white shadow rounded p-2"
+                                                         style="display: none; position: absolute; right: 0; z-index: 100; min-width: 120px;">
+                                                        <button class="btn btn-sm btn-link text-primary w-100 text-start" onclick="toggleCommentEdit({{ comment.id }})">
+                                                            <i class="bi bi-pencil-square me-2"></i>Edit
                                                         </button>
-                                                    </form>
+                                                        <form action="{{ path('app_forum_comment_delete', {id: comment.id}) }}" method="POST">
+                                                            <button type="submit" class="btn btn-sm btn-link text-danger w-100 text-start"
+                                                                    onclick="return confirm('Are you sure?')">
+                                                                <i class="bi bi-trash me-2"></i>Delete
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <p class="card-text">{{ comment.content|markdown  }}</p>
                                         </div>
-                                        
-                                        <p class="card-text">{{ comment.content }}</p>
+                        
+                                        <div class="comment-edit-form" style="display: none;">
+                                            <form action="{{ path('app_forum_comment_edit', {id: comment.id}) }}" method="POST">
+                                                <div class="mb-3">
+                                                    <textarea class="form-control" name="content" rows="2" required>{{ comment.content }}</textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                                <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCommentEdit({{ comment.id }})">Cancel</button>
+                                            </form>
+                                        </div>
+                        
+                                        <small class="text-muted">
+                                            {{ comment.createdAt|timeAgo }}
+                                        </small>
+                        
+                                        <div class="mt-2">
+                                            <button type="button"
+                                                    class="btn btn-sm like-button
+                                                        {% if comment.likedByCurrent %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill"
+                                                    data-comment-id="{{ comment.id }}">
+                                                <i class="bi {% if comment.likedByCurrent %}bi-heart-fill{% else %}bi-heart{% endif %} me-2"></i>
+                                                <span id="comment-like-count-{{ comment.id }}">{{ comment.likeCount|default(0) }}</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="comment-edit-form" style="display: none;">
-                                        <form action="{{ path('app_forum_comment_edit', {id: comment.id}) }}" method="POST">
-                                            <div class="mb-3">
-                                                <textarea class="form-control" name="content" rows="2" required>{{ comment.content }}</textarea>
-                                            </div>
-                                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                                            <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCommentEdit({{ comment.id }})">Cancel</button>
-                                        </form>
-                                    </div>
-                                    <small class="text-muted">
-                                        {{ comment.createdAt|timeAgo }}
-                                    </small>
-                                    
                                 </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
+                        
+
 
                         <!-- Add Comment Form -->
-                        <form action="{{ path('app_forum_comment', {id: post.id}) }}" method="POST" class="mt-3">
-                            <div class="mb-3">
-                                <textarea class="form-control" name="content" rows="2" placeholder="Add a comment..." required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-sm btn-primary">Add Comment</button>
+                        <!-- Add Comment Form -->
+                        <form id="comment-form-{{ post.id }}"
+                        action="{{ path('app_forum_comment', {id: post.id}) }}"
+                        method="POST"
+                        class="mt-3">
+                        <div class="mb-3 position-relative">
+                        <textarea id="comment-content-{{ post.id }}"
+                                class="form-control"
+                                name="content"
+                                rows="2"
+                                placeholder="Add a comment..."
+                                required></textarea>
+
+                        <!-- Bouton Add GIF -->
+                        <button type="button"
+                            class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 mt-2 me-2"
+                            style="z-index: 2;"
+                            onclick="openGifPicker({{ post.id }})">
+                        Add GIF
+                        </button>
+
+                        <!-- Bouton Emoji -->
+                        <button type="button"
+                            class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 mt-2"
+                            style="margin-right: 6rem; z-index: 2;"
+                            style="z-index: 2;"
+                            onclick="toggleEmojiPicker({{ post.id }})">
+                        😊
+                        </button>
+
+                        <!-- Emoji Picker Panel (hidden) -->
+                        <div id="emoji-picker-{{ post.id }}"
+                        class="emoji-picker p-2 bg-white border rounded shadow"
+                        style="display:none; position:absolute; top:2.5rem; right:4rem; max-width:200px; max-height:150px; overflow:auto; z-index: 10;">
+                        <!-- JS injectera ici les emojis -->
+                        </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-sm btn-primary">Add Comment</button>
                         </form>
+
+  
+                        <!-- GIF Picker Modal (peut être en dehors du form) -->
+                        <div id="gif-modal-{{ post.id }}" class="gif-modal" style="display:none;">
+                            <div class="gif-modal-backdrop" onclick="closeGifPicker({{ post.id }})"></div>
+                            <div class="gif-modal-content p-3 bg-white shadow rounded">
+                            <div class="d-flex mb-2">
+                                <input type="text" id="gif-search-{{ post.id }}" class="form-control me-2" placeholder="Search GIFs…">
+                                <button class="btn btn-primary" onclick="searchGifs({{ post.id }})">Search</button>
+                            </div>
+                            <div id="gif-results-{{ post.id }}" class="d-flex flex-wrap gap-2" style="max-height:300px; overflow:auto;"></div>
+                            <button class="btn btn-sm btn-secondary mt-2" onclick="closeGifPicker({{ post.id }})">Close</button>
+                            </div>
+                        </div>
+  
                     </div>
                 </div>
             </div>
@@ -310,54 +565,47 @@ function toggleCommentEdit(commentId) {
 </script>
 
 <script>
-    // Récupérer la liste des bad words passée depuis le contrôleur
     const badWords = {{ badWords|json_encode|raw }};
-
-    // Applique la vérification sur tous les formulaires de la page
-    document.querySelectorAll('form').forEach(function(form) {
-        form.addEventListener('submit', function(e) {
-            // Récupération de la valeur du champ title s'il existe
-            let title = '';
-            const titleInput = form.querySelector('input[name="title"]');
-            if (titleInput) {
-                title = titleInput.value.toLowerCase();
-            }
-
-            // Récupération de la valeur du champ content s'il existe
-            let content = '';
-            const contentField = form.querySelector('textarea[name="content"]');
-            if (contentField) {
-                content = contentField.value.toLowerCase();
-            }
-
-            // Vérification : si l'un des champs contient un bad word, on bloque la soumission
-            const hasBadWord = badWords.some(word => {
-                const lowerWord = word.toLowerCase();
-                return title.includes(lowerWord) || content.includes(lowerWord);
-            });
-
-            if (hasBadWord) {
-                // Empêcher la soumission
-                e.preventDefault();
-
-                // Si un message d'alerte existe déjà dans ce formulaire, on le supprime pour ne pas l'afficher plusieurs fois
-                const existingAlert = form.querySelector('.alert-danger');
-                if (existingAlert) {
-                    existingAlert.remove();
-                }
-
-                // Création du message d'erreur avec le style Bootstrap
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-danger mt-3';
-                alertDiv.style.fontSize = '1.1em';
-                alertDiv.textContent = 'Votre message contient des mots interdits. Veuillez corriger votre contenu.';
-
-                // Ajout du message d'alerte à la fin du formulaire
-                form.appendChild(alertDiv);
-            }
+  
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', async function(e) {
+        let title   = form.querySelector('input[name="title"]')?.value.toLowerCase()   || '';
+        let content = form.querySelector('textarea[name="content"]')?.value.toLowerCase() || '';
+  
+        // quels mots on a trouvés ?
+        const found = badWords.filter(w => {
+          const lw = w.toLowerCase();
+          return title.includes(lw) || content.includes(lw);
         });
+  
+        if (found.length > 0) {
+          e.preventDefault();
+  
+          // pour chaque mot, on appelle l’API pour loguer la tentative
+          await Promise.all(found.map(w =>
+            fetch("{{ path('app_forum_log_badword') }}", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                // ajoute ici ton token CSRF si besoin
+              },
+              body: JSON.stringify({ word: w })
+            })
+          ));
+  
+          // affiche l’alerte une fois
+          if (!form.querySelector('.alert-danger')) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger mt-3';
+            alertDiv.textContent = 'Votre message contient des mots interdits. Veuillez corriger votre contenu.';
+            form.appendChild(alertDiv);
+          }
+        }
+      });
     });
-</script>
+  </script>
+  
 
 <script>
     document.querySelectorAll('.like-button').forEach(function(button) {
@@ -443,4 +691,282 @@ function toggleCommentEdit(commentId) {
         }
     });
     </script>
+
+<script>
+    document.querySelectorAll('button[data-comment-id]').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+            e.preventDefault();
+            const cid = this.getAttribute('data-comment-id');
+            fetch("{{ path('app_forum_comment_like', {'commentId':'CID'}) }}".replace('CID', cid), {
+                method: 'POST',
+                headers: {'X-Requested-With':'XMLHttpRequest'}
+            })
+            .then(r=>r.json())
+            .then(data=>{
+                // mettre à jour le compteur
+                document.getElementById('comment-like-count-'+cid).textContent = data.likeCount;
+                // animer l’icône
+                const icon = btn.querySelector('.bi');
+                icon.style.transform = data.liked ? 'scale(1.3)' : 'scale(0.7)';
+                setTimeout(()=> icon.style.transform='scale(1)', 200);
+                // basculer classes
+                btn.classList.toggle('btn-danger');
+                btn.classList.toggle('btn-outline-danger');
+                icon.classList.toggle('bi-heart');
+                icon.classList.toggle('bi-heart-fill');
+            });
+        });
+    });
+
+    
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Fonction utilitaire de tri d’un container
+          function sortContainer(container, byLikes) {
+            const cards = Array.from(container.querySelectorAll('.card'));
+            cards.sort((a, b) => {
+              if (byLikes) {
+                return parseInt(b.dataset.likeCount) - parseInt(a.dataset.likeCount);
+              } else {
+                return parseInt(b.dataset.createdAt) - parseInt(a.dataset.createdAt);
+              }
+            });
+            container.innerHTML = '';
+            cards.forEach(c => container.appendChild(c));
+          }
+        
+          // 1) Au chargement, trier chaque container par date
+          document.querySelectorAll('[id^="comments-container-"]').forEach(container => {
+            sortContainer(container, false);
+          });
+        
+          // 2) Puis attacher le comportement du bouton toggle
+          document.querySelectorAll('[id^="sort-by-popularity-"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const postId = btn.dataset.postId;
+              const container = document.getElementById('comments-container-' + postId);
+              if (!container) return;
+        
+              // bascule visuelle du bouton
+              const nowLikes = btn.classList.toggle('btn-primary');
+              btn.classList.toggle('btn-outline-primary');
+              btn.setAttribute('aria-pressed', nowLikes);
+        
+              // tri selon l’état
+              sortContainer(container, nowLikes);
+            });
+          });
+        });
+        </script>
+        
+        <script>
+            function toggleComments(postId) {
+              // récupère le conteneur et le bouton
+              const section = document.getElementById('comments-section-' + postId);
+              const btn     = document.getElementById('toggle-comments-'  + postId);
+              if (!section || !btn) return;
+            
+              // bascule l’affichage
+              const isHidden = section.style.display === 'none';
+              section.style.display = isHidden ? 'block' : 'none';
+            
+              // optionnel : change le style du bouton pour indiquer l’état
+              btn.classList.toggle('text-primary', isHidden);
+              btn.classList.toggle('text-muted', !isHidden);
+            }
+            </script>
+            <script>
+                window.GIPHY_API_KEY = 'Gsaeg8PQFRMhpwwZQ113uYCZAMi94m8K';
+              </script>
+              <script>
+                async function searchGifs(postId) {
+                  const query = document.getElementById('gif-search-' + postId).value;
+                  if (!query) return;
+                  const res = await fetch(
+                    `https://api.giphy.com/v1/gifs/search?api_key=${window.GIPHY_API_KEY}`
+                    + `&q=${encodeURIComponent(query)}&limit=12&rating=G`
+                  );
+                  const json = await res.json();
+                  const container = document.getElementById('gif-results-' + postId);
+                  container.innerHTML = '';
+                  json.data.forEach(gif => {
+                    const url = gif.images.fixed_width.url;
+                    const thumb = document.createElement('div');
+                    thumb.className = 'gif-thumb';
+                    thumb.innerHTML = `<img src="${url}" alt="gif">`;
+                    thumb.addEventListener('click', () => insertGifAndSubmit(postId, url));
+                    container.appendChild(thumb);
+                  });
+                }
+                
+                function openGifPicker(postId) {
+                  document.getElementById('gif-modal-' + postId).style.display = 'block';
+                }
+                
+                function closeGifPicker(postId) {
+                  document.getElementById('gif-modal-' + postId).style.display = 'none';
+                }
+                
+                // Nouvelle fonction : insère le GIF et soumet
+                function insertGifAndSubmit(postId, url) {
+                  const textarea = document.getElementById('comment-content-' + postId);
+                  const form     = document.getElementById('comment-form-' + postId);
+                  const tag      = `<img src="${url}" alt="gif" />`;
+                
+                  // Insère le tag dans le textarea
+                  textarea.value = tag;
+                  // Ferme la modale
+                  closeGifPicker(postId);
+                  // Soumet immédiatement
+                  form.submit();
+                }
+                </script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                      const emojis = ['😀','😂','😍','😎','😢','👍','🙏','🎉','🚀','🔥','❤️','🥳'];
+                    
+                      // Pour chaque post, initialise le picker
+                      document.querySelectorAll('[id^="emoji-picker-"]').forEach(picker => {
+                        // Injecte les emojis
+                        emojis.forEach(emo => {
+                          const span = document.createElement('span');
+                          span.textContent = emo;
+                          span.addEventListener('click', function() {
+                            const postId = picker.id.split('-').pop();
+                            insertEmoji(postId, emo);
+                          });
+                          picker.appendChild(span);
+                        });
+                      });
+                    });
+                    
+                    // Ouvre/ferme le panel emoji
+                    function toggleEmojiPicker(postId) {
+                      const picker = document.getElementById('emoji-picker-' + postId);
+                      if (!picker) return;
+                      picker.style.display = (picker.style.display === 'block' ? 'none' : 'block');
+                    }
+                    
+                    // Insère l’emoji dans le textarea à la position du curseur
+                    function insertEmoji(postId, emoji) {
+                      const textarea = document.getElementById('comment-content-' + postId);
+                      const start = textarea.selectionStart;
+                      const end   = textarea.selectionEnd;
+                      const text  = textarea.value;
+                      textarea.value = text.slice(0, start) + emoji + text.slice(end);
+                      textarea.focus();
+                      // replacer le curseur juste après l’emoji
+                      const pos = start + emoji.length;
+                      textarea.setSelectionRange(pos, pos);
+                    }
+
+                    
+                    </script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function(){
+                          // Pour chaque sondage sur la page
+                          document.querySelectorAll('.poll').forEach(pollDiv => {
+                            const pollId = pollDiv.dataset.pollId;
+                            const optionsUl = pollDiv.querySelector(`#poll-options-${pollId}`);
+                            
+                            // Au clic sur un bouton de vote
+                            optionsUl.addEventListener('click', async function(e){
+                              if (!e.target.classList.contains('vote-btn')) return;
+                              const btn = e.target;
+                              const idx = parseInt(btn.dataset.idx, 10);
+                        
+                              // Appel AJAX vers Symfony
+                              const resp = await fetch(`/poll/${pollId}/vote`, {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: JSON.stringify({ optionIndex: idx })
+                              });
+                        
+                              if (!resp.ok) {
+                                console.error('Vote failed', await resp.text());
+                                return;
+                              }
+                        
+                              const data = await resp.json();
+                              const counts = data.counts; // tableau [n0, n1, n2...]
+                        
+                              // Met à jour chaque <span class="vote-count">
+                              counts.forEach((cnt, i) => {
+                                const span = optionsUl.querySelector(`li:nth-child(${i+1}) .vote-count`);
+                                if (span) span.textContent = cnt;
+                              });
+                        
+                              // Optionnel : désactiver les boutons après vote
+                              optionsUl.querySelectorAll('.vote-btn').forEach(b=> b.disabled = true);
+                            });
+                          });
+                        });
+                        </script>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function(){
+                              // Récupère les éléments
+                              const chk         = document.getElementById('enable-poll');
+                              const builder     = document.getElementById('poll-builder');
+                              const list        = document.getElementById('poll-options-list');
+                              const addBtn      = document.getElementById('add-poll-option');
+                              const hiddenInput = document.getElementById('poll_options_input');
+                              const form        = document.querySelector('form[action$="/forum/create"]');
+                                console.log(form);
+                              // Basculer l’affichage du builder
+                              chk.addEventListener('change', () => {
+                                builder.style.display = chk.checked ? 'block' : 'none';
+                                // si on active et qu’il n’y a pas d’option, on en ajoute une
+                                if (chk.checked && list.children.length === 0) {
+                                  addOption();
+                                }
+                              });
+                            
+                              // Fonction d’ajout d’un champ option
+                              function addOption() {
+                                const idx = list.children.length;
+                                const row = document.createElement('div');
+                                row.className = 'input-group mb-2';
+                                row.innerHTML = `
+                                  <input type="text"
+                                         class="form-control poll-option"
+                                         placeholder="Option ${idx+1}"
+                                         required>
+                                  <button type="button"
+                                          class="btn btn-outline-danger btn-sm remove-option">&times;</button>
+                                `;
+                                list.appendChild(row);
+                                updateRemoveButtons();
+                              }
+                            
+                              // Met à jour les boutons de suppression
+                              function updateRemoveButtons() {
+                                list.querySelectorAll('.remove-option').forEach(btn => {
+                                  btn.onclick = () => btn.closest('.input-group').remove();
+                                });
+                              }
+                            
+                              // Clic sur “+ Add option”
+                              addBtn.addEventListener('click', addOption);
+                            
+                              // Avant d’envoyer le form, sérialiser les options en JSON
+                              form.addEventListener('submit', function(e){
+                                if (!chk.checked) return; // pas de sondage
+                                const opts = Array.from(list.querySelectorAll('.poll-option'))
+                                                  .map(i => i.value.trim())
+                                                  .filter(v => v !== '');
+                                if (opts.length < 2) {
+                                  e.preventDefault();
+                                  alert('Please provide at least two poll options.');
+                                  return;
+                                }
+                                hiddenInput.value = JSON.stringify(opts);
+                              });
+                            });
+                            </script>
+                            
+                    
 {% endblock %} 
