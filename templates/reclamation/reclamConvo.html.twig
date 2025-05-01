@@ -663,7 +663,6 @@
                 <!-- Close Button -->
                 <button type="button" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Close" onclick="closeCategoryPopup()"></button>
             
-                <h5 class="mb-4 text-center">selem</h5>
                 <input type="hidden" id="popup-message-id">
 
                 <textarea id="popup-message-text" class="form-control mb-3"></textarea>
@@ -684,83 +683,141 @@
             
             <div class="zone-writing mt-2">
 
-
-
-
               {{ form_start(form, {
                 action: path('reclamation_conversation_send', { id: reclamation.id }),
-                attr: { enctype: 'multipart/form-data' },
+                attr: { enctype: 'multipart/form-data', class: 'w-100' },
                 method: 'POST'
               }) }}
-
-
-
-
-
-
-<div class="d-flex align-items-center mb-2 gap-3">
-  <label class="btn-attach ">
-    📎
-    {{ form_widget(form.attachments, {
-      attr: {
-        multiple: true,
-        class: 'd-none',
-        id: 'live-attachments'
-      }|merge(reclamation.status == 'Résolu' ? {'disabled': 'disabled'} : {})
-    }) }}
-  </label>
-  <span id="file-label" style="color: #888; display:none;">Aucun fichier choisi</span>
-</div>
-
-           
-
-<div class="input-group mb-2">
-  {{ form_widget(form.message, {
-    attr: {}|merge(reclamation.status == 'Résolu' ? {'disabled': 'disabled'} : {})
-  }) }}
-
-
-
-<button
-type="submit"
-class="btn btn-danger {{ reclamation.status == 'Résolu' ? 'btn-secondary' : '' }}"
-{% if reclamation.status == 'Résolu' %}disabled{% endif %}>
-Envoyer
-</button>
-
-</div>
-
-
-<p style="color:red">STATUS = "{{ reclamation.status }}"</p>
-
-
-                <div id="attachmentTableWrapper" style="display: none;">
-                  <table class="table table-bordered table-sm">
-                    <thead class="table-light">
-                      <tr>
-                        <th>Nom du fichier</th>
-                        <th style="width: 100px;">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody id="liveAttachmentPreview"></tbody>
-                  </table>
+            
+              <div class="d-flex align-items-center gap-2">
+            
+                <!-- Attachment Button -->
+                <label class="btn btn-outline-secondary d-flex align-items-center mb-0">
+                  📎
+                  {{ form_widget(form.attachments, {
+                    attr: {
+                      multiple: true,
+                      class: 'd-none',
+                      id: 'live-attachments'
+                    }|merge(reclamation.status == 'Résolu' ? {'disabled': 'disabled'} : {})
+                  }) }}
+                </label>
+            
+                <!-- Text Input -->
+                <div class="flex-grow-1">
+                  {{ form_widget(form.message, {
+                    attr: {
+                      class: 'form-control',
+                      placeholder: 'Écrivez votre message ici...'
+                    }|merge(reclamation.status == 'Résolu' ? {'disabled': 'disabled'} : {})
+                  }) }}
                 </div>
             
+                <!-- Submit Button -->
+                <button
+                  type="submit"
+                  class="btn {{ reclamation.status == 'Résolu' ? 'btn-secondary' : 'btn-danger' }}"
+                  {% if reclamation.status == 'Résolu' %}disabled{% endif %}>
+                  Envoyer
+                </button>
+              </div>
+            
+              <!-- File Label -->
+              <span id="file-label"  style="display:none;">Aucun fichier choisi</span>
+            
+              <!-- Attachment Table Preview -->
+              <div id="attachmentTableWrapper" class="mt-3" style="display: none;">
+                <table class="table table-bordered table-sm">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Nom du fichier</th>
+                      <th style="width: 100px;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="liveAttachmentPreview"></tbody>
+                </table>
+              </div>
+            
               {{ form_end(form) }}
+            
             </div>
           
             </div>
   
-  
+
+
             <div class="side-reclam-bar">
-              {% if reclamation.status != 'Résolu' %}
+              <div class="profile">
+                <img src="https://via.placeholder.com/60" alt="Avatar">
+                <h3>reclamateur name</h3>
+              </div>
+          
+              <div class="icons">
+                <button title="Mute">🔇</button>
+              </div>
+          
+              <div class="ticket-info">
+                <p><strong> Ticket N# {{reclamation.id}}</strong></p>
+                <p>Sujet : {{reclamation.subject}} </p>
+                <p>Description: {{reclamation.description}}</p>
+              </div>
+
+
+              {% set imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'] %}
+              {% set allImages = [] %}
+              
+              {% for msg in messages %}
+                {% for a in msg.messageAttachments %}
+                  {% set ext = a.filePath|split('.')|last|lower %}
+                  {% if ext in imageExtensions %}
+                    {% set allImages = allImages|merge([a]) %}
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+
+
+              <div class="media-section">
+                <h4>Media</h4>
+                <div class="media-thumbnails" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                  {% if allImages|length > 0 %}
+                    {% for img in allImages %}
+                      <div style="width: 80px; height: 80px;">
+                        <img src="{{ asset('ImagesConversations/' ~ img.filePath) }}" alt="media"
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;"
+                        onclick="showImagePopup('{{ asset('/ImagesConversations/' ~ img.filePath) }}')" />
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <div style="color: #888; font-size: 12px;">Aucune image</div>
+                  {% endif %}
+                </div>
+              </div>
+                    
+              <div class="status">
+                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="badge">
+                {% if reclamation.status != 'Résolu' %}
                 <form action="{{ path('conversation_mark_resolved', { id: conversation.id }) }}" method="post">
                   <button type="submit" class="btn btn-warning w-100"> Maruqer comme solvé</button>
                 </form>
               {% else %}
                 <p class="text-success fw-bold text-center">Réclamation résolue ✅</p>
               {% endif %}
+              </div>
             </div>
+
+
+            
+    <div id="imagePopup" class="category-popup">
+  <div class="category-popup-content p-4 rounded shadow bg-white position-relative text-center">
+    <!-- Close Button -->
+    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Close" onclick="closeImagePopup()"></button>
+
+    <img id="popupImage" src="" alt="Image Preview" style="max-width: 100%; max-height: 70vh; border-radius: 8px;" />
+  </div>
+</div>
+
+
+
   
           </div>
           
@@ -1098,5 +1155,22 @@ function deleteMessage() {
     };
   });
   </script>
+
+
+<script>
+
+function showImagePopup(imageUrl) {
+  const popup = document.getElementById('imagePopup');
+  const img = document.getElementById('popupImage');
+  img.src = imageUrl;
+  popup.classList.add('open');
+}
+
+function closeImagePopup() {
+  document.getElementById('imagePopup').classList.remove('open');
+}
+
+
+</script>
 
 {% endblock %}

@@ -509,3 +509,21 @@
   }
   
 
+
+
+
+  .modifier-button-kitcat-modif {
+      padding: 10px 20px;
+      background-color: #101d2d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+ .modifier-button-kitcat-modif:hover {
+      background-color: #2a3b4c;
+    }
+
+  
