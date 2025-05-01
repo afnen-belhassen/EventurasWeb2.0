@@ -58,6 +58,15 @@
                     </div>
                     {{ form_errors(form.telephone) }}
                 </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.email, 'Adresse Email', {'label_attr': {'class': 'text-white'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    {{ form_errors(form.email) }}
+                </div>
             </div>
         </div>
 

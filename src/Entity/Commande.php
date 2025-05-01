@@ -48,6 +48,12 @@ class Commande
     #[Assert\NotBlank(message: "La date de commande est obligatoire")]
     private ?\DateTimeInterface $date_commande = null;
 
+    
+    private ?string $stripePaymentId = null;
+
+    private ?string $email = null;
+
+
 
 
    
@@ -143,16 +149,18 @@ class Commande
         return $this->quantite * $this->produit->getPrix();
     }
 
-    public function getCustomerEmail(Security $security): ?string
+    public function getEmail(): ?string
     {
-        $user = $security->getUser();
-    
-        if ($user instanceof User) {
-            return $user->getEmail();
-        }
-    
-        return null;
+        return $this->email;
     }
+    
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+        return $this;
+    }
+    public function getStripePaymentId(): ?string { return $this->stripePaymentId; }
+public function setStripePaymentId(?string $id): self { $this->stripePaymentId = $id; return $this; }
     
 
     

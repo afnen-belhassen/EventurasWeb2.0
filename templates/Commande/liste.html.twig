@@ -1,3 +1,5 @@
+{# templates/Commande/liste.html.twig #}
+
 {% extends 'base.html.twig' %}
 
 {% block title %}Liste des Commandes{% endblock %}
@@ -17,10 +19,10 @@
                 </div>
             </div>
             <div class="card-body">
-                {% for message in app.flashes('success') %}
-                    <div class="alert alert-success">{{ message }}</div>
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">{{ message }}</div>
                 {% endfor %}
-
+                
                 <div class="table-responsive">
                     <table class="table table-hover text-center align-middle">
                         <thead class="table-light">
@@ -33,6 +35,7 @@
                                 <th scope="col">Quantité</th>
                                 <th scope="col">Date</th>
                                 <th scope="col">Total</th>
+                                <th scope="col">Email</th>
                                 <th scope="col" class="text-end">Actions</th>
                             </tr>
                         </thead>
@@ -44,12 +47,12 @@
                                     <td>{{ commande.telephone }}</td>
                                     <td>{{ commande.adresse }}</td>
                                     <td>{{ commande.produit ? commande.produit.nom : 'Produit non disponible' }}</td>
-
                                     <td>{{ commande.quantite }}</td>
                                     <td>{{ commande.dateCommande ? commande.dateCommande|date('d/m/Y H:i') : '' }}</td>
                                     <td>
                                         {{ commande.getTotal() is not null ? commande.getTotal()|number_format(2, '.', ' ') ~ ' DT' : '0.00 DT' }}
                                     </td>
+                                    <td>{{ commande.email }}</td>
                                     <td class="text-end">
                                         <div class="btn-group" role="group">
                                             <a href="{{ path('modifier_commande', {'id': commande.id}) }}"
@@ -68,7 +71,7 @@
                                 </tr>
                             {% else %}
                                 <tr>
-                                    <td colspan="9" class="text-center py-4">
+                                    <td colspan="10" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="bi bi-inbox" style="font-size: 2rem;"></i>
                                             <p class="mt-2 mb-0">Aucune commande trouvée</p>
