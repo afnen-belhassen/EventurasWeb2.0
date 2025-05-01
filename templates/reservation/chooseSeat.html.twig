@@ -82,18 +82,69 @@ h1, h2, h3 {
             "></div>
         {% endif %}
         <div style="position: relative; z-index: 2; padding: 32px 24px 24px 24px; color: #222;">
-            <h2 style="margin-top: 0; font-size: 2.2rem; font-weight: 600; font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">{{ event.title }}</h2>
-            <div style="margin-bottom: 18px; font-size: 1.1rem; font-weight: 500;">{{ event.location }}</div>
-            <div style="margin-bottom: 18px;">
-                <strong>Date :</strong> {{ event.date_event|date('d F Y') }}<br>
-                <strong>Heure :</strong> {{ event.date_event|date('H:i') }}<br>
-                <strong>Fin prévue :</strong> {{ event.dateFinEve|date('H:i') }}
+            <!-- Event badge -->
+            <div style="display: inline-block; background-color: rgb(240, 228, 61); color: #222; font-size: 0.8rem; padding: 4px 12px; border-radius: 30px; margin-bottom: 15px; font-weight: 600; letter-spacing: 0.5px;">ÉVÉNEMENT</div>
+            
+            <h2 style="margin-top: 0; font-size: 2.2rem; font-weight: 600; font-family: 'Poppins', sans-serif; letter-spacing: -0.5px; margin-bottom: 20px;">{{ event.title }}</h2>
+            
+            <!-- Location with icon -->
+            <div style="display: flex; align-items: center; margin-bottom: 20px; font-size: 1.1rem; font-weight: 500;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; min-width: 16px;">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                {{ event.location }}
             </div>
-            <div style="margin-bottom: 18px;">
-                <strong>Places libres :</strong> {{ event.nb_places - reservedSeats|length }}
+            
+            <!-- Date and time info in a styled container -->
+            <div style="background-color: rgba(255, 255, 255, 0.8); border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; min-width: 16px;">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <strong>Date :</strong> <span style="margin-left: 5px;">{{ event.date_event|date('d F Y') }}</span>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; min-width: 16px;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <strong>Heure :</strong> <span style="margin-left: 5px;">{{ event.date_event|date('H:i') }}</span>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; min-width: 16px;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 8 14"></polyline>
+                    </svg>
+                    <strong>Fin prévue :</strong> <span style="margin-left: 5px;">{{ event.dateFinEve|date('H:i') }}</span>
+                </div>
+                
+                <div style="display: flex; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; min-width: 16px;">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <strong>Places libres :</strong> <span style="margin-left: 5px;">{{ event.nb_places - reservedSeats|length }}</span>
+                </div>
             </div>
+            
+            <!-- Call to action button -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                
+            </div>
+            
+            <!-- Event thumbnail image -->
             {% if event.image %}
-                <img src="{{ asset('ImagesEvents/' ~ event.image) }}" alt="event" style="width: 100%; max-width: 300px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); margin-bottom: 10px;">
+                <div style="text-align: center;">
+                    <img src="{{ asset('ImagesEvents/' ~ event.image) }}" alt="event" style="width: 100%; max-width: 250px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+                </div>
             {% endif %}
         </div>
     </div>
