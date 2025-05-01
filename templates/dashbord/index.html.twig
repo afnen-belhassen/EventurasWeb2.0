@@ -1,0 +1,168 @@
+{% extends 'indexBACK.html.twig' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block body %}
+  <h1 class="text-center mb-5">📊 Tableau de bord des utilisateurs</h1>
+
+  <style>
+    .chart-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+      transition: transform 0.3s ease;
+    }
+
+    .chart-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .chart-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    canvas {
+      width: 100% !important;
+      max-height: 300px;
+    }
+  </style>
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 chart-card">
+        <div class="chart-title">Répartition par rôle</div>
+        <canvas id="roleChart"></canvas>
+      </div>
+      <div class="col-md-6 chart-card">
+        <div class="chart-title">Statut des organisateurs</div>
+        <canvas id="organisateurStatutChart"></canvas>
+      </div>
+      <div class="col-md-6 chart-card">
+        <div class="chart-title">Répartition par genre</div>
+        <canvas id="genderChart"></canvas>
+      </div>
+      <div class="col-md-6 chart-card">
+        <div class="chart-title">Répartition par tranche d'âge</div>
+        <canvas id="ageGroupChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3"></script>
+
+  <script id="dashboard-data" type="application/json">
+    {{ {
+      "totalOrganisateurs": organisateurs|default(0),
+      "totalParticipants": participants|default(0),
+      "orgStatut1": organisateurStatut1|default(0),
+      "orgStatut0": organisateurStatut0|default(0),
+      "maleCount": maleCount|default(0),
+      "femaleCount": femaleCount|default(0),
+      "otherGenderCount": otherGenderCount|default(0),
+      "ageGroups": ageGroups|default({})
+    }|json_encode|raw }}
+  </script>
+
+  <script>
+    const data = JSON.parse(document.getElementById('dashboard-data').textContent);
+
+    const {
+      totalOrganisateurs,
+      totalParticipants,
+      orgStatut1,
+      orgStatut0,
+      maleCount,
+      femaleCount,
+      otherGenderCount,
+      ageGroups
+    } = data;
+
+    // 1. Par rôle
+    new Chart(document.getElementById('roleChart').getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['Organisateurs', 'Participants'],
+        datasets: [{
+          data: [totalOrganisateurs, totalParticipants],
+          backgroundColor: ['#007bff', '#ffc107'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+
+    // 2. Statuts des organisateurs
+    new Chart(document.getElementById('organisateurStatutChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Validés', 'Non validés'],
+        datasets: [{
+          label: 'Organisateurs',
+          data: [orgStatut1, orgStatut0],
+          backgroundColor: ['#28a745', '#dc3545'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // 3. Par genre
+    new Chart(document.getElementById('genderChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Homme', 'Femme', 'Autre'],
+        datasets: [{
+          data: [maleCount, femaleCount, otherGenderCount],
+          backgroundColor: ['#17a2b8', '#e83e8c', '#ffc107'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+
+    // 4. Par tranche d'âge
+    new Chart(document.getElementById('ageGroupChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['18-25', '26-35', '36-50', '50+'],
+        datasets: [{
+          label: 'Utilisateurs',
+          data: [
+            ageGroups['18-25'] || 0,
+            ageGroups['26-35'] || 0,
+            ageGroups['36-50'] || 0,
+            ageGroups['50+']   || 0
+          ],
+          backgroundColor: '#6f42c1',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  </script>
+{% endblock %}

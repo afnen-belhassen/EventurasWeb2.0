@@ -10,7 +10,6 @@ use App\Repository\LikeRepository;
 use App\Repository\PostRepository;
 use App\Repository\CommentRepository;
 use App\Repository\BadWordRepository;
-use App\Repository\BadWordAttemptRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,26 +18,20 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Entity\BadWordAttempt;
-use App\Entity\Poll;   
-use App\Entity\PollVote;   
-use App\Repository\PollVoteRepository;
 
 class ForumController extends AbstractController
 {
     private $uploadDirectory;
-    
+
     public function __construct(string $uploadDirectory)
     {
         $this->uploadDirectory = $uploadDirectory;
     }
 
-    #[Route('/forum', name: 'app_forum', methods: ['GET'])]
-    public function index( Request $request, PostRepository $postRepository,EntityManagerInterface $em,BadWordRepository $badWordRepository): Response
+    #[Route('/forum', name: 'app_forum')]
+    public function index(PostRepository $postRepository,EntityManagerInterface $em,BadWordRepository $badWordRepository): Response
     {
-        $search   = $request->query->get('q', '');
-        $category = $request->query->get('category', '');
-        $sort     = $request->query->get('sort', 'date');  // 'date' ou 'likes'
+
         // Récupération de l'utilisateur courant
         //$user = $this->getUser();
         $user = 1;
@@ -62,7 +55,7 @@ class ForumController extends AbstractController
         $badWords = $badWordRepository->findAll();
         $badWordsArray = array_map(fn($bw) => $bw->getWord(), $badWords);
 
-        $posts = $postRepository->findByCriteria($search, $category, $sort);
+        $posts = $postRepository->findAllOrderedByDate();
 
         // Récupération du repository des likes
         $likeRepository = $em->getRepository(\App\Entity\Like::class);
@@ -86,42 +79,10 @@ class ForumController extends AbstractController
             // Ajout dynamique des propriétés au post
             $post->likeCount = $likeCount;
             $post->likedByCurrent = $likedByCurrent;
-
-            foreach ($post->getComments() as $comment) {
-                $cCount = (int) $likeRepository->createQueryBuilder('l')
-                    ->select('COUNT(l.id)')
-                    ->andWhere('l.postId = :cid')
-                    ->setParameter('cid', $comment->getId())
-                    ->getQuery()
-                    ->getSingleScalarResult();
-    
-                $cLiked = $likeRepository->findOneBy([
-                    'postId' => $comment->getId(),
-                    'userId' => $user,
-                ]) !== null;
-    
-                // on ajoute dynamiquement ces propriétés au comment
-                $comment->likeCount       = $cCount;
-                $comment->likedByCurrent  = $cLiked;
-            }
-        }
-
-        $pollVoteRepo = $em->getRepository(\App\Entity\PollVote::class);
-        $initialCounts = [];
-        foreach ($posts as $post) {
-            if ($post->getPoll()) {
-                $initialCounts[$post->getPoll()->getId()] = $pollVoteRepo->countVotesByOption($post->getPoll());
-            }
         }
 
         return $this->render('forum/index.html.twig', [
             'posts' => $posts, 'postedToday' => $postedToday,'badWords' => $badWordsArray,
-            'criteria'    => [
-                'q'        => $search,
-                'category' => $category,
-                'sort'     => $sort,
-            ],
-            'initialCounts' => $initialCounts,
         ]);
     }
 
@@ -133,7 +94,6 @@ class ForumController extends AbstractController
         $post->setContent($request->request->get('content'));
         $post->setUserId(1); // Hardcoded user_id
         $post->setCreatedAt(new \DateTime());
-        $post->setCategory($request->request->get('category'));
 
         // Handle image upload
         $imageFile = $request->files->get('image');
@@ -156,19 +116,6 @@ class ForumController extends AbstractController
 
         $entityManager->persist($post);
         $entityManager->flush();
-
-        // 4) Création du Poll si poll_options est fourni
-        $json = $request->request->get('poll_options');
-        if ($json) {
-            $options = json_decode($json, true);
-            // Valider qu’on a bien au moins 2 options
-            if (is_array($options) && count($options) >= 2) {
-                $poll = new Poll($post, $options);
-                $post->setPoll($poll);
-                $entityManager->persist($poll);
-                $entityManager->flush();
-            }
-        }
 
         return $this->redirectToRoute('app_forum');
     }
@@ -311,69 +258,12 @@ class ForumController extends AbstractController
     public function adminDashboard(
         PostRepository $postRepository,
         CommentRepository $commentRepository,
-        BadWordRepository $badWordRepository,
-        BadWordAttemptRepository $attemptRepository
+        BadWordRepository $badWordRepository
     ): Response {
         // Vérification des droits (à adapter selon votre système d'authentification)
         // if (!$this->isGranted('ROLE_ADMIN')) {
         //     throw $this->createAccessDeniedException();
         // }
-        // 1. posts par user_id
-        $qb1 = $postRepository->createQueryBuilder('p')
-        ->select('p.user_id AS user', 'COUNT(p.id) AS postCount')
-        ->groupBy('p.user_id')
-        ->getQuery()
-        ->getArrayResult();
-
-        // 2. comments par user_id
-        $qb2 = $commentRepository->createQueryBuilder('c')
-            ->select('c.user_id AS user', 'COUNT(c.id) AS commentCount')
-            ->groupBy('c.user_id')
-            ->getQuery()
-            ->getArrayResult();
-
-        // 3. fusion
-        $data = [];
-        foreach ($qb1 as $row) {
-            $data[$row['user']] = ['posts' => (int)$row['postCount'], 'comments' => 0];
-        }
-        foreach ($qb2 as $row) {
-            $u = $row['user'];
-            if (!isset($data[$u])) {
-                $data[$u] = ['posts' => 0, 'comments' => 0];
-            }
-            $data[$u]['comments'] = (int)$row['commentCount'];
-        }
-
-        // 4. préparer pour JS
-        $labels        = array_map(fn($u) => 'User '.$u, array_keys($data));
-        $postCounts    = array_column($data, 'posts');
-        $commentCounts = array_column($data, 'comments');
-        
-        // — now new: bad-word attempts stats —
-        // (3) tentatives par mot-interdit
-        $qb3 = $attemptRepository->createQueryBuilder('a')
-            ->select('bw.word AS label', 'COUNT(a.id) AS cnt')
-            ->join('a.badWord', 'bw')
-            ->groupBy('bw.id')
-            ->orderBy('cnt', 'DESC')
-            ->getQuery()
-            ->getArrayResult();
-        $bwLabels = array_column($qb3, 'label');
-        $bwData   = array_map(fn($r) => (int)$r['cnt'], $qb3);
-
-        // (4) tentatives par user_id
-        $qb4 = $attemptRepository->createQueryBuilder('a')
-            ->select('a.user_id AS user', 'COUNT(a.id) AS cnt')
-            ->groupBy('a.user_id')
-            ->orderBy('cnt', 'DESC')
-            ->getQuery()
-            ->getArrayResult();
-        // ce tableau servira pour le tableau Twig
-        $userAttempts = array_map(fn($r) => [
-            'user_id' => $r['user'],
-            'count'  => (int)$r['cnt'],
-        ], $qb4);
 
         return $this->render('forum/admin.html.twig', [
             'stats' => [
@@ -383,12 +273,6 @@ class ForumController extends AbstractController
             'badWords' => $badWordRepository->findAll(),
             'allPosts' => $postRepository->findAll(),
             'allComments' => $commentRepository->findAll(),
-            'chart_labels'     => $labels,
-            'chart_post_data'  => $postCounts,
-            'chart_comment_data' => $commentCounts,
-            'chart_bw_labels'     => $bwLabels,
-            'chart_bw_data'       => $bwData,
-            'user_attempts'       => $userAttempts,
         ]);
     }
 
@@ -437,102 +321,4 @@ class ForumController extends AbstractController
 
         return $this->redirectToRoute('app_admin_forum');
     }
-
-    // src/Controller/ForumController.php
-
-    #[Route("/forum/comment/like/{commentId}", name:"app_forum_comment_like", methods:['POST'])]
-    public function toggleCommentLike(int $commentId, EntityManagerInterface $em): JsonResponse
-    {
-        $userId = 1; // ou $this->getUser()->getId()
-
-        $repo = $em->getRepository(Like::class);
-        $existing = $repo->findOneBy([
-            'postId' => $commentId,   // on stocke l’ID du comment ici
-            'userId' => $userId,
-        ]);
-
-        if ($existing) {
-            $em->remove($existing);
-            $liked = false;
-        } else {
-            $like = new Like();
-            $like->setPostId($commentId);
-            $like->setUserId($userId);
-            $like->setLikedAt(new \DateTimeImmutable());
-            $em->persist($like);
-            $liked = true;
-        }
-        $em->flush();
-
-        $count = (int) $repo->createQueryBuilder('l')
-            ->select('COUNT(l.id)')
-            ->andWhere('l.postId = :cid')
-            ->setParameter('cid', $commentId)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return new JsonResponse([
-            'liked'     => $liked,
-            'likeCount' => $count,
-        ]);
-    }
-
-    #[Route('/forum/log-badword-attempt', name:'app_forum_log_badword', methods:['POST'])]
-    public function logBadWordAttempt(Request $request, EntityManagerInterface $em): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
-        $word = $data['word'] ?? null;
-        if (!$word) {
-            return new JsonResponse(['error'=>'no word'], 400);
-        }
-        // retrouve l’entité BadWord
-        $bw = $em->getRepository(BadWord::class)->findOneBy(['word'=>$word]);
-        if ($bw) {
-            $attempt = new BadWordAttempt();
-            $attempt->setBadWord($bw);
-            // si tu as ajouté userId sur BadWordAttempt, fais $attempt->setUserId($this->getUser()->getId());
-            $attempt->setUserId(3);
-            $attempt->setAttemptedAt(new \DateTimeImmutable());
-            $em->persist($attempt);
-            $em->flush();
-        }
-
-        return new JsonResponse(['logged'=>true]);
-    }
-
-    #[Route('/poll/{id}/vote', name: 'poll_vote', methods: ['POST'])]
-    public function vote(
-        Poll $poll,
-        Request $request,
-        EntityManagerInterface $em,
-        PollVoteRepository $voteRepo
-    ): JsonResponse {
-        // 1) Récupérer l’index de l’option depuis le JSON
-        $data = json_decode($request->getContent(), true);
-        $idx  = isset($data['optionIndex']) ? (int)$data['optionIndex'] : null;
-
-        // 2) Valider l’index
-        $options = $poll->getOptions();
-        if (!is_int($idx) || $idx < 0 || $idx >= count($options)) {
-            return $this->json(['error' => 'Invalid option index'], 400);
-        }
-
-        // 3) Empêcher le double‐vote (ici userId=1 hardcodé, adapte avec votre système d’auth)
-        //$userId = $this->getUser()?->getId() ?? 1;
-        $userId = 1;
-        if ($voteRepo->hasUserVoted($poll, $idx, $userId)) {
-            return $this->json(['error' => 'Already voted'], 409);
-        }
-
-        // 4) Créer et persister le vote
-        $vote = new PollVote($poll, $idx, $userId);
-        $em->persist($vote);
-        $em->flush();
-
-        // 5) Recalculer les totaux
-        $counts = $voteRepo->countVotesByOption($poll);
-
-        return $this->json(['counts' => $counts]);
-    }
-
 } 

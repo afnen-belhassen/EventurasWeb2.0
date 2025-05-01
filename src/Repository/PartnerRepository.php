@@ -38,25 +38,4 @@ class PartnerRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-
-    public function findAllSorted(string $sortBy = 'name', string $direction = 'asc'): array
-    {
-        $qb = $this->createQueryBuilder('p');
-
-        // Validate sort field
-        if (!in_array($sortBy, ['name', 'rating'])) {
-            $sortBy = 'name';
-        }
-
-        // Validate direction
-        $direction = strtolower($direction) === 'desc' ? 'DESC' : 'ASC';
-
-        // Join with partnerships to ensure they are loaded
-        $qb->leftJoin('p.partnerships', 'partnerships')
-           ->addSelect('partnerships');
-
-        $qb->orderBy('p.' . $sortBy, $direction);
-
-        return $qb->getQuery()->getResult();
-    }
 } 

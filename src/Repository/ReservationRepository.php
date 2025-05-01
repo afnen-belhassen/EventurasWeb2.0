@@ -40,14 +40,4 @@ class ReservationRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
-    public function findReservedSeatsForEvent(int $eventId): array
-{
-    return $this->createQueryBuilder('r')
-        ->join('r.ticket', 't')
-        ->where('r.event = :eventId')
-        ->setParameter('eventId', $eventId)
-        ->select('t.seat_number')
-        ->getQuery()
-        ->getSingleColumnResult();
-}
 }

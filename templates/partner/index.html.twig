@@ -81,74 +81,6 @@
     .btn-group .btn {
         margin: 0 5px;
     }
-    .rating {
-        color: #ffc107;
-        font-size: 1.2em;
-    }
-    .rating-count {
-        color: #6c757d;
-        font-size: 0.9em;
-        margin-left: 5px;
-    }
-    .star {
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    .star:hover,
-    .star.active {
-        color: #ffc107;
-    }
-    .star.inactive {
-        color: #ddd;
-    }
-    .rating-container {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .rating-value {
-        font-weight: bold;
-        color: #28a745;
-    }
-    /* Search bar styles */
-    .search-container {
-        position: relative;
-        margin: 0 20px;
-    }
-    .search-input {
-        width: 100%;
-        padding: 10px 15px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-        transition: all 0.3s;
-    }
-    .search-input:focus {
-        outline: none;
-        border-color: #00d2ff;
-        box-shadow: 0 0 0 2px rgba(0,210,255,0.1);
-    }
-    .search-icon {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6c757d;
-    }
-    /* Fixed navbar styles */
-    .navbar {
-        position: fixed;
-        top: 0;
-        right: 0;
-        left: 260px;
-        z-index: 1030;
-        padding: 0.5rem 1rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .content {
-        margin-top: 60px;
-        padding: 20px;
-    }
 </style>
 {% endblock %}
 
@@ -308,32 +240,18 @@
 
     <!-- Main Panel -->
     <div class="main-panel">
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Rechercher un partenaire...">
-                    <i class="fas fa-search search-icon"></i>
-                </div>
-                <div class="ml-auto d-flex align-items-center">
-                    <a href="{{ path('app_admin_statistics') }}" class="btn btn-primary">
-                        <i class="fas fa-chart-bar"></i> Statistiques
-                    </a>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Content -->
         <div class="content">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="card-title">Liste des Partenaires</h5>
-                                <a href="{{ path('app_partner_new') }}" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Ajouter un partenaire
-                                </a>
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="card-title">Liste des Partenaires</h4>
+                                    <a href="{{ path('app_partner_new') }}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Nouveau Partenaire
+                                    </a>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -341,9 +259,8 @@
                                         <thead>
                                             <tr>
                                                 <th>Nom</th>
-                                                <th>Email</th>
-                                                <th>Téléphone</th>
-                                                <th>Note</th>
+                                                <th>Image</th>
+                                                <th>Site Web</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
@@ -351,21 +268,19 @@
                                             {% for partner in partners %}
                                                 <tr>
                                                     <td>{{ partner.name }}</td>
-                                                    <td>{{ partner.email }}</td>
-                                                    <td>{{ partner.phone }}</td>
                                                     <td>
-                                                        <div class="rating-container">
-                                                            <span class="rating-value">{{ partner.rating|number_format(1) }}</span>
-                                                            <div class="rating">
-                                                                {% for i in 1..5 %}
-                                                                    {% if i <= partner.rating %}
-                                                                        <i class="fas fa-star star active"></i>
-                                                                    {% else %}
-                                                                        <i class="fas fa-star star inactive"></i>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            </div>
-                                                        </div>
+                                                        {% if partner.imagePath %}
+                                                            <img src="{{ asset('uploads/partners/' ~ partner.imagePath) }}" alt="{{ partner.name }}" style="max-width: 50px;">
+                                                        {% else %}
+                                                            <span class="text-muted">Aucune image</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if partner.website %}
+                                                            <a href="{{ partner.website }}" target="_blank">{{ partner.website }}</a>
+                                                        {% else %}
+                                                            <span class="text-muted">Non spécifié</span>
+                                                        {% endif %}
                                                     </td>
                                                     <td>
                                                         <div class="btn-group">
@@ -375,9 +290,9 @@
                                                             <a href="{{ path('app_partner_edit', {'id': partner.id}) }}" class="btn btn-warning btn-sm">
                                                                 <i class="fas fa-edit"></i>
                                                             </a>
-                                                            <form method="post" action="{{ path('app_partner_delete', {'id': partner.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce partenaire ?');" style="display: inline;">
+                                                            <form method="post" action="{{ path('app_partner_delete', {'id': partner.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce partenaire ?');" style="display: inline-block;">
                                                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ partner.id) }}">
-                                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                                <button class="btn btn-danger btn-sm">
                                                                     <i class="fas fa-trash"></i>
                                                                 </button>
                                                             </form>
@@ -386,7 +301,7 @@
                                                 </tr>
                                             {% else %}
                                                 <tr>
-                                                    <td colspan="5" class="text-center">Aucun partenaire trouvé</td>
+                                                    <td colspan="4" class="text-center">Aucun partenaire trouvé</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
@@ -400,98 +315,23 @@
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing star rating...');
-    
-    // Handle star clicks
-    document.querySelectorAll('.star').forEach(star => {
-        console.log('Found star element:', star);
-        
-        star.addEventListener('click', function() {
-            console.log('Star clicked!');
-            const container = this.closest('.rating-container');
-            const partnerId = container.dataset.partnerId;
-            const rating = this.dataset.rating;
-            
-            console.log('Rating data:', {
-                partnerId: partnerId,
-                rating: rating
-            });
-            
-            // Send rating to server
-            fetch(`/organizer/partner/${partnerId}/rate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `rating=${rating}`
-            })
-            .then(response => {
-                console.log('Server response:', response);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Server data:', data);
-                if (data.success) {
-                    // Update all stars in this container
-                    const stars = container.querySelectorAll('.star');
-                    stars.forEach((s, index) => {
-                        if (index + 1 <= data.newRating) {
-                            s.classList.add('active');
-                            s.classList.remove('inactive');
-                        } else {
-                            s.classList.remove('active');
-                            s.classList.add('inactive');
-                        }
-                    });
-                    
-                    // Update rating count
-                    const ratingCount = container.querySelector('.rating-count');
-                    ratingCount.textContent = `(${data.newCount})`;
-                    
-                    console.log('Stars updated successfully');
-                } else {
-                    console.error('Error:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-    });
-});
-</script>
+{% endblock %}
 
 {% block javascripts %}
-{{ parent() }}
-<script>
-    // Toggle sidebar
-    const toggleSidebar = document.querySelector('.toggle-sidebar');
-    const sidebar = document.querySelector('.sidebar');
-    const mainPanel = document.querySelector('.main-panel');
-    
-    if (toggleSidebar) {
-        toggleSidebar.addEventListener('click', function() {
-            sidebar.classList.toggle('active');
-            mainPanel.classList.toggle('active');
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar
+            const toggleSidebar = document.querySelector('.toggle-sidebar');
+            const sidebar = document.querySelector('.sidebar');
+            const mainPanel = document.querySelector('.main-panel');
+            
+            if (toggleSidebar) {
+                toggleSidebar.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    mainPanel.classList.toggle('active');
+                });
+            }
         });
-    }
-
-    // Search functionality
-    document.querySelector('.search-input').addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('tbody tr');
-        
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchTerm) ? '' : 'none';
-        });
-    });
-</script>
-{% endblock %}
+    </script>
 {% endblock %} 

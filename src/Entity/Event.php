@@ -17,11 +17,7 @@ class Event
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id_event = null;
-    public function __construct()
-    {
-        $this->ratings = new ArrayCollection();
-    }
-    
+
     public function getId_event(): ?int
     {
         return $this->id_event;
@@ -66,22 +62,20 @@ class Event
     }
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Assert\GreaterThanOrEqual("today", message: "On adore les événements… mais pas encore ceux du passé !")]
     #[Assert\NotBlank(message: 'Vous devez fournir une date😊')]
+    #[Assert\GreaterThanOrEqual("today", message: "On adore les événements… mais pas encore ceux du futur ! ")]
+    private ?\DateTimeInterface $date_event = null;
     
-private ?\DateTimeInterface $date_event = null;
+    public function getDate_event(): ?\DateTimeInterface
+    {
+        return $this->date_event;
+    }
 
-public function getDate_event(): ?\DateTimeInterface
-{
-    return $this->date_event;
-}
-
-public function setDate_event(?\DateTimeInterface $date_event): self
-{
-    $this->date_event = $date_event;
-    return $this;
-}
-
+    public function setDate_event(?\DateTimeInterface $date_event): self
+    {
+        $this->date_event = $date_event;
+        return $this;
+    }
 
     #[ORM\Column(type: 'string', nullable: false)]
     #[Assert\NotBlank(message: 'Ajoute un lieu pour qu’on puisse te rejoindre ')]
@@ -185,7 +179,7 @@ public function setDate_event(?\DateTimeInterface $date_event): self
 
     #[ORM\Column(type: 'decimal', nullable: false)]
     #[Assert\NotNull(message: 'Vous devez fournir le prix')]
-    #[Assert\GreaterThanOrEqual(value: 0,message: 'Oups ! Le prix doit être positif ')]
+    #[Assert\GreaterThan(value: 0, message: 'Oups ! Le prix doit être positif ou gratuit ')]
     private ?float $prix = null;
 
     public function getPrix(): ?float
@@ -268,42 +262,18 @@ public function setDate_event(?\DateTimeInterface $date_event): self
 
         return $this;
     }
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Assert\NotBlank(message: 'La date de fin de l\'événement est requise.')]
-    #[Assert\GreaterThanOrEqual(propertyPath: "date_event", message: 'La date de fin de l\'événement doit être après la date de début.')]
+      #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date_fin_eve = null;
+    public function getDateFinEve(): ?\DateTimeInterface
+    {
+        return $this->date_fin_eve;
+    }
 
-        public function getDateFinEve(): ?\DateTimeInterface
-        {
-            return $this->date_fin_eve;
-        }
+    public function setDateFinEve(?\DateTimeInterface $date_fin_eve): static
+    {
+        $this->date_fin_eve = $date_fin_eve;
 
-        public function setDateFinEve(?\DateTimeInterface $date_fin_eve): static
-        {
-            $this->date_fin_eve = $date_fin_eve;
-
-            return $this;
-        }
-        #[ORM\OneToMany(targetEntity: Rating::class, mappedBy: 'event')]
-        private Collection $ratings;
-        public function getRatings(): Collection
-        {
-        return $this->ratings;
-        }
-        public function getAverageRating(): float
-        {
-            $ratings = $this->ratings; // Assuming you have a relation with Rating
-            if (count($ratings) === 0) {
-                return 0;
-            }
-
-            $sum = 0;
-            foreach ($ratings as $rating) {
-                $sum += $rating->getValue();
-            }
-
-            return $sum / count($ratings); // Return the average rating
-        }
-
+        return $this;
+    }
 
 }

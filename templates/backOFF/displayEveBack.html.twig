@@ -135,12 +135,12 @@
             <div class="collapse" id="base">
               <ul class="nav nav-collapse">
                 <li>
-                  <a href="components/avatars.html">
+                  <a href="{{ path('app_users_index') }}">
                     <span class="sub-item">Utilisateurs</span>
                   </a>
                 </li>
                 <li>
-                  <a href="components/avatars.html">
+                  <a href="{{ path('app_role_index') }}">
                     <span class="sub-item">Roles</span>
                   </a>
                 </li>
@@ -161,7 +161,7 @@
                   </a>
                 </li>
                 <li class="active">
-                 <a href="{{ path('app_show_all_catsBack') }}">
+                  <a href="sidebar-style-2.html">
                     <span class="sub-item">Catégories</span>
                   </a>
                 </li>
@@ -597,7 +597,6 @@
     <div class="container">
       <div class="page-inner">
         <h1>Liste des Événements</h1>
-        <a href="{{ path('app_eventback') }}" class="btn btn-primary">Créer un événement</a>
         <table class="table event-list">
           <thead>
             <tr>
@@ -627,11 +626,10 @@
                 <td>{{ event.status }}</td>
                 <td>
                   <div class="button-group">
-              <a href="{{ path('app_event_edit_back', {'id': event.id_event}) }}" class="btn btn-warning">
-  Modifier
-</a>
-
-                    <form action="{{ path('app_evedelBACK', { id: event.id_event }) }}" method="post" style="display:inline;">
+                  <button type="button" class="btn btn-warning" data-action="event-modal#open" data-event-id="{{ event.id_event }}">
+                      Modifier
+                    </button>
+                    <form action="{{ path('app_event_delete', { id: event.id_event }) }}" method="post" style="display:inline;">
                       <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">Supprimer</button>
                     </form>
                     <form action="{{ path('app_change_status', { id: event.id_event }) }}" method="post" style="display:inline;">
@@ -714,3 +712,34 @@
 {% endblock %}
 
 
+{% block js %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Direct button binding instead of delegation
+  document.querySelectorAll('.btn-warning[data-event-id]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const modal = document.getElementById('editEventModal');
+      modal.classList.add('show');
+      
+      // Just for testing - remove after confirmation
+      console.log('Modal should be visible now');
+      document.getElementById('title').value = 'Test Title';
+    });
+  });
+
+  // Close modal handlers
+  document.querySelector('.close').addEventListener('click', function() {
+    document.getElementById('editEventModal').classList.remove('show');
+  });
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('editEventModal');
+    if (event.target === modal) {
+      modal.classList.remove('show');
+    }
+  };
+});
+</script>
+
+{% endblock %}

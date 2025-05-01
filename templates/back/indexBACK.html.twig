@@ -14,7 +14,9 @@
     />
 
     <!-- Fonts and icons -->
-   
+   <script src="{{ asset('js/core/jquery-3.7.1.min.js') }}"></script> <!-- Assurez-vous que jQuery est chargé -->
+<script src="{{ asset('js/core/bootstrap.bundle.min.js') }}"></script> <!-- Bootstrap JavaScript -->
+
     <script src="{{asset('js/plugin/webfont/webfont.min.js')}}"></script>
     <script>
       WebFont.load({
@@ -113,12 +115,12 @@
                 <div class="collapse" id="base">
                   <ul class="nav nav-collapse">
                   <li>
-                      <a href="components/avatars.html">
+                      <a href="{{ path('app_users_index') }}">
                         <span class="sub-item">Utilisateurs</span>
                       </a>
                     </li>
                     <li>
-                      <a href="components/avatars.html">
+                      <a href="{{ path('app_role_index') }}">
                         <span class="sub-item">Roles</span>
                       </a>
                     </li>
@@ -139,7 +141,7 @@
                       </a>
                     </li>
                     <li class="active">
-                      <a href="{{ path('app_show_all_catsBack') }}">
+                      <a href="sidebar-style-2.html">
                         <span class="sub-item">Catégories</span>
                       </a>
                     </li>

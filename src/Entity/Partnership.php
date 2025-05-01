@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\PartnershipRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PartnershipRepository::class)]
 #[ORM\Table(name: 'partnership')]
@@ -26,10 +25,6 @@ class Partnership
     private ?string $contracttype = null;
 
     #[ORM\Column(type: 'text')]
-    #[Assert\Length(
-        max: 200,
-        maxMessage: 'La description ne doit pas dépasser {{ limit }} caractères'
-    )]
     private ?string $description = null;
 
     #[ORM\Column]

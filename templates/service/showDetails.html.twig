@@ -6,17 +6,22 @@
     {{ parent() }}
     <style>
         body {
-            background-color: #0d064ffd;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
             animation: backgroundAnimation 10s infinite alternate;
         }
 
+        @keyframes backgroundAnimation {
+            0% { background-color: #f0f0f0; }
+            100% { background-color: #e0e0e0; }
+        }
+
         .navbar {
-            background-color:rgba(255, 255, 255, 0.99);
+            background-color: #007bff;
             color: white;
         }
 
         .navbar a {
-            color:rgba(255, 255, 255, 0.99);
+            color: white;
         }
 
         .event-card {
@@ -52,111 +57,50 @@
 
         .event-details p {
             margin: 5px 0;
-            font-color: #0d064ffd !important;
-        }
-       .navbar-brand {
-            color: #0d064ffd !important; /* Using !important to override any other styles */
-            font-weight: bold;
-            font-size: 24px;
-            text-decoration: none !important; /* Remove underline */
-        }
-        
-        .navbar-brand:hover,
-        .navbar-brand:focus,
-        .navbar-brand:active {
-            color: #0d064ffd !important; /* Same color on all states */
-            text-decoration: none !important;
         }
     </style>
 {% endblock %}
 
 {% block body %}
-    <nav class="navbar navbar-expand-lg">
-        <div class="container ">
-            <a class="navbar-brand" href="{{ path('app_home') }}">
-                Eventura
-            </a>
-
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_home') }}">Event Manager</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_4">Contact</a>
+                        <a class="nav-link" href="{{ path('app_event_new') }}">Create Event</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Profile</a>
                     </li>
                 </ul>
-
-                <div class="d-flex gap-2">
-                    <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
-                        <i class="bi bi-plus-circle me-2"></i>Créer Événement
-                    </a>
-                    <a href="{{ path('app_show_all_events') }}"class="btn custom-btn d-lg-block d-none">Vos événements</a>
-                   {{ include('service/sidebar.html.twig') }}
-                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-5  d-flex justify-content-center">
-<div class="event-card">
-    <h2 style="text-align: center;">Votre événement est en cours de traitement</h2>
-    <div class="event-details" style="text-align: center;">
-        <div class="event-meta" style="margin-bottom: 20px; display: inline-block; text-align: center;">
-            <h3 style="font-size: 1.4rem; margin-bottom: 10px; text-align: center;">{{ event.title }}</h3>
-            <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; color: #555;">
-                <span style="font-weight: 500;">{{ event.location }}</span>
-                <span>•</span>
-                <span>
-                    {% if event.date_event and event.dateFinEve %}
-                        {{ event.date_event.diff(event.dateFinEve).h }} heures
-                    {% else %}
-                        Durée non spécifiée
-                    {% endif %}
-                </span>
-                <span>•</span>
-                <span>{{ event.date_event ? event.date_event|date('d M Y') : 'Date non spécifiée' }}</span>
-                <span>•</span>
-                <span>{{ event.date_event ? event.date_event|date('H:i') : '' }}</span>
+    <div class="container mt-5">
+        <div class="event-card">
+            <h2>Votre événement est en cours de traitement</h2>
+            <div class="event-details">
+                <h3>{{ event.title }}</h3>
+                <p><strong>Description:</strong> {{ event.description }}</p>
+                <p><strong>Date:</strong> {{ event.date_event|date('Y-m-d') }}</p>
+                <p><strong>Location:</strong> {{ event.location }}</p>
+                <p><strong>Category:</strong> {{ event.category.name }}</p>
+                <p><strong>Image:</strong></p>
+                {% if event.image %}
+                    <img src="{{ asset('assets/ImagesEvents/' ~ event.image) }}" alt="{{ event.title }}" class="img-fluid">
+                {% else %}
+                    <p>No image available.</p>
+                {% endif %}
+                <p><strong>Activities:</strong> {{ event.activities }}</p>
+                <p><strong>Price:</strong> {{ event.prix }}</p>
+                <p><strong>Number of Places:</strong> {{ event.nb_places }}</p>
             </div>
         </div>
-
-        <p style="margin-bottom: 15px; text-align: center; max-width: 80%; margin-left: auto; margin-right: auto;">
-            {{ event.description }}
-        </p>
-        
-        {% if event.image %}
-            <div class="event-image" style="margin: 20px auto; display: flex; justify-content: center;">
-                <img src="{{ asset('ImagesEvents/' ~ event.image) }}" 
-                     alt="{{ event.title }}" 
-                     class="img-fluid rounded"
-                     style="max-width: 100%; max-height: 300px;">
-            </div>
-        {% endif %}
-        
-        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
-            <div>
-                
-                <span>{{ event.category.name }}</span>
-            </div>
-            <div>
-               
-                <span>
-                    {% if event.prix > 0 %}
-                        {{ event.prix }} TND
-                    {% else %}
-                        Gratuit
-                    {% endif %}
-                </span>
-            </div>
-            <div>
-               
-                <span>{{ event.nb_places }} participants</span>
-            </div>
-        </div>
-    </div>
-</div>
-        <img src="{{ asset('images/cartoon-man.png') }}" alt="Floating Cartoon Man" class="floating-man">
+        <img src="{{ asset('images\cartoon-man.png') }}" alt="Floating Cartoon Man" class="floating-man"> {# Replace with the actual path to your cartoon image #}
     </div>
 {% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'base_front.html.twig' %}
+ 
+
+{% block body %}
+   
+    <main>
+        <div class="container py-5">
+        <div class="registration-container bg-white p-5 rounded shadow-sm" style="background-color: #f0f8ff;"> <!-- Bleu clair -->
+                <h1>Inscription</h1>
+
+                {{ form_start(registrationForm, {'attr': {'class': 'form', 'novalidate': 'novalidate'}}) }}
+                {{ form_errors(registrationForm) }}
+
+                <div class="form-row">
+                    {{ form_row(registrationForm.userUsername, {
+                        'label': 'Nom d\'utilisateur',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="form-row">
+                    {{ form_row(registrationForm.userEmail, {
+                        'label': 'Email',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="form-row">
+                    {{ form_row(registrationForm.userPassword, {
+                        'label': 'Mot de passe',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="form-row">
+                    {{ form_row(registrationForm.userFirstname, {
+                        'label': 'Prénom',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="form-row">
+                    {{ form_row(registrationForm.userLastname, {
+                        'label': 'Nom',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="form-row">
+                    {{ form_row(registrationForm.userBirthday, {
+                        'label': 'Date de naissance',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="form-row">
+                    {{ form_row(registrationForm.userGender, {
+                        'label': 'Sexe',
+                        'attr': {'class': 'form-select'}
+                    }) }}
+                </div>
+
+                <div class="form-row">
+                    {{ form_row(registrationForm.userPicture, {
+                        'label': 'Photo de profil',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="form-row">
+                    {{ form_row(registrationForm.userPhonenumber, {
+                        'label': 'Numéro de téléphone',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="form-row">
+                    {{ form_row(registrationForm.userLevel, {
+                        'label': 'Niveau',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+                <div class="form-row">
+                    {{ form_row(registrationForm.role, {
+                        'label': 'Role',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="form-row">
+                    <button type="submit" class="btn btn-primary">S'inscrire</button>
+                </div>
+                <div class="form-row text-center mt-3">
+                    <span>Déjà un compte ? </span>
+                    <a href="{{ path('app_login') }}" class="text-decoration-none">Connectez-vous</a>
+                </div>
+
+                {{ form_end(registrationForm) }}
+            </div>
+        </div>
+    </main>
+{% endblock %}

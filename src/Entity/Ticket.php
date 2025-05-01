@@ -42,15 +42,15 @@ class Ticket
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: false)]
-    private ?int $seat_number = null;
+    #[ORM\Column(type: 'string', nullable: false)]
+    private ?string $seat_number = null;
 
-    public function getSeat_number(): ?int
+    public function getSeat_number(): ?string
     {
         return $this->seat_number;
     }
 
-    public function setSeat_number(int $seat_number): self
+    public function setSeat_number(string $seat_number): self
     {
         $this->seat_number = $seat_number;
         return $this;

@@ -74,6 +74,7 @@
                     <!-- Add any additional navbar items here -->
                 </ul>
                 <div class="d-flex gap-2">
+                    
                      {{ include('service/sidebarPart.html.twig') }}
                 </div>
             </div>
@@ -252,19 +253,4 @@
             </div>
         </section>
     </main>
-    <section class="events-slider section-padding">
-        <div class="container">
-            <h2 class="text-center mb-4">Last 3 Accepted Events</h2>
-            <div class="slider">
-                {% for event in events %}
-                    <div class="slider-item">
-                        <img src="{{ asset('images/' ~ event.image) }}" alt="{{ event.title }}" class="img-fluid">
-                        <h3>{{ event.title }}</h3>
-                        <p>{{ event.description }}</p>
-                        <p>Date: {{ event.creation_date|date('Y-m-d') }}</p>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </section>
 {% endblock %}
