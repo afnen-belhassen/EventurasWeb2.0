@@ -347,21 +347,12 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
       <div class="sidebar-content">
         <ul class="nav nav-secondary">
-          <li class="nav-item active">
-            <a data-bs-toggle="collapse" href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
+           <li class="nav-item active">
+            <a  href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
               <i class="fas fa-home"></i>
-              <p>Dashboard</p>
-              <span class="caret"></span>
+              <p>Tableau de bord</p>
+              
             </a>
-            <div class="collapse" id="dashboard">
-              <ul class="nav nav-collapse">
-                <li>
-                  <a href="../demo1/index.html">
-                    <span class="sub-item">Dashboard 1</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
           </li>
           <li class="nav-section">
             <span class="sidebar-mini-icon">
@@ -404,7 +395,7 @@
                   </a>
                 </li>
                 <li class="active">
-                 <a href="{{ path('app_show_all_eventsBack') }}">
+                 <a href="{{ path('app_show_all_catsBack') }}">
                     <span class="sub-item">Catégories</span>
                   </a>
                 </li>
@@ -420,12 +411,12 @@
                 <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="forms/forms.html">
+                      <a href="{{ path('app_partner_index') }}">
                         <span class="sub-item">Partenaires</span>
                       </a>
                     </li>
                     <li>
-                      <a href="forms/forms.html">
+                      <a href="{{ path('app_partnership_index') }}">
                         <span class="sub-item">Partenariats</span>
                       </a>
                     </li>
@@ -1049,7 +1040,7 @@
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function openCategoryPopup() {
     document.getElementById('categoryPopup').classList.add('open');
@@ -1115,4 +1106,3 @@ function renderCharts() {
 }
 </script>
 {% endblock %}
-

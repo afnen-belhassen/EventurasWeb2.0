@@ -78,27 +78,13 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-              <li class="nav-item active">
-                <a
-                  data-bs-toggle="collapse"
-                  href="#dashboard"
-                  class="collapsed"
-                  aria-expanded="false"
-                >
-                  <i class="fas fa-home"></i>
-                  <p>Dashboard</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="dashboard">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="../demo1/index.html">
-                        <span class="sub-item">Dashboard 1</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
+               <li class="nav-item active">
+            <a  href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
+              <i class="fas fa-home"></i>
+              <p>Dashboard</p>
+              
+            </a>
+          </li>
               <li class="nav-section">
                 <span class="sidebar-mini-icon">
                   <i class="fa fa-ellipsis-h"></i>
@@ -218,27 +204,7 @@
               </li>
 
 
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#charts">
-                  <i class="far fa-chart-bar"></i>
-                  <p>Charts</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="charts">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="charts/charts.html">
-                        <span class="sub-item">Chart Js</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="charts/sparkline.html">
-                        <span class="sub-item">Sparkline</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
+          
             </ul>
           </div>
         </div>

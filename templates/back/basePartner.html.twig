@@ -103,58 +103,89 @@
     <div class="wrapper">
       <!-- Sidebar -->
       <div class="sidebar" data-background-color="dark">
-        <div class="sidebar-logo">
-          <!-- Logo Header -->
-          <div class="logo-header" data-background-color="dark">
-            <a href="{{ path('app_home') }}" class="logo">
-              <span class="navbar-brand text-white">Eventuras</span>
-            </a>
-            <div class="nav-toggle">
-              <button class="btn btn-toggle toggle-sidebar">
-                <i class="fas fa-bars"></i>
-              </button>
-              <button class="btn btn-toggle sidenav-toggler">
-                <i class="fas fa-bars"></i>
-              </button>
-            </div>
-            <button class="topbar-toggler more">
-              <i class="fas fa-ellipsis-v"></i>
-            </button>
-          </div>
-          <!-- End Logo Header -->
+    <div class="sidebar-logo">
+      <div class="logo-header" data-background-color="dark">
+        <a href="index.html" class="logo">
+          <img src="{{ asset('images/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+        </a>
+        <div class="nav-toggle">
+          <button class="btn btn-toggle toggle-sidebar">
+            <i class="gg-menu-right"></i>
+          </button>
+          <button class="btn btn-toggle sidenav-toggler">
+            <i class="gg-menu-left"></i>
+          </button>
         </div>
-        <div class="sidebar-wrapper scrollbar scrollbar-inner">
-          <div class="sidebar-content">
-            <ul class="nav nav-secondary">
-              <li class="nav-item active">
-                <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
-                  <i class="fas fa-home"></i>
-                  <p>Dashboard</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="dashboard">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="{{ path('app_home_back') }}">
-                        <span class="sub-item">Dashboard</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-section">
-                <span class="sidebar-mini-icon">
-                  <i class="fa fa-ellipsis-h"></i>
-                </span>
-                <h4 class="text-section">Components</h4>
-              </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#relations-externes">
-                  <i class="fas fa-globe"></i>
+        <button class="topbar-toggler more">
+          <i class="gg-more-vertical-alt"></i>
+        </button>
+      </div>
+    </div>
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+      <div class="sidebar-content">
+        <ul class="nav nav-secondary">
+           <li class="nav-item active">
+            <a  href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
+              <i class="fas fa-home"></i>
+              <p>Tableau de bord</p>
+              
+            </a>
+          </li>
+          <li class="nav-section">
+            <span class="sidebar-mini-icon">
+              <i class="fa fa-ellipsis-h"></i>
+            </span>
+            <h4 class="text-section">Components</h4>
+          </li>
+          <li class="nav-item">
+            <a data-bs-toggle="collapse" href="#base">
+              <i class="fas fa-layer-group"></i>
+              <p>Administration des comptes</p>
+              <span class="caret"></span>
+            </a>
+            <div class="collapse" id="base">
+              <ul class="nav nav-collapse">
+                <li>
+                  <a href="components/avatars.html">
+                    <span class="sub-item">Utilisateurs</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="components/avatars.html">
+                    <span class="sub-item">Roles</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item active submenu">
+            <a data-bs-toggle="collapse" href="#sidebarLayouts">
+              <i class="fas fa-th-list"></i>
+              <p>Centre événementiel</p>
+              <span class="caret"></span>
+            </a>
+            <div class="collapse show" id="sidebarLayouts">
+              <ul class="nav nav-collapse">
+                <li class="active">
+                  <a href="{{ path('app_show_all_eventsBack') }}">
+                    <span class="sub-item">Événements</span>
+                  </a>
+                </li>
+                <li class="active">
+                 <a href="{{ path('app_show_all_eventsBack') }}">
+                    <span class="sub-item">Catégories</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+         <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#forms">
+                  <i class="fas fa-pen-square"></i>
                   <p>Relations externes</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="relations-externes">
+                <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="{{ path('app_partner_index') }}">
@@ -170,52 +201,53 @@
                 </div>
               </li>
               <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#base">
-                  <i class="fas fa-layer-group"></i>
-                  <p>Administration des comptes</p>
+                <a data-bs-toggle="collapse" href="#tables">
+                  <i class="fas fa-table"></i>
+                  <p>Boutique</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="base">
+                <div class="collapse" id="tables">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="{{ path('app_partner_index') }}">
-                        <span class="sub-item">Utilisateurs</span>
+                      <a href="tables/tables.html">
+                        <span class="sub-item">Produits</span>
                       </a>
                     </li>
                     <li>
-                      <a href="{{ path('app_partner_index') }}">
-                        <span class="sub-item">Roles</span>
+                      <a href="tables/tables.html">
+                        <span class="sub-item">Commandes</span>
                       </a>
                     </li>
                   </ul>
                 </div>
               </li>
-              <li class="nav-item active submenu">
-                <a data-bs-toggle="collapse" href="#sidebarLayouts">
-                  <i class="fas fa-th-list"></i>
-                  <p>Centre événementiel</p>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#maps">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <p>Espace communautaire</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse show" id="sidebarLayouts">
+                <div class="collapse" id="maps">
                   <ul class="nav nav-collapse">
-                    <li class="active">
-                      <a href="{{ path('app_show_all_eventsBack') }}">
-                        <span class="sub-item">Événements</span>
-                      </a>
-                    </li>
-                    <li class="active">
-                      <a href="{{ path('app_show_all_catsBack') }}">
-                        <span class="sub-item">Catégories</span>
+                    <li>
+                      <a href="admin/forum">
+                        <span class="sub-item">Publications</span>
                       </a>
                     </li>
                   </ul>
                 </div>
               </li>
-              <!-- Add other menu items as needed -->
-            </ul>
-          </div>
-        </div>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#maps">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <p>Réclamations</p>
+                  <span class="caret"></span>
+                </a>
+              </li>
+        </ul>
       </div>
+    </div>
+  </div>
       <!-- End Sidebar -->
 
       <div class="main-panel">
