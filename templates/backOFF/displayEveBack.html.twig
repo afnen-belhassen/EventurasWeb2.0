@@ -313,7 +313,10 @@
         color: rgb(0, 255, 170) !important;
         }
   
-  
+  .dropdown-menu {
+    z-index: 1000;
+}
+.mt-16 { margin-top: 14rem !important; }
   
     
 </style>
@@ -401,7 +404,7 @@
                   </a>
                 </li>
                 <li class="active">
-                 <a href="{{ path('app_show_all_catsBack') }}">
+                 <a href="{{ path('app_show_all_eventsBack') }}">
                     <span class="sub-item">Catégories</span>
                   </a>
                 </li>
@@ -483,21 +486,15 @@
     <div class="main-header">
       <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
             <div class="container-fluid">
-              <nav
-                class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex"
-              >
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <button type="submit" class="btn btn-search pe-1">
-                      <i class="fa fa-search search-icon"></i>
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search ..."
-                    class="form-control"
-                  />
-                </div>
+              <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+                <form method="get" action="{{ path('app_show_all_eventsBack') }}" class="w-100">
+                    <div class="input-group">
+                        <input type="text" name="search" placeholder="Rechercher des événements..." class="form-control" value="{{ app.request.query.get('search') }}">
+                        <button type="submit" class="btn btn-search pe-1">
+                        <i class="fa fa-search search-icon"></i>
+                        </button>
+                    </div>
+                </form>
               </nav>
 
               <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
@@ -515,13 +512,18 @@
                     <i class="fa fa-search"></i>
                   </a>
                   <ul class="dropdown-menu dropdown-search animated fadeIn">
-                    <form class="navbar-left navbar-form nav-search">
+                    <form method="get" action="{{ path('app_show_all_eventsBack') }}" class="navbar-left navbar-form nav-search">
                       <div class="input-group">
                         <input
                           type="text"
-                          placeholder="Search ..."
+                          name="search"
+                          placeholder="Rechercher des événements..."
                           class="form-control"
-                        />
+                          value="{{ app.request.query.get('search') }}"
+                        >
+                        <button type="submit" class="btn btn-search">
+                          <i class="fa fa-search"></i>
+                        </button>
                       </div>
                     </form>
                   </ul>
@@ -834,23 +836,105 @@
       
     </div>
     
-    <div class="container">
-      <div class="page-inner">
+    <div class="container rm -6">
+      <div class="d-flex flex-wrap gap-3 mb-4">
         <h1>Liste des Événements</h1>
-        <a href="{{ path('app_eventback') }}" class="btn btn-primary">Créer un événement</a>
-        <button class="create-button" onclick="openCategoryPopup()">
-        <i class="fa-solid fa-plus"></i> Réclamation
+        <a href="{{ path('app_eventback') }}" class="btn btn-primary">
+          Créer un événement
+        </a>
+        <button class="btn btn-primary" onclick="openCategoryPopup()">
+            Statistiques
+            <i class="fa-solid fa-chart-simple ms-2 small"></i>
+          </button>
+        <div class="dropdown">
+         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          Trier par
         </button>
-        <div id="categoryPopup" class="category-popup">
-    <div class="category-popup-content p-4 rounded shadow bg-white">
-      <!-- Close Button -->
-      <button type="button" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Close" onclick="closeCategoryPopup()"></button>
-  
-      <h5 class="mb-4 text-center">selem ena popup</h5>
-  
-      
+        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+          <li><a class="dropdown-item" href="{{ path('app_show_all_eventsBack', {'sort': 'price_asc'}) }}">Prix croissant</a></li>
+          <li><a class="dropdown-item" href="{{ path('app_show_all_eventsBack', {'sort': 'price_desc'}) }}">Prix décroissant</a></li>
+          <li><a class="dropdown-item" href="{{ path('app_show_all_eventsBack', {'sort': 'passed'}) }}">Événements passés</a></li>
+          <li><a class="dropdown-item" href="{{ path('app_show_all_eventsBack', {'sort': 'upcoming'}) }}">Événements à venir</a></li>
+        </ul>
+      </div>
     </div>
-  </div>
+        {# Statistics Popup #}
+                <div id="categoryPopup" class="category-popup">
+            <div class="category-popup-content p-4 rounded shadow bg-white">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" 
+                        aria-label="Close" onclick="closeCategoryPopup()"></button>
+                
+                <h5 class="mb-4 text-center">Statistiques des Événements</h5>
+                
+                {% if stats is defined %}
+                    <!-- Summary Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-primary text-white p-3 text-center">
+                                <h6>Total Événements</h6>
+                                <h3>{{ stats.totalEvents }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-success text-white p-3 text-center">
+                                <h6>Acceptés</h6>
+                                <h3>{{ stats.activeEvents }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-warning text-white p-3 text-center">
+                                <h6>En cours</h6>
+                                <h3>{{ stats.inactiveEvents }}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Chart -->
+                    {% if stats.labels is defined and stats.data is defined %}
+                        <div class="mb-4">
+                            <h6 class="text-center mb-3">Événements créés par date</h6>
+                            <canvas id="timelineChart" height="150"></canvas>
+                        </div>
+                    {% endif %}
+
+                    <!-- Additional Stats -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-info text-white p-3 text-center">
+                                <h6>Événements à venir</h6>
+                                <h3>{{ stats.upcomingEvents }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-secondary text-white p-3 text-center">
+                                <h6>Événements passés</h6>
+                                <h3>{{ stats.pastEvents }}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Chart -->
+                    {% if stats.eventsByCategory is defined %}
+                        <div class="mb-4">
+                            <h6 class="text-center mb-3">Répartition par catégorie</h6>
+                            <canvas id="categoryChart" height="150"></canvas>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning">
+                        Les statistiques ne sont pas disponibles.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% if searchQuery %}
+          <div class="alert alert-info mb-3">
+            Résultats de recherche pour : <strong>"{{ searchQuery }}"</strong>
+            <a href="{{ path('app_show_all_eventsBack') }}" class="float-end">
+              <i class="fas fa-times"></i> Effacer la recherche
+            </a>
+          </div>
+        {% endif %}
         <table class="table event-list">
           <thead>
             <tr>
@@ -964,14 +1048,71 @@
     <!-- End Custom template -->
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
 <script>
 function openCategoryPopup() {
-  document.getElementById('categoryPopup').classList.add('open');
+    document.getElementById('categoryPopup').classList.add('open');
+    
+    // Only render charts if stats exist
+    {% if stats is defined %}
+        renderCharts();
+    {% endif %}
 }
 function closeCategoryPopup() {
-  document.getElementById('categoryPopup').classList.remove('open');
+    document.getElementById('categoryPopup').classList.remove('open');
 }
+function renderCharts() {
+    // Timeline Chart
+    {% if stats.labels is defined and stats.data is defined %}
+    new Chart(
+        document.getElementById('timelineChart').getContext('2d'),
+        {
+            type: 'line',
+            data: {
+                labels: {{ stats.labels|json_encode|raw }},
+                datasets: [{
+                    label: 'Événements créés',
+                    data: {{ stats.data|json_encode|raw }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        }
+    );
+    {% endif %}
 
+    // Category Chart
+    {% if stats.eventsByCategory is defined %}
+    new Chart(
+        document.getElementById('categoryChart').getContext('2d'),
+        {
+            type: 'doughnut',
+            data: {
+                labels: {{ stats.eventsByCategory|map(c => c.category)|json_encode|raw }},
+                datasets: [{
+                    data: {{ stats.eventsByCategory|map(c => c.count)|json_encode|raw }},
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', 
+                        '#4BC0C0', '#9966FF', '#FF9F40'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'right' } }
+            }
+        }
+    );
+    {% endif %}
+}
 </script>
 {% endblock %}
 

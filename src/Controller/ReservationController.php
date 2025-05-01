@@ -322,5 +322,26 @@ class ReservationController extends AbstractController
             'payment_intent' => $paymentIntentId
         ]);
     }
-
+    #[Route('/reservations', name: 'app_reservations')]
+    public function user1Reservations(ReservationRepository $reservationRepo): Response
+    {
+    return $this->render('reservation/displayReservation.html.twig', [
+        'reservations' => $reservationRepo->findBy(['user_id' => 1]),
+        'user_id' => 1
+    ]);
+    }
+    #[Route('/reservation/{id}/cancel', name: 'app_reservation_cancel', methods: ['POST'])]
+    public function annuler(int $id, ReservationRepository $reservationRepository, EntityManagerInterface $entityManager): Response
+    {
+        $reservation = $reservationRepository->find($id);
+        if (!$reservation) {
+            return $this->json(['success' => false, 'message' => 'Réservation non trouvée'], 404);
+        }
+        if ($reservation->getStatus() === 'annulee') {
+            return $this->json(['success' => false, 'message' => 'Réservation déjà annulée'], 400);
+        }
+        $reservation->setStatus('annulee');
+        $entityManager->flush();
+        return $this->json(['success' => true, 'message' => 'Réservation annulée avec succès.']);
+    }
 }
