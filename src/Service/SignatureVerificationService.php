@@ -28,7 +28,9 @@ class SignatureVerificationService
             // Log the start of verification
             $this->logger->info('Starting contract verification', [
                 'filepath' => $filepath,
-                'partnershipId' => $partnershipId
+                'partnershipId' => $partnershipId,
+                'uploadDirectory' => $this->uploadDirectory,
+                'originalContractsDirectory' => $this->originalContractsDirectory
             ]);
 
             // Basic file validation
@@ -55,13 +57,24 @@ class SignatureVerificationService
 
             // Find the original contract
             $originalContractPattern = $this->originalContractsDirectory . '/contract_' . $partnershipId . '_*.pdf';
-            $this->logger->info('Looking for original contract', ['pattern' => $originalContractPattern]);
+            $this->logger->info('Looking for original contract', [
+                'pattern' => $originalContractPattern,
+                'directory' => $this->originalContractsDirectory
+            ]);
             
             $originalContracts = glob($originalContractPattern);
-            $this->logger->info('Found original contracts', ['count' => count($originalContracts), 'files' => $originalContracts]);
+            $this->logger->info('Found original contracts', [
+                'count' => count($originalContracts),
+                'files' => $originalContracts,
+                'pattern' => $originalContractPattern
+            ]);
             
             if (empty($originalContracts)) {
-                $this->logger->error('No original contract found', ['partnershipId' => $partnershipId]);
+                $this->logger->error('No original contract found', [
+                    'partnershipId' => $partnershipId,
+                    'pattern' => $originalContractPattern,
+                    'directory' => $this->originalContractsDirectory
+                ]);
                 throw new Exception('Original contract not found for partnership ID: ' . $partnershipId);
             }
 
@@ -72,20 +85,35 @@ class SignatureVerificationService
             $this->logger->info('Comparing file sizes', [
                 'originalSize' => $originalSize,
                 'uploadedSize' => $fileSize,
-                'originalFile' => $originalContract
+                'originalFile' => $originalContract,
+                'uploadedFile' => $filepath,
+                'sizeDifference' => $fileSize - $originalSize
             ]);
 
             // Compare sizes
             if ($fileSize > $originalSize) {
-                $this->logger->info('Verification successful - Uploaded contract is larger than original');
+                $this->logger->info('Verification successful - Uploaded contract is larger than original', [
+                    'originalSize' => $originalSize,
+                    'uploadedSize' => $fileSize,
+                    'difference' => $fileSize - $originalSize
+                ]);
                 return true;
             }
 
-            $this->logger->error('Verification failed - Uploaded contract is not larger than original', [
+            // Log detailed size information
+            $this->logger->error('Verification failed - Size comparison details', [
                 'originalSize' => $originalSize,
-                'uploadedSize' => $fileSize
+                'uploadedSize' => $fileSize,
+                'sizeDifference' => $fileSize - $originalSize,
+                'originalFile' => $originalContract,
+                'uploadedFile' => $filepath
             ]);
-            return false;
+
+            throw new Exception(sprintf(
+                'Contract verification failed. The uploaded file (%d bytes) must be larger than the original contract (%d bytes) to be considered signed.',
+                $fileSize,
+                $originalSize
+            ));
         } catch (Exception $e) {
             $this->logger->error('Verification error', [
                 'error' => $e->getMessage(),
