@@ -25,3 +25,7 @@
 
 # Ignore Node.js dependencies
 /node_modules/
+
+.env
+.env.local
+.env.*.local
