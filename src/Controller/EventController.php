@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\EventRepository;
-
+use App\Repository\ReservationRepository;
 final class EventController extends AbstractController
 {
     #[Route('/homeOrg', name: 'app_home')]
@@ -39,13 +39,16 @@ final class EventController extends AbstractController
         ]);
     }
     #[Route('/homeBACK', name: 'app_home_back')]
-    public function indexBack(EntityManagerInterface $entityManager): Response
+    public function indexBack(EntityManagerInterface $entityManager,ReservationRepository $reservationRepository): Response
     {
         $events = $entityManager->getRepository(Event::class)->findAll();
-
+        $reservations = $reservationRepository->findAll();
         return $this->render('back/indexBACK.html.twig', [
             'events' => $events,
+            'reservations' => $reservations
         ]);
+
+          
     }
   
     #[Route('/event/new', name: 'app_event_new')]
@@ -138,10 +141,60 @@ public function edit(Request $request, int $id, EntityManagerInterface $entityMa
     #[Route('/eventsBack', name: 'app_show_all_eventsBack')]
     public function showAllBack(EntityManagerInterface $entityManager, Request $request): Response
     {
-        $events = $entityManager->getRepository(Event::class)->findAll();
-
+        $eventRepository = $entityManager->getRepository(Event::class);
+        
+        // Get the sort parameter from the request
+        $sortCriteria = $request->query->get('sort', 'default');
+        
+        // Use the repository method to get sorted events
+        $events = $eventRepository->findByCriteria($sortCriteria);
+        //search
+        $searchQuery = $request->query->get('search');
+        $events = $searchQuery 
+            ? $eventRepository->searchByName($searchQuery)
+            : $eventRepository->findAll();
+    
+        // Rest of your statistics code remains the same
+        $eventsByDate = $eventRepository->createQueryBuilder('e')
+            ->select('SUBSTRING(e.creation_date, 1, 10) as date, COUNT(e.id_event) as count')
+            ->groupBy('date')
+            ->orderBy('date', 'ASC')
+            ->getQuery()
+            ->getResult();
+    
+        $eventsByCategory = $eventRepository->createQueryBuilder('e')
+            ->select('c.name as category, COUNT(e.id_event) as count')
+            ->join('e.category', 'c')
+            ->groupBy('c.id')
+            ->addGroupBy('c.name')
+            ->getQuery()
+            ->getResult();
+    
+        $stats = [
+            'totalEvents' => count($events),
+            'activeEvents' => $eventRepository->count(['status' => 'Accepté']),
+            'inactiveEvents' => $eventRepository->count(['status' => 'En cours de traitement']),
+            'upcomingEvents' => $eventRepository->createQueryBuilder('e')
+                ->select('COUNT(e.id_event)')
+                ->where('e.date_event > :now')
+                ->setParameter('now', new \DateTime())
+                ->getQuery()
+                ->getSingleScalarResult(),
+            'pastEvents' => $eventRepository->createQueryBuilder('e')
+                ->select('COUNT(e.id_event)')
+                ->where('e.date_fin_eve < :now')
+                ->setParameter('now', new \DateTime())
+                ->getQuery()
+                ->getSingleScalarResult(),
+            'labels' => array_column($eventsByDate, 'date'),
+            'data' => array_column($eventsByDate, 'count'),
+            'eventsByCategory' => $eventsByCategory
+        ];
+    
         return $this->render('backOFF/displayEveBack.html.twig', [
             'events' => $events,
+            'stats' => $stats,
+            'searchQuery' => $searchQuery
         ]);
     }
     #[Route('/event/change-status/{id}', name: 'app_change_status', methods: ['POST'])]
@@ -359,6 +412,7 @@ public function rateEvent(
         'averageRating' => $event->getAverageRating(),
         'ratingCount' => $event->getRatings()->count()
     ]);
-}      
+}
+
 
 }

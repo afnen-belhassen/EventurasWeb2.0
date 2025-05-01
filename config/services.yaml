@@ -7,11 +7,13 @@ parameters:
     images_events_directory: '%kernel.project_dir%/assets/ImagesEvents'
     attachments_directory:   '%kernel.project_dir%/assets/ImagesReclamations'
     partners_directory: '%kernel.project_dir%/public/uploads/partners'
+    signed_contracts_directory: '%kernel.project_dir%/public/uploads/organizer/signed_contracts'
     stripe_public_key: '%env(STRIPE_PUBLIC_KEY)%'
     stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
     twilio.account_sid: '%env(TWILIO_ACCOUNT_SID)%'
     twilio.auth_token: '%env(TWILIO_AUTH_TOKEN)%'
     twilio.phone_number: '%env(TWILIO_PHONE_NUMBER)%'
+    google_maps_api_key: '%env(GOOGLE_MAPS_API_KEY)%'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -52,3 +54,4 @@ services:
     App\Service\SignatureVerificationService:
         arguments:
             $uploadDirectory: '%kernel.project_dir%/public/uploads/organizer/signed_contracts'
+            $originalContractsDirectory: '%kernel.project_dir%/public/uploads/organizer/contracts'
