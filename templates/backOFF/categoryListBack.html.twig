@@ -102,73 +102,64 @@
       </div>
     </div>
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
-      <div class="sidebar-content">
-        <ul class="nav nav-secondary">
-          <li class="nav-item active">
-            <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+          <div class="sidebar-content">
+            <ul class="nav nav-secondary">
+               <li class="nav-item active">
+            <a  href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
               <i class="fas fa-home"></i>
-              <p>Dashboard</p>
-              <span class="caret"></span>
+              <p>Tableau de bord</p>
+              
             </a>
-            <div class="collapse" id="dashboard">
-              <ul class="nav nav-collapse">
-                <li>
-                  <a href="../demo1/index.html">
-                    <span class="sub-item">Dashboard 1</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
           </li>
-          <li class="nav-section">
-            <span class="sidebar-mini-icon">
-              <i class="fa fa-ellipsis-h"></i>
-            </span>
-            <h4 class="text-section">Components</h4>
-          </li>
-          <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#base">
-              <i class="fas fa-layer-group"></i>
-              <p>Administration des comptes</p>
-              <span class="caret"></span>
-            </a>
-            <div class="collapse" id="base">
-              <ul class="nav nav-collapse">
-                <li>
-                  <a href="components/avatars.html">
-                    <span class="sub-item">Utilisateurs</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="components/avatars.html">
-                    <span class="sub-item">Roles</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </li>
-          <li class="nav-item active submenu">
-            <a data-bs-toggle="collapse" href="#sidebarLayouts">
-              <i class="fas fa-th-list"></i>
-              <p>Centre événementiel</p>
-              <span class="caret"></span>
-            </a>
-            <div class="collapse show" id="sidebarLayouts">
-              <ul class="nav nav-collapse">
-                <li class="active">
-                  <a href="{{ path('app_show_all_eventsBack') }}">
-                    <span class="sub-item">Événements</span>
-                  </a>
-                </li>
-                <li class="active">
-                  <a href="{{ path('app_category_list') }}">
-                    <span class="sub-item">Catégories</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </li>
-         <li class="nav-item">
+              <li class="nav-section">
+                <span class="sidebar-mini-icon">
+                  <i class="fa fa-ellipsis-h"></i>
+                </span>
+                <h4 class="text-section">Components</h4>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#base">
+                  <i class="fas fa-layer-group"></i>
+                  <p>Administration des comptes</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="base">
+                  <ul class="nav nav-collapse">
+                  <li>
+                      <a href="components/avatars.html">
+                        <span class="sub-item">Utilisateurs</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="components/avatars.html">
+                        <span class="sub-item">Roles</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item active submenu">
+                <a data-bs-toggle="collapse" href="#sidebarLayouts">
+                  <i class="fas fa-th-list"></i>
+                  <p>Centre événementiel</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse show" id="sidebarLayouts">
+                  <ul class="nav nav-collapse">
+                  <li class="active">
+                      <a href="{{ path('app_show_all_eventsBack') }}">
+                        <span class="sub-item">Événements</span>
+                      </a>
+                    </li>
+                    <li class="active">
+                      <a href="{{ path('app_show_all_catsBack') }}">
+                        <span class="sub-item">Catégories</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#forms">
                   <i class="fas fa-pen-square"></i>
                   <p>Relations externes</p>
@@ -177,12 +168,12 @@
                 <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="forms/forms.html">
+                      <a href="{{ path('app_partner_index') }}">
                         <span class="sub-item">Partenaires</span>
                       </a>
                     </li>
                     <li>
-                      <a href="forms/forms.html">
+                      <a href="{{ path('app_partnership_index') }}">
                         <span class="sub-item">Partenariats</span>
                       </a>
                     </li>
@@ -219,23 +210,50 @@
                 <div class="collapse" id="maps">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="forum.html">
+                      <a href="admin/forum">
                         <span class="sub-item">Publications</span>
                       </a>
                     </li>
                   </ul>
                 </div>
               </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#maps">
-                  <i class="fas fa-map-marker-alt"></i>
+              
+
+
+              <li class="nav-item active submenu">
+                <a  href="{{ path('app_show_all_reclamsBack') }}">
+                  <i class="fa fa-flag"></i>
                   <p>Réclamations</p>
                   <span class="caret"></span>
                 </a>
+
               </li>
-        </ul>
-      </div>
-    </div>
+
+
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#charts">
+                  <i class="far fa-chart-bar"></i>
+                  <p>Charts</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="charts">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="charts/charts.html">
+                        <span class="sub-item">Chart Js</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="charts/sparkline.html">
+                        <span class="sub-item">Sparkline</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
   </div>
   <!-- End Sidebar -->
 
@@ -641,5 +659,6 @@
     <!-- End Custom template -->
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
 

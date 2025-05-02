@@ -4,6 +4,50 @@
 {% block css %}
   {{ parent() }}
   <link rel="stylesheet" href="{{ asset('css/displayReclams.css') }}" />
+
+  <style>
+    .pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin-top: 2rem;
+}
+
+.pagination li {
+    margin: 0 6px;
+
+}
+
+.pagination span{
+  border: 1px solid black;
+
+}
+.pagination a,
+.pagination span {
+    display: inline-block;
+    padding: 8px 13px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+    background-color: #f0f8ff;
+    transition: background-color 0.3s ease;
+
+}
+
+
+.pagination .current {
+    background-color: #0dcaf0;
+    color: #000;
+    display: inline-block;
+    padding: 10px 16px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+    
+  </style>
 {% endblock %}
 
 {% block title %}Réclamations{% endblock %}
@@ -37,7 +81,22 @@
 </nav>
 
 <div class="container mt-5">
+
+
+
   <h1 class="text-center mb-4" style="color: aliceblue;">Réclamations</h1>
+
+  <form method="get" class="mb-4">
+    <label for="statusFilter" class="form-label text-light">Filtrer par statut :</label>
+    <select name="status" id="statusFilter" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="all" {{ selectedStatus == 'all' ? 'selected' : '' }}>Tous</option>
+      <option value="En attente" {{ selectedStatus == 'En attente' ? 'selected' : '' }}>En attente</option>
+      <option value="En cours" {{ selectedStatus == 'En cours' ? 'selected' : '' }}>En cours</option>
+      <option value="Résolu" {{ selectedStatus == 'Résolu' ? 'selected' : '' }}>Résolu</option>
+      <option value="Rejeté" {{ selectedStatus == 'Rejeté' ? 'selected' : '' }}>Rejeté</option>
+    </select>
+  </form>
+
 
   <div class="parent-header mb-3">
     <button class="create-button" onclick="openCategoryPopup()">
@@ -56,11 +115,18 @@
                                               'status-default'
         %}
         <div class="element-card {{ statusClass }}"
-             data-id            ="{{ reclamation.id }}"
-             data-id_user       ="{{ reclamation.id_user }}"
-             data-id_event      ="{{ reclamation.id_event ?? '' }}"
-             data-description   ="{{ reclamation.description|e('html_attr') }}"
-             data-subject       ="{{ reclamation.subject|e('html_attr') }}">
+        data-id="{{ reclamation.id }}"
+        data-id_user="{{ reclamation.id_user }}"
+        data-id_event="{{ reclamation.id_event ?? '' }}"
+        data-description="{{ reclamation.description|e('html_attr') }}"
+        data-subject="{{ reclamation.subject|e('html_attr') }}"
+        data-status="{{ reclamation.status }}"
+        {% if reclamation.status == 'Rejeté' and reclamation.refuse_reason %}
+          data-refuse_reason="{{ reclamation.refuse_reason|e('html_attr') }}"
+        {% endif %}>
+
+
+
           <div class="display-card text-white p-4">
             <h6 class="text-center text-info"><strong>Ticket #{{ reclamation.id }}</strong></h6>
             <p style="color: rgb(211, 234, 255);">
@@ -68,20 +134,21 @@
               <strong>Description:</strong> {{ reclamation.description }}<br>
               <strong>Sujet:</strong> {{ reclamation.subject }}<br>
               <strong>Status:</strong> {{ reclamation.status }}
+
             </p>
             <div class="d-flex justify-content-between mt-3">
-                {% if reclamation.status == 'En attente' %}
-                  <button type="button" class="btn btn-outline-light modifier-button-kitcat">
-                    Modifier
+              {% if reclamation.status in ['En attente', 'Rejeté'] %}
+              <button type="button" class="btn btn-outline-light modifier-button-kitcat-modif">
+                    Details
                   </button>
                   <form action="{{ path('app_reclamation_delete', { id: reclamation.id }) }}" method="post">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
                     <button type="submit" class="btn btn-danger">Supprimer</button>
                   </form>
                 {% else %}
-                  <button type="button" class="btn btn-outline-light modifier-button-kitcat">
-                    Suivre
-                  </button>
+
+                  <a href="{{ path('reclamation_conversation_user', { id: reclamation.id }) }}" class="btn btn-outline-light modifier-button-kitcat">Suivre</a>
+
                 {% endif %}
               </div>
           </div>
@@ -90,6 +157,10 @@
     {% else %}
       <p class="text-center">No reclamations found.</p>
     {% endif %}
+  </div>
+
+  <div class="mt-4 d-flex justify-content-center">
+    {{ knp_pagination_render(reclamations) }}
   </div>
 </div>
 
@@ -183,13 +254,40 @@
         <input type="text" name="reclamation[subject]" id="edit-subject"
                class="form-control">
       </div>
+
+      <div class="mb-2" id="refuse-reason-container" style="display: none;">
+        <label for="edit-refuse_reason">Raison de refus :</label>
+        <input type="text" name="reclamation[refuse_reason]" id="edit-refuse_reason"
+               class="form-control">
+      </div>
+
+
+
+
       <button type="submit" class="btn btn-success mt-3">Enregistrer</button>
     </form>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        {% if label == 'rate_limit' %}
+            <script>
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Trop de réclamations',
+                    html: "{{ message|e('js') }}",
+                    confirmButtonText: 'OK'
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+
 <script>
+
 document.addEventListener('DOMContentLoaded', function() {
   // DELETE confirmation
   document.querySelectorAll('form[action*="delete"]').forEach(function(form) {
@@ -243,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // EDIT popup logic
-  document.querySelectorAll('.modifier-button-kitcat').forEach(function(btn) {
+  document.querySelectorAll('.modifier-button-kitcat-modif').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var card     = btn.closest('.element-card');
       var id       = card.dataset.id;
@@ -251,12 +349,31 @@ document.addEventListener('DOMContentLoaded', function() {
       var id_event = card.dataset.id_event;
       var desc     = card.dataset.description;
       var subj     = card.dataset.subject;
+      var refuse_reason   = card.dataset.refuse_reason;
+      var status = card.dataset.status;
+var submitBtn = document.querySelector('#editForm button[type="submit"]');
+
+if (status === 'Rejeté') {
+  submitBtn.style.display = 'none';
+} else {
+  submitBtn.style.display = 'inline-block';
+}
 
       document.getElementById('edit-id').textContent         = id;
       document.getElementById('edit-id_user').value         = id_user;
       document.getElementById('edit-id_event').value        = id_event;
       document.getElementById('edit-description').value     = desc;
       document.getElementById('edit-subject').value         = subj;
+      const refuseField = document.getElementById('edit-refuse_reason');
+const refuseWrapper = document.getElementById('refuse-reason-container');
+
+if (refuse_reason !== undefined && refuse_reason.trim() !== '') {
+  refuseField.value = refuse_reason;
+  refuseWrapper.style.display = 'block';
+} else {
+  refuseField.value = '';
+  refuseWrapper.style.display = 'none';
+}
       document.getElementById('editForm').action            =
         '{{ path("app_reclamation_edit", {"id":0}) }}'.replace('/0','/' + id);
 
@@ -332,6 +449,26 @@ document.getElementById('editForm').addEventListener('submit', function (e) {
     });
   }
 });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  const filterSelect = document.getElementById('statusFilter');
+  const cards = document.querySelectorAll('.element-card');
+
+  filterSelect.addEventListener('change', function () {
+    const selected = this.value.toLowerCase();
+
+    cards.forEach(card => {
+      const status = card.dataset.status?.toLowerCase() || '';
+      if (selected === 'all' || status === selected) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+});
+
 
 
 </script>

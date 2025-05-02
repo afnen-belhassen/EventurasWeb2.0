@@ -2,6 +2,7 @@ twig:
     file_name_pattern: '*.twig'
     globals:
         stripe_public_key: '%env(STRIPE_PUBLIC_KEY)%'
+        google_maps_api_key: '%google_maps_api_key%'
 when@test:
     twig:
         strict_variables: true

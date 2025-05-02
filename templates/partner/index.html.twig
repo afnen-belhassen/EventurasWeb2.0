@@ -1,497 +1,1117 @@
 {% extends 'back/indexBACK.html.twig' %}
 
-{% block title %}Partenaires{% endblock %}
+{% block title %}Liste des Événements{% endblock %}
 
 {% block stylesheets %}
-{{ parent() }}
 <style>
-    .wrapper {
-        display: flex;
-        width: 100%;
-        align-items: stretch;
-    }
-    .sidebar {
-        min-width: 260px;
-        max-width: 260px;
-        background: #1a2035;
-        color: #fff;
-        transition: all 0.3s;
-    }
-    .sidebar.active {
-        margin-left: -260px;
-    }
     .main-panel {
-        width: 100%;
-        min-height: 100vh;
-        margin-left: 260px;
-        transition: all 0.3s;
+        margin-left: 250px; /* Should match your sidebar width */
+        width: calc(100% - 250px); /* Subtract sidebar width */
     }
-    .main-panel.active {
-        margin-left: 0;
-    }
-    .sidebar-wrapper {
-        height: calc(100vh - 70px);
-        overflow-y: auto;
-    }
-    .nav-item {
-        position: relative;
-        margin: 0;
-        padding: 0;
-    }
-    .nav-item a {
-        padding: 12px 15px;
-        display: flex;
-        align-items: center;
-        color: #fff;
-        text-decoration: none;
-    }
-    .nav-item a:hover {
-        background: rgba(255,255,255,0.1);
-    }
-    .nav-item i {
-        margin-right: 10px;
-        width: 20px;
-        text-align: center;
-    }
-    .nav-section {
-        padding: 15px;
-        color: #999;
-        font-size: 12px;
-        text-transform: uppercase;
-    }
-    .card {
-        margin: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-    .card-header {
-        background: #fff;
-        border-bottom: 1px solid #eee;
-        padding: 15px 20px;
-    }
-    .card-title {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 500;
-    }
-    .table th {
-        font-weight: 500;
-        background: #f8f9fa;
-    }
-    .btn-group .btn {
-        margin: 0 5px;
-    }
-    .rating {
-        color: #ffc107;
-        font-size: 1.2em;
-    }
-    .rating-count {
-        color: #6c757d;
-        font-size: 0.9em;
-        margin-left: 5px;
-    }
-    .star {
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    .star:hover,
-    .star.active {
-        color: #ffc107;
-    }
-    .star.inactive {
-        color: #ddd;
-    }
-    .rating-container {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .rating-value {
-        font-weight: bold;
-        color: #28a745;
-    }
-    /* Search bar styles */
-    .search-container {
-        position: relative;
-        margin: 0 20px;
-    }
-    .search-input {
-        width: 100%;
-        padding: 10px 15px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-        transition: all 0.3s;
-    }
-    .search-input:focus {
-        outline: none;
-        border-color: #00d2ff;
-        box-shadow: 0 0 0 2px rgba(0,210,255,0.1);
-    }
-    .search-icon {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6c757d;
-    }
-    /* Fixed navbar styles */
-    .navbar {
-        position: fixed;
-        top: 0;
-        right: 0;
-        left: 260px;
-        z-index: 1030;
-        padding: 0.5rem 1rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .content {
-        margin-top: 60px;
+    .page-inner {
         padding: 20px;
     }
+    .event-list {
+        width: 100%;
+        margin-top: 20px;
+    }
+    .event-list th, .event-list td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .event-list th {
+        background-color: #f8f9fa;
+    }
+    .button-group {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+    .button-group .btn {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+    .main-header {
+        padding: 20px;
+        background: #fff;
+        box-shadow: 0 1px 15px rgba(0,0,0,0.1);
+    }
+     .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1000; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+        max-width: 800px;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close:hover {
+        color: black;
+    }
+    .modal.show {
+  display: block !important;
+  z-index: 9999 !important;
+}
+
+
+.category-popup select {
+    font-size: 16px;
+    height: 40px; /* Adjust height as needed */
+    width: 100%;
+    padding: 8px 20px;
+    border: 1px solid #f3f4f6;
+    border-radius: 15px;
+    background-color: #f3f4f6;
+    margin-bottom: 20px;
+  
+  }
+  
+  
+  .category-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    overflow: hidden;
+  }
+  
+  .category-popup.open {
+    display: flex;
+  }
+  
+  .category-popup-content {
+    background: rgb(255, 255, 255);
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    overflow: auto;
+    max-height:600px;
+  }
+  
+  .category-popup .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+  
+  .category-popup .form-group {
+    max-width: 500px;
+    margin: auto;
+    margin-bottom: 30px;
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+  }
+  
+  .category-popup .close {
+    color: #272343;
+    border-radius: 5px;
+    text-transform: uppercase;
+    font-size: 12px;
+    position: absolute;
+    right: 15px;
+    top: 8px;
+    text-decoration: none;
+    display: inline-block;
+    background: #fff;
+    padding: 10px 18px;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .category-popup .close:hover {
+    background: #272343;
+    color: #fff;
+  }
+  
+  .category-popup .form-control {
+    display: block;
+    padding: 8px 16px;
+    font-size: 16px;
+    width: 94%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    color: #000000;
+    font-weight: 400;
+  }
+  
+  .category-popup .form-control:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline: -webkit-focus-ring-color auto 5px;
+  }
+  
+  .category-popup label {
+    font-weight: 500;
+    display: block;
+    margin: 4px 0;
+    font-size: 13px;
+    overflow: hidden;
+  }
+  
+  .category-popup label span {
+    float: right;
+    text-transform: none;
+    font-weight: 200;
+    line-height: 1em;
+    font-style: italic;
+    opacity: 0.8;
+  }
+  
+  .category-popup-input{
+    width: 100%; /* Make inputs fill the available space */
+    font-size: 14px;
+    height: 35px;
+    padding: 8px 20px;
+    border: 1px solid #f3f4f6; /* Add border for input */
+    border-radius: 15px; /* Add border-radius for input */
+    background-color: #f3f4f6;
+    margin-bottom: 20px; /* Adjust spacing between label and input */
+  }
+  
+  .add-button {
+    padding: 8px 30px;
+    height: 55px;
+    width: 100%;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 400;
+    margin-top: 30px;
+    border-color: rgba(0, 0, 0, 0);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #101d2d;
+  }
+  .add-button:hover {
+    background-color: #2f7deb;
+  }
+  .add-button.is-loading::after {
+    border-color: #fff;
+  }
+  .close-button {
+    padding: 8px 30px;
+    background-color: #272343;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+    border: 0;
+    color: #ccc;
+    cursor: pointer;
+  }
+  .category-popup .file-area {
+    width: 100%;
+    position: relative;
+  }
+  
+  .file-area {
+    background-color: #fff; /* White background to match the form */
+    margin-top: 20px;
+    display: flex; /* Use flexbox for internal centering */
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
+    padding: 15px; /* Inner padding */
+    text-align: center;
+  }
+  
+  .file-area input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  
+  .file-area .file-dummy {
+    width: 100%;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px dashed #101d2d;
+    text-align: center;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .file-area:hover .file-dummy {
+    background: #007fff;
+    color: white;
+  }
+  
+  .file-area input[type="file"]:focus + .file-dummy {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline: -webkit-focus-ring-color auto 5px;
+  }
+  
+  .file-area input[type="file"]:valid + .file-dummy {
+    border-color: rgba(0, 255, 0, 0.4);
+    background-color: rgba(0, 255, 0, 0.3);
+  }
+  
+  .file-area .file-dummy .success {
+    display: none;
+  }
+  
+  .file-area .file-dummy .success.show {
+    display: inline-block;
+  }
+  .default {
+    display: block;
+  }
+  
+  .default.hide {
+    display: none;
+    background-color: #707070;
+  }
+  
+  .form .input-box {
+    width: 100%;
+    margin-top: 20px;
+  }
+  .input-box label {
+    color: #333;
+  }
+  
+    .remove-item-btn {
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: #f44336;
+    }
+    h5{
+        color: rgb(0, 255, 170) !important;
+        }
+  
+  .dropdown-menu {
+    z-index: 1000;
+}
+.mt-16 { margin-top: 14rem !important; }
+  
+    
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="wrapper">
-    <!-- Sidebar -->
-    <div class="sidebar" data-background-color="dark">
-        <div class="sidebar-logo">
-            <!-- Logo Header -->
-            <div class="logo-header" data-background-color="dark">
-                <a href="index.html" class="logo">
-                    <img src="{{ asset('images/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
-                </a>
-                <div class="nav-toggle">
-                    <button class="btn btn-toggle toggle-sidebar">
-                        <i class="gg-menu-right"></i>
-                    </button>
-                    <button class="btn btn-toggle sidenav-toggler">
-                        <i class="gg-menu-left"></i>
-                    </button>
-                </div>
-                <button class="topbar-toggler more">
-                    <i class="gg-more-vertical-alt"></i>
-                </button>
-            </div>
-            <!-- End Logo Header -->
+  <!-- Sidebar -->
+  <div class="sidebar" data-background-color="dark">
+    <div class="sidebar-logo">
+      <div class="logo-header" data-background-color="dark">
+        <a href="index.html" class="logo">
+          <img src="{{ asset('images/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+        </a>
+        <div class="nav-toggle">
+          <button class="btn btn-toggle toggle-sidebar">
+            <i class="gg-menu-right"></i>
+          </button>
+          <button class="btn btn-toggle sidenav-toggler">
+            <i class="gg-menu-left"></i>
+          </button>
         </div>
-        <div class="sidebar-wrapper scrollbar scrollbar-inner">
-            <div class="sidebar-content">
-                <ul class="nav nav-secondary">
-                    <li class="nav-item active">
-                        <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
-                            <i class="fas fa-home"></i>
-                            <p>Dashboard</p>
-                            <span class="caret"></span>
-                        </a>
-                        <div class="collapse" id="dashboard">
-                            <ul class="nav nav-collapse">
-                                <li>
-                                    <a href="../demo1/index.html">
-                                        <span class="sub-item">Dashboard 1</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-section">
-                        <span class="sidebar-mini-icon">
-                            <i class="fa fa-ellipsis-h"></i>
-                        </span>
-                        <h4 class="text-section">Components</h4>
-                    </li>
-                    <li class="nav-item">
-                        <a data-bs-toggle="collapse" href="#base">
-                            <i class="fas fa-layer-group"></i>
-                            <p>Administration des comptes</p>
-                            <span class="caret"></span>
-                        </a>
-                        <div class="collapse" id="base">
-                            <ul class="nav nav-collapse">
-                                <li>
-                                    <a href="components/avatars.html">
-                                        <span class="sub-item">Utilisateurs</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="components/avatars.html">
-                                        <span class="sub-item">Roles</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item active submenu">
-                        <a data-bs-toggle="collapse" href="#sidebarLayouts">
-                            <i class="fas fa-th-list"></i>
-                            <p>Centre événementiel</p>
-                            <span class="caret"></span>
-                        </a>
-                        <div class="collapse show" id="sidebarLayouts">
-                            <ul class="nav nav-collapse">
-                                <li class="active">
-                                    <a href="{{ path('app_show_all_eventsBack') }}">
-                                        <span class="sub-item">Événements</span>
-                                    </a>
-                                </li>
-                                <li class="active">
-                                    <a href="sidebar-style-2.html">
-                                        <span class="sub-item">Catégories</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a data-bs-toggle="collapse" href="#forms">
-                            <i class="fas fa-pen-square"></i>
-                            <p>Relations externes</p>
-                            <span class="caret"></span>
-                        </a>
-                        <div class="collapse" id="forms">
-                            <ul class="nav nav-collapse">
-                                <li>
-                                    <a href="{{ path('app_partner_index') }}">
-                                        <span class="sub-item">Partenaires</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ path('app_partnership_index') }}">
-                                        <span class="sub-item">Partenariats</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a data-bs-toggle="collapse" href="#tables">
-                            <i class="fas fa-table"></i>
-                            <p>Boutique</p>
-                            <span class="caret"></span>
-                        </a>
-                        <div class="collapse" id="tables">
-                            <ul class="nav nav-collapse">
-                                <li>
-                                    <a href="tables/tables.html">
-                                        <span class="sub-item">Produits</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="tables/tables.html">
-                                        <span class="sub-item">Commandes</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a data-bs-toggle="collapse" href="#maps">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <p>Espace communautaire</p>
-                            <span class="caret"></span>
-                        </a>
-                        <div class="collapse" id="maps">
-                            <ul class="nav nav-collapse">
-                                <li>
-                                    <a href="admin/forum">
-                                        <span class="sub-item">Forum</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        <button class="topbar-toggler more">
+          <i class="gg-more-vertical-alt"></i>
+        </button>
+      </div>
     </div>
-
-    <!-- Main Panel -->
-    <div class="main-panel">
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Rechercher un partenaire...">
-                    <i class="fas fa-search search-icon"></i>
-                </div>
-                <div class="ml-auto d-flex align-items-center">
-                    <a href="{{ path('app_admin_statistics') }}" class="btn btn-primary">
-                        <i class="fas fa-chart-bar"></i> Statistiques
-                    </a>
-                </div>
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+      <div class="sidebar-content">
+        <ul class="nav nav-secondary">
+          <li class="nav-item active">
+            <a  href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
+              <i class="fas fa-home"></i>
+              <p>Dashboard</p>
+              <span class="caret"></span>
+            </a>
+            <div class="collapse" id="dashboard">
+              <ul class="nav nav-collapse">
+                <li>
+                  <a href="../demo1/index.html">
+                    <span class="sub-item">Dashboard 1</span>
+                  </a>
+                </li>
+              </ul>
             </div>
-        </nav>
+          </li>
+          <li class="nav-section">
+            <span class="sidebar-mini-icon">
+              <i class="fa fa-ellipsis-h"></i>
+            </span>
+            <h4 class="text-section">Components</h4>
+          </li>
+          <li class="nav-item">
+            <a data-bs-toggle="collapse" href="#base">
+              <i class="fas fa-layer-group"></i>
+              <p>Administration des comptes</p>
+              <span class="caret"></span>
+            </a>
+            <div class="collapse" id="base">
+              <ul class="nav nav-collapse">
+                <li>
+                  <a href="components/avatars.html">
+                    <span class="sub-item">Utilisateurs</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="components/avatars.html">
+                    <span class="sub-item">Roles</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item active submenu">
+            <a data-bs-toggle="collapse" href="#sidebarLayouts">
+              <i class="fas fa-th-list"></i>
+              <p>Centre événementiel</p>
+              <span class="caret"></span>
+            </a>
+            <div class="collapse show" id="sidebarLayouts">
+              <ul class="nav nav-collapse">
+                <li class="active">
+                  <a href="{{ path('app_show_all_eventsBack') }}">
+                    <span class="sub-item">Événements</span>
+                  </a>
+                </li>
+                <li class="active">
+                 <a href="{{ path('app_show_all_eventsBack') }}">
+                    <span class="sub-item">Catégories</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+         <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#forms">
+                  <i class="fas fa-pen-square"></i>
+                  <p>Relations externes</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="forms">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="forms/forms.html">
+                        <span class="sub-item">Partenaires</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="forms/forms.html">
+                        <span class="sub-item">Partenariats</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#tables">
+                  <i class="fas fa-table"></i>
+                  <p>Boutique</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="tables">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="tables/tables.html">
+                        <span class="sub-item">Produits</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="tables/tables.html">
+                        <span class="sub-item">Commandes</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#maps">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <p>Espace communautaire</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="maps">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="forum.html">
+                        <span class="sub-item">Publications</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#maps">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <p>Réclamations</p>
+                  <span class="caret"></span>
+                </a>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- End Sidebar -->
 
-        <!-- Content -->
-        <div class="content">
+  <div class="main-panel">
+    <div class="main-header">
+      <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
             <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="card-title">Liste des Partenaires</h5>
-                                <a href="{{ path('app_partner_new') }}" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Ajouter un partenaire
-                                </a>
+              <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+                <form method="get" action="{{ path('app_show_all_eventsBack') }}" class="w-100">
+                    <div class="input-group">
+                        <input type="text" name="search" placeholder="Rechercher des événements..." class="form-control" value="{{ app.request.query.get('search') }}">
+                        <button type="submit" class="btn btn-search pe-1">
+                        <i class="fa fa-search search-icon"></i>
+                        </button>
+                    </div>
+                </form>
+              </nav>
+
+              <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+                <li
+                  class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none"
+                >
+                  <a
+                    class="nav-link dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    href="#"
+                    role="button"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                  >
+                    <i class="fa fa-search"></i>
+                  </a>
+                  <ul class="dropdown-menu dropdown-search animated fadeIn">
+                    <form method="get" action="{{ path('app_show_all_eventsBack') }}" class="navbar-left navbar-form nav-search">
+                      <div class="input-group">
+                        <input
+                          type="text"
+                          name="search"
+                          placeholder="Rechercher des événements..."
+                          class="form-control"
+                          value="{{ app.request.query.get('search') }}"
+                        >
+                        <button type="submit" class="btn btn-search">
+                          <i class="fa fa-search"></i>
+                        </button>
+                      </div>
+                    </form>
+                  </ul>
+                </li>
+                <li class="nav-item topbar-icon dropdown hidden-caret">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="messageDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i class="fa fa-envelope"></i>
+                  </a>
+                  <ul
+                    class="dropdown-menu messages-notif-box animated fadeIn"
+                    aria-labelledby="messageDropdown"
+                  >
+                    <li>
+                      <div
+                        class="dropdown-title d-flex justify-content-between align-items-center"
+                      >
+                        Messages
+                        <a href="#" class="small">Mark all as read</a>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="message-notif-scroll scrollbar-outer">
+                        <div class="notif-center">
+                          <a href="#">
+                            <div class="notif-img">
+                              <img
+                                src="{{asset('images/img/jm_denis.jpg')}}"
+                                alt="Img Profile"
+                              />
                             </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Nom</th>
-                                                <th>Email</th>
-                                                <th>Téléphone</th>
-                                                <th>Note</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for partner in partners %}
-                                                <tr>
-                                                    <td>{{ partner.name }}</td>
-                                                    <td>{{ partner.email }}</td>
-                                                    <td>{{ partner.phone }}</td>
-                                                    <td>
-                                                        <div class="rating-container">
-                                                            <span class="rating-value">{{ partner.rating|number_format(1) }}</span>
-                                                            <div class="rating">
-                                                                {% for i in 1..5 %}
-                                                                    {% if i <= partner.rating %}
-                                                                        <i class="fas fa-star star active"></i>
-                                                                    {% else %}
-                                                                        <i class="fas fa-star star inactive"></i>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="btn-group">
-                                                            <a href="{{ path('app_partner_show', {'id': partner.id}) }}" class="btn btn-info btn-sm">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                            <a href="{{ path('app_partner_edit', {'id': partner.id}) }}" class="btn btn-warning btn-sm">
-                                                                <i class="fas fa-edit"></i>
-                                                            </a>
-                                                            <form method="post" action="{{ path('app_partner_delete', {'id': partner.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce partenaire ?');" style="display: inline;">
-                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ partner.id) }}">
-                                                                <button type="submit" class="btn btn-danger btn-sm">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            {% else %}
-                                                <tr>
-                                                    <td colspan="5" class="text-center">Aucun partenaire trouvé</td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
+                            <div class="notif-content">
+                              <span class="subject">Jimmy Denis</span>
+                              <span class="block"> How are you ? </span>
+                              <span class="time">5 minutes ago</span>
+                            </div>
+                          </a>
+                          <a href="#">
+                            <div class="notif-img">
+                              <img
+                                src="{{asset('images/img/chadengle.jpg')}}"
+                                alt="Img Profile"
+                              />
+                            </div>
+                            <div class="notif-content">
+                              <span class="subject">Chad</span>
+                              <span class="block"> Ok, Thanks ! </span>
+                              <span class="time">12 minutes ago</span>
+                            </div>
+                          </a>
+                          <a href="#">
+                            <div class="notif-img">
+                              <img
+                                src="{{asset('images/img/mlane.jpg')}}"
+                                alt="Img Profile"
+                              />
+                            </div>
+                            <div class="notif-content">
+                              <span class="subject">Jhon Doe</span>
+                              <span class="block">
+                                Ready for the meeting today...
+                              </span>
+                              <span class="time">12 minutes ago</span>
+                            </div>
+                          </a>
+                          <a href="#">
+                            <div class="notif-img">
+                              <img
+                                src="{{asset('images/img/talha.jpg')}}"
+                                alt="Img Profile"
+                              />
+                            </div>
+                            <div class="notif-content">
+                              <span class="subject">Talha</span>
+                              <span class="block"> Hi, Apa Kabar ? </span>
+                              <span class="time">17 minutes ago</span>
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <a class="see-all" href="javascript:void(0);"
+                        >See all messages<i class="fa fa-angle-right"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item topbar-icon dropdown hidden-caret">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="notifDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i class="fa fa-bell"></i>
+                    <span class="notification">4</span>
+                  </a>
+                  <ul
+                    class="dropdown-menu notif-box animated fadeIn"
+                    aria-labelledby="notifDropdown"
+                  >
+                    <li>
+                      <div class="dropdown-title">
+                        You have 4 new notification
+                      </div>
+                    </li>
+                    <li>
+                      <div class="notif-scroll scrollbar-outer">
+                        <div class="notif-center">
+                          <a href="#">
+                            <div class="notif-icon notif-primary">
+                              <i class="fa fa-user-plus"></i>
+                            </div>
+                            <div class="notif-content">
+                              <span class="block"> New user registered </span>
+                              <span class="time">5 minutes ago</span>
+                            </div>
+                          </a>
+                          <a href="#">
+                            <div class="notif-icon notif-success">
+                              <i class="fa fa-comment"></i>
+                            </div>
+                            <div class="notif-content">
+                              <span class="block">
+                                Rahmad commented on Admin
+                              </span>
+                              <span class="time">12 minutes ago</span>
+                            </div>
+                          </a>
+                          <a href="#">
+                            <div class="notif-img">
+                              <img
+                                src="{{asset('images/img/profile2.jpg')}}"
+                                alt="Img Profile"
+                              />
+                            </div>
+                            <div class="notif-content">
+                              <span class="block">
+                                Reza send messages to you
+                              </span>
+                              <span class="time">12 minutes ago</span>
+                            </div>
+                          </a>
+                          <a href="#">
+                            <div class="notif-icon notif-danger">
+                              <i class="fa fa-heart"></i>
+                            </div>
+                            <div class="notif-content">
+                              <span class="block"> Farrah liked Admin </span>
+                              <span class="time">17 minutes ago</span>
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <a class="see-all" href="javascript:void(0);"
+                        >See all notifications<i class="fa fa-angle-right"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item topbar-icon dropdown hidden-caret">
+                  <a
+                    class="nav-link"
+                    data-bs-toggle="dropdown"
+                    href="#"
+                    aria-expanded="false"
+                  >
+                    <i class="fas fa-layer-group"></i>
+                  </a>
+                  <div class="dropdown-menu quick-actions animated fadeIn">
+                    <div class="quick-actions-header">
+                      <span class="title mb-1">Quick Actions</span>
+                      <span class="subtitle op-7">Shortcuts</span>
+                    </div>
+                    <div class="quick-actions-scroll scrollbar-outer">
+                      <div class="quick-actions-items">
+                        <div class="row m-0">
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div class="avatar-item bg-danger rounded-circle">
+                                <i class="far fa-calendar-alt"></i>
+                              </div>
+                              <span class="text">Calendar</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div
+                                class="avatar-item bg-warning rounded-circle"
+                              >
+                                <i class="fas fa-map"></i>
+                              </div>
+                              <span class="text">Maps</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div class="avatar-item bg-info rounded-circle">
+                                <i class="fas fa-file-excel"></i>
+                              </div>
+                              <span class="text">Reports</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div
+                                class="avatar-item bg-success rounded-circle"
+                              >
+                                <i class="fas fa-envelope"></i>
+                              </div>
+                              <span class="text">Emails</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div
+                                class="avatar-item bg-primary rounded-circle"
+                              >
+                                <i class="fas fa-file-invoice-dollar"></i>
+                              </div>
+                              <span class="text">Invoice</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div
+                                class="avatar-item bg-secondary rounded-circle"
+                              >
+                                <i class="fas fa-credit-card"></i>
+                              </div>
+                              <span class="text">Payments</span>
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+
+                <li class="nav-item topbar-user dropdown hidden-caret">
+                  <a
+                    class="dropdown-toggle profile-pic"
+                    data-bs-toggle="dropdown"
+                    href="#"
+                    aria-expanded="false"
+                  >
+                    <div class="avatar-sm">
+                      <img
+                        src="{{asset('images/img/profile.jpg')}}"
+                        alt="..."
+                        class="avatar-img rounded-circle"
+                      />
+                    </div>
+                    <span class="profile-username">
+                      <span class="op-7">Hi,</span>
+                      <span class="fw-bold">Admin</span>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu dropdown-user animated fadeIn">
+                    <div class="dropdown-user-scroll scrollbar-outer">
+                      <li>
+                        <div class="user-box">
+                          <div class="avatar-lg">
+                            <img
+                              src="{{asset('images/img/profile.jpg')}}"
+                              alt="image profile"
+                              class="avatar-img rounded"
+                            />
+                          </div>
+                          <div class="u-text">
+                            <h4>Hizrian</h4>
+                            <p class="text-muted">hello@example.com</p>
+                            <a
+                              href="profile.html"
+                              class="btn btn-xs btn-secondary btn-sm"
+                              >View Profile</a
+                            >
+                          </div>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">My Profile</a>
+                        <a class="dropdown-item" href="#">My Balance</a>
+                        <a class="dropdown-item" href="#">Inbox</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Account Setting</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Logout</a>
+                      </li>
+                    </div>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </nav>
+      
+    </div>
+    
+    <div class="container rm -6">
+      <div class="d-flex flex-wrap gap-3 mb-4">
+        <h1>Liste des Événements</h1>
+        <a href="{{ path('app_eventback') }}" class="btn btn-primary">
+          Créer un événement
+        </a>
+        <button class="btn btn-primary" onclick="openCategoryPopup()">
+            Statistiques
+            <i class="fa-solid fa-chart-simple ms-2 small"></i>
+          </button>
+        <div class="dropdown">
+         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          Trier par
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+          <li><a class="dropdown-item" href="{{ path('app_show_all_eventsBack', {'sort': 'price_asc'}) }}">Prix croissant</a></li>
+          <li><a class="dropdown-item" href="{{ path('app_show_all_eventsBack', {'sort': 'price_desc'}) }}">Prix décroissant</a></li>
+          <li><a class="dropdown-item" href="{{ path('app_show_all_eventsBack', {'sort': 'passed'}) }}">Événements passés</a></li>
+          <li><a class="dropdown-item" href="{{ path('app_show_all_eventsBack', {'sort': 'upcoming'}) }}">Événements à venir</a></li>
+        </ul>
+      </div>
+    </div>
+        {# Statistics Popup #}
+                <div id="categoryPopup" class="category-popup">
+            <div class="category-popup-content p-4 rounded shadow bg-white">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" 
+                        aria-label="Close" onclick="closeCategoryPopup()"></button>
+                
+                <h5 class="mb-4 text-center">Statistiques des Événements</h5>
+                
+                {% if stats is defined %}
+                    <!-- Summary Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-primary text-white p-3 text-center">
+                                <h6>Total Événements</h6>
+                                <h3>{{ stats.totalEvents }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-success text-white p-3 text-center">
+                                <h6>Acceptés</h6>
+                                <h3>{{ stats.activeEvents }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-warning text-white p-3 text-center">
+                                <h6>En cours</h6>
+                                <h3>{{ stats.inactiveEvents }}</h3>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Timeline Chart -->
+                    {% if stats.labels is defined and stats.data is defined %}
+                        <div class="mb-4">
+                            <h6 class="text-center mb-3">Événements créés par date</h6>
+                            <canvas id="timelineChart" height="150"></canvas>
+                        </div>
+                    {% endif %}
+
+                    <!-- Additional Stats -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-info text-white p-3 text-center">
+                                <h6>Événements à venir</h6>
+                                <h3>{{ stats.upcomingEvents }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-secondary text-white p-3 text-center">
+                                <h6>Événements passés</h6>
+                                <h3>{{ stats.pastEvents }}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Chart -->
+                    {% if stats.eventsByCategory is defined %}
+                        <div class="mb-4">
+                            <h6 class="text-center mb-3">Répartition par catégorie</h6>
+                            <canvas id="categoryChart" height="150"></canvas>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning">
+                        Les statistiques ne sont pas disponibles.
+                    </div>
+                {% endif %}
             </div>
         </div>
+        {% if searchQuery %}
+          <div class="alert alert-info mb-3">
+            Résultats de recherche pour : <strong>"{{ searchQuery }}"</strong>
+            <a href="{{ path('app_show_all_eventsBack') }}" class="float-end">
+              <i class="fas fa-times"></i> Effacer la recherche
+            </a>
+          </div>
+        {% endif %}
+        <table class="table event-list">
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Description</th>
+              <th>Date début</th>
+              <th>Date fin</th>
+              <th>Localisation</th>
+              <th>Activités</th>
+              <th>Prix</th>
+              <th>Nombre de places</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event in events %}
+              <tr>
+                <td>{{ event.title }}</td>
+                <td>{{ event.description }}</td>
+                <td>{{ event.date_event|date('Y-m-d') }}</td>
+                <td>{{ event.dateFinEve|date('Y-m-d') }}</td>
+                <td>{{ event.location }}</td>
+                <td>{{ event.activities }}</td>
+                <td>{{ event.prix }}</td>
+                <td>{{ event.nb_places }}</td>
+                <td>{{ event.status }}</td>
+                <td>
+                  <div class="button-group">
+              <a href="{{ path('app_event_edit_back', {'id': event.id_event}) }}" class="btn btn-warning">
+                 Modifier
+                    </a>
+
+                    <form action="{{ path('app_evedelBACK', { id: event.id_event }) }}" method="post" style="display:inline;">
+                      <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">Supprimer</button>
+                    </form>
+                    <form action="{{ path('app_change_status', { id: event.id_event }) }}" method="post" style="display:inline;">
+                      <button type="submit" class="btn btn-info" onclick="return confirm('Êtes-vous sûr de vouloir changer le statut de cet événement ?');">Changer le Statut</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="5">Aucun événement trouvé.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
+    
+    <!-- Edit Event Modal -->
+    <div id="editEventModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2>Modifier l'événement</h2>
+        <form id="editEventForm" action="{{ path('app_event_edit', {'id': 0}) }}" method="post">
+            <input type="hidden" id="eventId" name="id" value="">
+          <div class="mb-3">
+            <label for="title" class="form-label">Titre</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="date_event" class="form-label">Date début</label>
+            <input type="date" class="form-control" id="date_event" name="date_event" required>
+          </div>
+          <div class="mb-3">
+            <label for="dateFinEve" class="form-label">Date fin</label>
+            <input type="date" class="form-control" id="dateFinEve" name="dateFinEve" required>
+          </div>
+          <div class="mb-3">
+            <label for="location" class="form-label">Localisation</label>
+            <input type="text" class="form-control" id="location" name="location" required>
+          </div>
+          <div class="mb-3">
+            <label for="activities" class="form-label">Activités</label>
+            <input type="text" class="form-control" id="activities" name="activities" required>
+          </div>
+          <div class="mb-3">
+            <label for="prix" class="form-label">Prix</label>
+            <input type="number" class="form-control" id="prix" name="prix" required>
+          </div>
+          <div class="mb-3">
+            <label for="nb_places" class="form-label">Nombre de places</label>
+            <input type="number" class="form-control" id="nb_places" name="nb_places" required>
+          </div>
+          <div class="mb-3">
+            <label for="status" class="form-label">Statut</label>
+            <select class="form-select" id="status" name="status" required>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </form>
+      </div>
+    </div>
+    
+    <footer class="footer">
+      <!-- Footer content can go here -->
+    </footer>
+    <!-- Custom template | don't include it in your project! -->
+    <div class="custom-template">
+      <!-- Custom template content -->
+    </div>
+    <!-- End Custom template -->
+  </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing star rating...');
+function openCategoryPopup() {
+    document.getElementById('categoryPopup').classList.add('open');
     
-    // Handle star clicks
-    document.querySelectorAll('.star').forEach(star => {
-        console.log('Found star element:', star);
-        
-        star.addEventListener('click', function() {
-            console.log('Star clicked!');
-            const container = this.closest('.rating-container');
-            const partnerId = container.dataset.partnerId;
-            const rating = this.dataset.rating;
-            
-            console.log('Rating data:', {
-                partnerId: partnerId,
-                rating: rating
-            });
-            
-            // Send rating to server
-            fetch(`/organizer/partner/${partnerId}/rate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `rating=${rating}`
-            })
-            .then(response => {
-                console.log('Server response:', response);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Server data:', data);
-                if (data.success) {
-                    // Update all stars in this container
-                    const stars = container.querySelectorAll('.star');
-                    stars.forEach((s, index) => {
-                        if (index + 1 <= data.newRating) {
-                            s.classList.add('active');
-                            s.classList.remove('inactive');
-                        } else {
-                            s.classList.remove('active');
-                            s.classList.add('inactive');
-                        }
-                    });
-                    
-                    // Update rating count
-                    const ratingCount = container.querySelector('.rating-count');
-                    ratingCount.textContent = `(${data.newCount})`;
-                    
-                    console.log('Stars updated successfully');
-                } else {
-                    console.error('Error:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-    });
-});
-</script>
+    // Only render charts if stats exist
+    {% if stats is defined %}
+        renderCharts();
+    {% endif %}
+}
+function closeCategoryPopup() {
+    document.getElementById('categoryPopup').classList.remove('open');
+}
+function renderCharts() {
+    // Timeline Chart
+    {% if stats.labels is defined and stats.data is defined %}
+    new Chart(
+        document.getElementById('timelineChart').getContext('2d'),
+        {
+            type: 'line',
+            data: {
+                labels: {{ stats.labels|json_encode|raw }},
+                datasets: [{
+                    label: 'Événements créés',
+                    data: {{ stats.data|json_encode|raw }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        }
+    );
+    {% endif %}
 
-{% block javascripts %}
-{{ parent() }}
-<script>
-    // Toggle sidebar
-    const toggleSidebar = document.querySelector('.toggle-sidebar');
-    const sidebar = document.querySelector('.sidebar');
-    const mainPanel = document.querySelector('.main-panel');
-    
-    if (toggleSidebar) {
-        toggleSidebar.addEventListener('click', function() {
-            sidebar.classList.toggle('active');
-            mainPanel.classList.toggle('active');
-        });
-    }
-
-    // Search functionality
-    document.querySelector('.search-input').addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('tbody tr');
-        
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchTerm) ? '' : 'none';
-        });
-    });
+    // Category Chart
+    {% if stats.eventsByCategory is defined %}
+    new Chart(
+        document.getElementById('categoryChart').getContext('2d'),
+        {
+            type: 'doughnut',
+            data: {
+                labels: {{ stats.eventsByCategory|map(c => c.category)|json_encode|raw }},
+                datasets: [{
+                    data: {{ stats.eventsByCategory|map(c => c.count)|json_encode|raw }},
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', 
+                        '#4BC0C0', '#9966FF', '#FF9F40'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'right' } }
+            }
+        }
+    );
+    {% endif %}
+}
 </script>
 {% endblock %}
-{% endblock %} 

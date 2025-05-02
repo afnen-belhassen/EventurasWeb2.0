@@ -1,9 +1,9 @@
 {# templates/partials/_sidebar.html.twig #}
-<div class="sidebar-container">
-    <div class="sidebar-toggle">
+<div class="sidebar-container custom-sidebar-system">
+    <div class="sidebar-toggle custom-sidebar-toggle">
         <i class="fas fa-bars"></i>
     </div>
-    <div class="sidebar">
+    <div class="sidebar custom-sidebar">
         <h3>Menu</h3>
         <ul>
             <li><a href="{{ path('app_show_all_events') }}"><i class="fas fa-list"></i> Vos Evenements</a></li>
@@ -15,7 +15,7 @@
         
         <h3>Paramètres</h3>
         <ul>
-            <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="/homeProfile"><i class="fas fa-user"></i> Profile</a></li>
             <li><a href="/logout"><i class="fas fa-question-circle"></i> Se déconnecter</a></li>
         </ul>
         <!--
@@ -145,8 +145,12 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const sidebarSystem = document.querySelector('.custom-sidebar-system');
+    if (!sidebarSystem) return;
+    
     const sidebar = sidebarSystem.querySelector('.custom-sidebar');
     const toggle = sidebarSystem.querySelector('.custom-sidebar-toggle');
+    
+    if (!sidebar || !toggle) return;
     
     // Persistent hover handling
     let hoverTimeout;
@@ -161,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!sidebar.matches(':hover') && !toggle.matches(':hover')) {
                 sidebar.style.right = '-320px';
             }
-        }, 300); // 300ms delay before hiding
+        }, 300);
     }
     
     // Mouse events
