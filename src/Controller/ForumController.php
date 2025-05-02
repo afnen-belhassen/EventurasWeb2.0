@@ -236,11 +236,14 @@ class ForumController extends AbstractController
     }
 
     #[Route('/forum/{id}/comment', name: 'app_forum_comment', methods: ['POST'])]
-    public function addComment(Request $request, Post $post, EntityManagerInterface $entityManager): Response
+    public function addComment(Request $request, Post $post, EntityManagerInterface $entityManager,Security $security): Response
     {
+
+        $user = $security->getUser();
+        $userId = $user->getUserId();
         $comment = new Comment();
         $comment->setContent($request->request->get('content'));
-        $comment->setUserId(1); // Hardcoded user_id
+        $comment->setUserId($userId); // Hardcoded user_id
         $comment->setCreatedAt(new \DateTime());
         $comment->setPost($post);
 
@@ -272,10 +275,12 @@ class ForumController extends AbstractController
     }
 
     #[Route("/forum/like/{postId}", name:"app_forum_like", methods:['POST'])]
-    public function toggleLike(int $postId, EntityManagerInterface $em, Request $request): JsonResponse
-    {
+    public function toggleLike(int $postId, EntityManagerInterface $em, Request $request,Security $security): JsonResponse
+    {   
+        $user = $security->getUser();
+        $userId = $user->getUserId();
         // Pour l'instant, on considère toujours l'utilisateur avec l'id 1
-        $userId = 1;
+        $userId = $userId;
 
         // Rechercher un like existant pour ce post par cet utilisateur
         $likeRepository = $em->getRepository(Like::class);
@@ -448,9 +453,10 @@ class ForumController extends AbstractController
     // src/Controller/ForumController.php
 
     #[Route("/forum/comment/like/{commentId}", name:"app_forum_comment_like", methods:['POST'])]
-    public function toggleCommentLike(int $commentId, EntityManagerInterface $em): JsonResponse
+    public function toggleCommentLike(int $commentId, EntityManagerInterface $em,Security $security): JsonResponse
     {
-        $userId = 1; // ou $this->getUser()->getId()
+        $user = $security->getUser();
+        $userId = $user->getUserId();
 
         $repo = $em->getRepository(Like::class);
         $existing = $repo->findOneBy([
@@ -512,7 +518,8 @@ class ForumController extends AbstractController
         Poll $poll,
         Request $request,
         EntityManagerInterface $em,
-        PollVoteRepository $voteRepo
+        PollVoteRepository $voteRepo,
+        Security $security
     ): JsonResponse {
         // 1) Récupérer l’index de l’option depuis le JSON
         $data = json_decode($request->getContent(), true);
@@ -526,7 +533,10 @@ class ForumController extends AbstractController
 
         // 3) Empêcher le double‐vote (ici userId=1 hardcodé, adapte avec votre système d’auth)
         //$userId = $this->getUser()?->getId() ?? 1;
-        $userId = 1;
+
+        $user = $security->getUser();
+        $userId = $user->getUserId();
+
         if ($voteRepo->hasUserVoted($poll, $idx, $userId)) {
             return $this->json(['error' => 'Already voted'], 409);
         }
