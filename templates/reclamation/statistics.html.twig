@@ -1,0 +1,133 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Reclamation Statistics{% endblock %}
+
+{% block body %}
+<div class="row">
+    <h1 class="text-center mb-5">Reclamation Statistics</h1>
+    
+    <div class="row">
+        <!-- Total Reclamations Card -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Reclamations</h5>
+                    <h2 class="display-4">{{ totalReclamations }}</h2>
+                    <p class="card-text">All time reclamations</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Reclamations Card -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending</h5>
+                    <h2 class="display-4">{{ pendingReclamations }}</h2>
+                    <p class="card-text">Awaiting response</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resolved Reclamations Card -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Resolved</h5>
+                    <h2 class="display-4">{{ resolvedReclamations }}</h2>
+                    <p class="card-text">Successfully handled</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Response Time Card -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Avg. Response Time</h5>
+                    <h2 class="display-4">{{ avgResponseTime|number_format(1) }}</h2>
+                    <p class="card-text">Days to resolution</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Statistics Chart -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Monthly Reclamations</h5>
+                    <canvas id="monthlyChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reclamation Types Distribution -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Reclamation Types</h5>
+                    <canvas id="typeChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Status Distribution</h5>
+                    <canvas id="statusChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Monthly Chart
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: {{ monthlyStats.labels|json_encode|raw }},
+            datasets: [{
+                label: 'Reclamations',
+                data: {{ monthlyStats.data|json_encode|raw }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        }
+    });
+
+    // Type Distribution Chart
+    const typeCtx = document.getElementById('typeChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ typeDistribution.labels|json_encode|raw }},
+            datasets: [{
+                data: {{ typeDistribution.data|json_encode|raw }},
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+            }]
+        }
+    });
+
+    // Status Distribution Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ statusDistribution|keys|json_encode|raw }},
+            datasets: [{
+                data: {{ statusDistribution|json_encode|raw }},
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+            }]
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %} 
