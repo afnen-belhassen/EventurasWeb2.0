@@ -23,6 +23,7 @@ use App\Entity\BadWordAttempt;
 use App\Entity\Poll;   
 use App\Entity\PollVote;   
 use App\Repository\PollVoteRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class ForumController extends AbstractController
 {
@@ -33,15 +34,18 @@ class ForumController extends AbstractController
         $this->uploadDirectory = $uploadDirectory;
     }
 
+    #[IsGranted('ROLE_PARTICIPANT')]
     #[Route('/forum', name: 'app_forum', methods: ['GET'])]
-    public function index( Request $request, PostRepository $postRepository,EntityManagerInterface $em,BadWordRepository $badWordRepository): Response
+    public function index( Request $request, PostRepository $postRepository,EntityManagerInterface $em,BadWordRepository $badWordRepository,Security $security): Response
     {
         $search   = $request->query->get('q', '');
         $category = $request->query->get('category', '');
         $sort     = $request->query->get('sort', 'date');  // 'date' ou 'likes'
         // Récupération de l'utilisateur courant
         //$user = $this->getUser();
-        $user = 1;
+        $user = $security->getUser();
+        $userId = $user->getUserId();
+        $user = $userId;
         
         // Définition de la plage horaire pour "aujourd'hui"
         $todayStart = new \DateTimeImmutable('today midnight');
@@ -126,12 +130,15 @@ class ForumController extends AbstractController
     }
 
     #[Route('/forum/create', name: 'app_forum_create', methods: ['POST'])]
-    public function create(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function create(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger,Security $security): Response
     {
+
+        $user = $security->getUser();
+        $userId = $user->getUserId();
         $post = new Post();
         $post->setTitle($request->request->get('title'));
         $post->setContent($request->request->get('content'));
-        $post->setUserId(1); // Hardcoded user_id
+        $post->setUserId($userId); // Hardcoded user_id
         $post->setCreatedAt(new \DateTime());
         $post->setCategory($request->request->get('category'));
 

@@ -1,3 +1,4 @@
+
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
@@ -22,16 +23,3 @@
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
-
-# Ignore Node.js dependencies
-/node_modules/
-
-.env
-.env.local
-.env.*.local
-###> symfony/webpack-encore-bundle ###
-/node_modules/
-/public/build/
-npm-debug.log
-yarn-error.log
-###< symfony/webpack-encore-bundle ###

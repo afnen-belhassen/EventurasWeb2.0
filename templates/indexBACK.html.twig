@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard{% endblock %}</title>
+  <link rel="icon" href="{{ asset('images/img/kaiadmin/favicon.ico') }}" type="image/x-icon">
+
+  
+  {% block css %}
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/plugins.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/kaiadmin.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/demo.css') }}">
+    <style>
+/* Style de la notification */
+.notif {
+  position: fixed;
+  top: 20px;
+  right: -350px; /* Cachée initialement hors de l'écran */
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, right 0.5s ease-in-out; /* Animation fluide */
+  background: #fff; /* Fond blanc */
+  color: #333; /* Texte sombre */
+  border-radius: 15px; /* Coins arrondis */
+  padding: 20px;
+  max-width: 350px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Ombre douce pour donner l'effet carte */
+  font-family: 'Arial', sans-serif;
+}
+
+.notif.show {
+  right: 20px; /* L'élément se déplace à cette position pour l'affichage */
+  opacity: 1;
+}
+
+.notif.hide {
+  right: -350px;
+  opacity: 0;
+}
+
+.notif-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notif-count {
+  background: #ff4c4c; /* Rouge vif */
+  color: white;
+  padding: 10px 14px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: bold;
+  position: relative;
+  top: -5px;
+}
+
+.notif-text {
+  margin-left: 15px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.notif-list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 20px;
+}
+
+.notif-list li {
+  margin: 10px 0;
+  padding: 12px;
+  background-color: rgba(0, 0, 0, 0.05); /* Fond clair pour les éléments de liste */
+  border-radius: 10px;
+  font-size: 14px;
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Effet sur le survol */
+}
+
+.notif-list li:hover {
+  background-color: rgba(0, 0, 0, 0.1); /* Légère couleur de fond au survol */
+  transform: translateX(5px); /* Déplacement au survol pour effet dynamique */
+}
+
+.notif-list a {
+  color: #4caf50; /* Vert pour les liens */
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.notif-list a:hover {
+  color: #fff; /* Blanc au survol */
+}
+
+/* Style du bouton dans la notification */
+.notif-btn {
+  display: inline-block;
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-decoration: none;
+  margin-top: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.notif-btn:hover {
+  background-color: #45a049; /* Légère nuance de vert au survol */
+  transform: scale(1.05); /* Effet de zoom sur le bouton au survol */
+}
+
+/* Design d'une card stylée pour le contenu de la notification */
+.notif-card {
+  background-color: #f9f9f9; /* Fond clair pour la carte */
+  border-radius: 15px; /* Coins arrondis */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Ombre douce pour la carte */
+  padding: 20px;
+  font-size: 16px;
+  font-family: 'Arial', sans-serif;
+  color: #555;
+}
+
+.notif-card h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.notif-card p {
+  margin-bottom: 20px;
+  line-height: 1.5;
+  color: #666;
+}
+
+    </style>
+  {% endblock %}
+</head>
+
+<body>
+  <div class="wrapper">
+    {% block sidebar %}
+    <!-- Sidebar -->
+    <div class="sidebar" data-background-color="dark">
+      <div class="sidebar-logo">
+        <div class="logo-header" data-background-color="dark">
+          <a href="#" class="logo">
+            <img src="{{ asset('images/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20">
+          </a>
+          <div class="nav-toggle">
+            <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
+            <button class="btn btn-toggle sidenav-toggler"><i class="gg-menu-left"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+          <ul class="nav nav-secondary">
+            <li class="nav-item active">
+              <a href="{{path('app_dashboard')}}">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+              </a>
+            </li>
+            <li class="nav-section">
+              <span class="sidebar-mini-icon"><i class="fa fa-ellipsis-h"></i></span>
+              <h4 class="text-section">Modules</h4>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#userMgmt">
+                <i class="fas fa-user-shield"></i>
+                <p>Comptes</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="userMgmt">
+                <ul class="nav nav-collapse">
+                  <li><a href="{{ path('app_users_index') }}">Utilisateurs</a></li>
+                  <li><a href="{{ path('app_role_index') }}">Rôles</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#eventCenter">
+                <i class="fas fa-calendar-alt"></i>
+                <p>Événements</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="eventCenter">
+                <ul class="nav nav-collapse">
+                  <li><a href="#">Liste événements</a></li>
+                  <li><a href="#">Catégories</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#external">
+                <i class="fas fa-handshake"></i>
+                <p>Relations</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="external">
+                <ul class="nav nav-collapse">
+                  <li><a href="#">Partenaires</a></li>
+                  <li><a href="#">Partenariats</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#shop">
+                <i class="fas fa-store"></i>
+                <p>Boutique</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="shop">
+                <ul class="nav nav-collapse">
+                  <li><a href="#">Produits</a></li>
+                  <li><a href="#">Commandes</a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a href="#">
+                <i class="fas fa-headset"></i>
+                <p>Support client</p>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- End Sidebar -->
+    {% endblock %}
+
+    <!-- Main Content -->
+    <div class="main-panel">
+      
+      
+       <div id="notif-area" class="notif hide">
+        <span id="notif-count" class="notif-count">0</span>
+        <span class="notif-text">Nouveaux organisateurs</span>
+        <div class="notif-content">
+          <ul id="notif-list" class="notif-list"></ul>
+        </div>
+      </div>
+
+      {% block body %}
+
+    
+    
+    <ul id="notif-list"></ul>
+      
+      {% endblock %}
+{%block footer%}
+     
+      {% endblock %}
+  {% block js %}
+    <script src="{{ asset('js/core/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('js/core/popper.min.js') }}"></script>
+    <script src="{{ asset('js/core/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
+    <script src="{{ asset('js/plugin/chart.js/chart.min.js') }}"></script>
+    <script src="{{ asset('js/kaiadmin.min.js') }}"></script>
+    <script src="{{ asset('js/demo.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+   function checkNotifications() {
+    fetch("{{ path('admin_notifications') }}")
+        .then(response => response.json())
+        .then(data => {
+            const countEl = document.getElementById('notif-count');
+            const listEl = document.getElementById('notif-list');
+            const notifArea = document.getElementById('notif-area');
+
+            if (!countEl || !listEl || !notifArea) return;
+
+            // Mise à jour du nombre de notifications
+            countEl.innerText = data.count;
+            listEl.innerHTML = '';
+
+            if (data.count > 0) {
+                // Remplir la liste des notifications
+                data.users.forEach(user => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `👤 ${user.username} (${user.email}) 
+                        <a href="/user/${user.id}/edit/status">[Accepter]</a>`;
+                    listEl.appendChild(li);
+                });
+
+                // Afficher la notification
+                notifArea.classList.remove('hide');
+                notifArea.classList.add('show');
+
+                // Masquer la notification après 5 secondes
+                setTimeout(() => {
+                    notifArea.classList.remove('show');
+                    notifArea.classList.add('hide');
+                }, 5000); // Masquer après 5 secondes
+            } else {
+                // Si aucune notification, on cache l'élément
+                notifArea.classList.remove('show');
+                notifArea.classList.add('hide');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur de récupération des notifications :', error);
+        });
+}
+
+// Appeler la fonction toutes les 5 secondes pour vérifier les notifications
+setInterval(checkNotifications, 5000);
+
+  
+</script>
+    
+     <!-- Fonts and icons -->
+  <script src="{{ asset('js/plugin/webfont/webfont.min.js') }}"></script>
+  <script>
+    WebFont.load({
+      google: { families: ["Public Sans:300,400,500,600,700"] },
+      custom: {
+        families: [
+          "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"
+        ],
+        urls: ["{{ asset('css/fonts.min.css') }}"]
+      },
+      active: function () {
+        sessionStorage.fonts = true;
+      }
+    });
+  </script>
+  {% endblock %}
+</body>
+</html>
