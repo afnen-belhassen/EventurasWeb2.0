@@ -3,6 +3,10 @@
 {% block title %}Liste des Événements{% endblock %}
 
 {% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/plugins.min.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/kaiadmin.min.css') }}" />
 <style>
     .main-panel {
         margin-left: 250px; /* Should match your sidebar width */
@@ -71,253 +75,6 @@
   display: block !important;
   z-index: 9999 !important;
 }
-
-
-.category-popup select {
-    font-size: 16px;
-    height: 40px; /* Adjust height as needed */
-    width: 100%;
-    padding: 8px 20px;
-    border: 1px solid #f3f4f6;
-    border-radius: 15px;
-    background-color: #f3f4f6;
-    margin-bottom: 20px;
-  
-  }
-  
-  
-  .category-popup {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-    overflow: hidden;
-  }
-  
-  .category-popup.open {
-    display: flex;
-  }
-  
-  .category-popup-content {
-    background: rgb(255, 255, 255);
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    max-width: 600px;
-    width: 100%;
-    position: relative;
-    overflow: auto;
-    max-height:600px;
-  }
-  
-  .category-popup .close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    background: none;
-    border: none;
-  }
-  
-  .category-popup .form-group {
-    max-width: 500px;
-    margin: auto;
-    margin-bottom: 30px;
-    font-family: "Inter", sans-serif;
-    font-weight: 400;
-  }
-  
-  .category-popup .close {
-    color: #272343;
-    border-radius: 5px;
-    text-transform: uppercase;
-    font-size: 12px;
-    position: absolute;
-    right: 15px;
-    top: 8px;
-    text-decoration: none;
-    display: inline-block;
-    background: #fff;
-    padding: 10px 18px;
-    transition: all 0.3s ease-in-out;
-  }
-  
-  .category-popup .close:hover {
-    background: #272343;
-    color: #fff;
-  }
-  
-  .category-popup .form-control {
-    display: block;
-    padding: 8px 16px;
-    font-size: 16px;
-    width: 94%;
-    background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    color: #000000;
-    font-weight: 400;
-  }
-  
-  .category-popup .form-control:focus {
-    outline: 2px solid rgba(255, 255, 255, 0.5);
-    outline: -webkit-focus-ring-color auto 5px;
-  }
-  
-  .category-popup label {
-    font-weight: 500;
-    display: block;
-    margin: 4px 0;
-    font-size: 13px;
-    overflow: hidden;
-  }
-  
-  .category-popup label span {
-    float: right;
-    text-transform: none;
-    font-weight: 200;
-    line-height: 1em;
-    font-style: italic;
-    opacity: 0.8;
-  }
-  
-  .category-popup-input{
-    width: 100%; /* Make inputs fill the available space */
-    font-size: 14px;
-    height: 35px;
-    padding: 8px 20px;
-    border: 1px solid #f3f4f6; /* Add border for input */
-    border-radius: 15px; /* Add border-radius for input */
-    background-color: #f3f4f6;
-    margin-bottom: 20px; /* Adjust spacing between label and input */
-  }
-  
-  .add-button {
-    padding: 8px 30px;
-    height: 55px;
-    width: 100%;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 400;
-    margin-top: 30px;
-    border-color: rgba(0, 0, 0, 0);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background-color: #101d2d;
-  }
-  .add-button:hover {
-    background-color: #2f7deb;
-  }
-  .add-button.is-loading::after {
-    border-color: #fff;
-  }
-  .close-button {
-    padding: 8px 30px;
-    background-color: #272343;
-    text-transform: uppercase;
-    font-weight: 600;
-    font-size: 11px;
-    border: 0;
-    color: #ccc;
-    cursor: pointer;
-  }
-  .category-popup .file-area {
-    width: 100%;
-    position: relative;
-  }
-  
-  .file-area {
-    background-color: #fff; /* White background to match the form */
-    margin-top: 20px;
-    display: flex; /* Use flexbox for internal centering */
-    align-items: center; /* Center content vertically */
-    justify-content: center; /* Center content horizontally */
-    padding: 15px; /* Inner padding */
-    text-align: center;
-  }
-  
-  .file-area input[type="file"] {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-  
-  .file-area .file-dummy {
-    width: 100%;
-    padding: 30px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px dashed #101d2d;
-    text-align: center;
-    transition: background 0.3s ease-in-out;
-  }
-  
-  .file-area:hover .file-dummy {
-    background: #007fff;
-    color: white;
-  }
-  
-  .file-area input[type="file"]:focus + .file-dummy {
-    outline: 2px solid rgba(255, 255, 255, 0.5);
-    outline: -webkit-focus-ring-color auto 5px;
-  }
-  
-  .file-area input[type="file"]:valid + .file-dummy {
-    border-color: rgba(0, 255, 0, 0.4);
-    background-color: rgba(0, 255, 0, 0.3);
-  }
-  
-  .file-area .file-dummy .success {
-    display: none;
-  }
-  
-  .file-area .file-dummy .success.show {
-    display: inline-block;
-  }
-  .default {
-    display: block;
-  }
-  
-  .default.hide {
-    display: none;
-    background-color: #707070;
-  }
-  
-  .form .input-box {
-    width: 100%;
-    margin-top: 20px;
-  }
-  .input-box label {
-    color: #333;
-  }
-  
-    .remove-item-btn {
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-size: 14px;
-      color: #f44336;
-    }
-    h5{
-        color: rgb(0, 255, 170) !important;
-        }
-  
-  .dropdown-menu {
-    z-index: 1000;
-}
-.mt-16 { margin-top: 14rem !important; }
-  
     
 </style>
 {% endblock %}
@@ -347,12 +104,21 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
       <div class="sidebar-content">
         <ul class="nav nav-secondary">
-           <li class="nav-item active">
-            <a  href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
+          <li class="nav-item active">
+            <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
               <i class="fas fa-home"></i>
-              <p>Tableau de bord</p>
-              
+              <p>Dashboard</p>
+              <span class="caret"></span>
             </a>
+            <div class="collapse" id="dashboard">
+              <ul class="nav nav-collapse">
+                <li>
+                  <a href="../demo1/index.html">
+                    <span class="sub-item">Dashboard 1</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
           </li>
           <li class="nav-section">
             <span class="sidebar-mini-icon">
@@ -395,7 +161,7 @@
                   </a>
                 </li>
                 <li class="active">
-                 <a href="{{ path('app_show_all_catsBack') }}">
+                  <a href="sidebar-style-2.html">
                     <span class="sub-item">Catégories</span>
                   </a>
                 </li>
@@ -411,12 +177,12 @@
                 <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="{{ path('app_partner_index') }}">
+                      <a href="forms/forms.html">
                         <span class="sub-item">Partenaires</span>
                       </a>
                     </li>
                     <li>
-                      <a href="{{ path('app_partnership_index') }}">
+                      <a href="forms/forms.html">
                         <span class="sub-item">Partenariats</span>
                       </a>
                     </li>
@@ -453,8 +219,7 @@
                 <div class="collapse" id="maps">
                   <ul class="nav nav-collapse">
                     <li>
-                    
-                      <a href="{{ path('app_admin_forum') }}">
+                      <a href="forum.html">
                         <span class="sub-item">Publications</span>
                       </a>
                     </li>
@@ -472,21 +237,27 @@
       </div>
     </div>
   </div>
-  <!-- End Sidebar -->
+
 
   <div class="main-panel">
     <div class="main-header">
       <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
             <div class="container-fluid">
-              <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
-                <form method="get" action="{{ path('app_show_all_eventsBack') }}" class="w-100">
-                    <div class="input-group">
-                        <input type="text" name="search" placeholder="Rechercher des événements..." class="form-control" value="{{ app.request.query.get('search') }}">
-                        <button type="submit" class="btn btn-search pe-1">
-                        <i class="fa fa-search search-icon"></i>
-                        </button>
-                    </div>
-                </form>
+              <nav
+                class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex"
+              >
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <button type="submit" class="btn btn-search pe-1">
+                      <i class="fa fa-search search-icon"></i>
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search ..."
+                    class="form-control"
+                  />
+                </div>
               </nav>
 
               <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
@@ -504,18 +275,13 @@
                     <i class="fa fa-search"></i>
                   </a>
                   <ul class="dropdown-menu dropdown-search animated fadeIn">
-                    <form method="get" action="{{ path('app_show_all_eventsBack') }}" class="navbar-left navbar-form nav-search">
+                    <form class="navbar-left navbar-form nav-search">
                       <div class="input-group">
                         <input
                           type="text"
-                          name="search"
-                          placeholder="Rechercher des événements..."
+                          placeholder="Search ..."
                           class="form-control"
-                          value="{{ app.request.query.get('search') }}"
-                        >
-                        <button type="submit" class="btn btn-search">
-                          <i class="fa fa-search"></i>
-                        </button>
+                        />
                       </div>
                     </form>
                   </ul>
@@ -828,152 +594,82 @@
       
     </div>
     
-    <div class="container rm -6">
-      <div class="d-flex flex-wrap gap-3 mb-4">
-        <h1>Liste des Événements</h1>
-        <table class="table event-list">
-          <thead>
-            <tr>
-              <th>Titre</th>
-              <th>Description</th>
-              <th>Date début</th>
-              <th>Date fin</th>
-              <th>Localisation</th>
-              <th>Activités</th>
-              <th>Prix</th>
-              <th>Nombre de places</th>
-              <th>Statut</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for event in events %}
-              <tr>
-                <td>{{ event.title }}</td>
-                <td>{{ event.description }}</td>
-                <td>{{ event.date_event|date('Y-m-d') }}</td>
-                <td>{{ event.dateFinEve|date('Y-m-d') }}</td>
-                <td>{{ event.location }}</td>
-                <td>{{ event.activities }}</td>
-                <td>{{ event.prix }}</td>
-                <td>{{ event.nb_places }}</td>
-                <td>{{ event.status }}</td>
-                <td>
-                  <div class="button-group">
-                  <button type="button" class="btn btn-warning" data-action="event-modal#open" data-event-id="{{ event.id_event }}">
-                      Modifier
-                    </button>
-                    <form action="{{ path('app_event_delete', { id: event.id_event }) }}" method="post" style="display:inline;">
-                      <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">Supprimer</button>
-                    </form>
-                    <form action="{{ path('app_change_status', { id: event.id_event }) }}" method="post" style="display:inline;">
-                      <button type="submit" class="btn btn-info" onclick="return confirm('Êtes-vous sûr de vouloir changer le statut de cet événement ?');">Changer le Statut</button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-            {% else %}
-              <tr>
-                <td colspan="5">Aucun événement trouvé.</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    <div class="container">
+      <div class="page-inner">
+        <h1>Page of stats</h1>
+
+        <div class="container mt-5">
+            <h2 class="mb-4">📊 Statistiques des Réclamations</h2>
+            test : {# CORRECT usage: #}
+            {{ render_chart(testChart) }}
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h4>Satisfaction par note</h4>
+                    {{ render_chart(satisfactionChart) }}
+                </div>
+                <div class="col-md-6">
+                    <h4>Réclamations par jour</h4>
+                    {{ render_chart(volumeChart) }}
+                </div>
+            </div>
+
+            
+        
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Temps moyen de résolution</h4>
+                    {{ render_chart(durationChart) }}
+                    <p class="mt-3"><strong>{{ avgHours }}</strong> heures en moyenne</p>
+                </div>
+            </div>
+        </div>
+
+        <h4>Réclamations par jour</h4>
+        <canvas id="volumeChart"></canvas>
+
+
+
+
       </div>
     </div>
-    
-    <!-- Edit Event Modal -->
-    <div id="editEventModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeEditModal()">&times;</span>
-        <h2>Modifier l'événement</h2>
-        <form id="editEventForm" action="{{ path('app_event_edit', {'id': 0}) }}" method="post">
-            <input type="hidden" id="eventId" name="id" value="">
-          <div class="mb-3">
-            <label for="title" class="form-label">Titre</label>
-            <input type="text" class="form-control" id="title" name="title" required>
-          </div>
-          <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="date_event" class="form-label">Date début</label>
-            <input type="date" class="form-control" id="date_event" name="date_event" required>
-          </div>
-          <div class="mb-3">
-            <label for="dateFinEve" class="form-label">Date fin</label>
-            <input type="date" class="form-control" id="dateFinEve" name="dateFinEve" required>
-          </div>
-          <div class="mb-3">
-            <label for="location" class="form-label">Localisation</label>
-            <input type="text" class="form-control" id="location" name="location" required>
-          </div>
-          <div class="mb-3">
-            <label for="activities" class="form-label">Activités</label>
-            <input type="text" class="form-control" id="activities" name="activities" required>
-          </div>
-          <div class="mb-3">
-            <label for="prix" class="form-label">Prix</label>
-            <input type="number" class="form-control" id="prix" name="prix" required>
-          </div>
-          <div class="mb-3">
-            <label for="nb_places" class="form-label">Nombre de places</label>
-            <input type="number" class="form-control" id="nb_places" name="nb_places" required>
-          </div>
-          <div class="mb-3">
-            <label for="status" class="form-label">Statut</label>
-            <select class="form-select" id="status" name="status" required>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary">Enregistrer</button>
-        </form>
-      </div>
-    </div>
-    
-    <footer class="footer">
-      <!-- Footer content can go here -->
-    </footer>
-    <!-- Custom template | don't include it in your project! -->
-    <div class="custom-template">
-      <!-- Custom template content -->
-    </div>
-    <!-- End Custom template -->
   </div>
+
+
+
+  <div>
+    <canvas id="myChart"></canvas>
+  </div>
+
+
 </div>
-{% endblock %}
 
 
-{% block js %}
-{{ parent() }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Direct button binding instead of delegation
-  document.querySelectorAll('.btn-warning[data-event-id]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const modal = document.getElementById('editEventModal');
-      modal.classList.add('show');
-      
-      // Just for testing - remove after confirmation
-      console.log('Modal should be visible now');
-      document.getElementById('title').value = 'Test Title';
-    });
-  });
+  const ctx = document.getElementById('myChart');
 
-  // Close modal handlers
-  document.querySelector('.close').addEventListener('click', function() {
-    document.getElementById('editEventModal').classList.remove('show');
-  });
-
-  window.onclick = function(event) {
-    const modal = document.getElementById('editEventModal');
-    if (event.target === modal) {
-      modal.classList.remove('show');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      datasets: [{
+        label: '# of Votes',
+        data: [12, 19, 3, 5, 2, 3],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
     }
-  };
-});
+  });
 </script>
+ 
 
 {% endblock %}

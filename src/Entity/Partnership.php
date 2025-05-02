@@ -166,4 +166,4 @@ class Partnership
         $this->status = $status;
         return $this;
     }
-} 
+}

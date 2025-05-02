@@ -6,6 +6,7 @@
 parameters:
     images_events_directory: '%kernel.project_dir%/assets/ImagesEvents'
     attachments_directory:   '%kernel.project_dir%/assets/ImagesReclamations'
+    conversations_directory:   '%kernel.project_dir%/public/ImagesConversations'
     partners_directory: '%kernel.project_dir%/public/uploads/partners'
     signed_contracts_directory: '%kernel.project_dir%/public/uploads/organizer/signed_contracts'
     original_contracts_directory: '%kernel.project_dir%/public/uploads/organizer/contracts'
@@ -15,6 +16,7 @@ parameters:
     twilio.auth_token: '%env(TWILIO_AUTH_TOKEN)%'
     twilio.phone_number: '%env(TWILIO_PHONE_NUMBER)%'
     google_maps_api_key: '%env(GOOGLE_MAPS_API_KEY)%'
+
     
 services:
     # default configuration for services in *this* file

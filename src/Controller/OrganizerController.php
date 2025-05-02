@@ -266,38 +266,7 @@ class OrganizerController extends AbstractController
         ]);
     }
 
-    #[Route('/partner/{id}/generate-partnership', name: 'app_organizer_generate_partnership', methods: ['GET', 'POST'])]
-    public function generatePartnership(Request $request, Partner $partner, EntityManagerInterface $entityManager): Response
-    {
-        if ($request->isMethod('POST')) {
-            // Create a new partnership with all required fields
-            $partnership = new Partnership();
-            $partnership->setPartnerId($partner);
-            $partnership->setName('Partnership with ' . $partner->getName());
-            $partnership->setStatus('pending');
-            $partnership->setCreatedAt(new \DateTime());
-            $partnership->setContracttype('Standard');
-            $partnership->setDescription('Partnership with ' . $partner->getName());
-            $partnership->setOrganizerid(1); // Hardcoded for testing
-            
-            // Set optional fields from form data
-            $partnership->setEmail($request->request->get('email'));
-            $partnership->setPhone($request->request->get('phone'));
-            $partnership->setAddress($request->request->get('address'));
-            
-            // Persist and flush
-            $entityManager->persist($partnership);
-            $entityManager->flush();
-            
-            $this->addFlash('success', 'Partnership request has been created successfully.');
-            return $this->redirectToRoute('app_organizer_partners');
-        }
-        
-        // For GET requests, just render the form
-        return $this->render('organizer/generate_partnership.html.twig', [
-            'partner' => $partner,
-        ]);
-    }
+
 
     #[Route('/partnerships', name: 'app_organizer_partnerships', methods: ['GET'])]
     public function partnerships(PartnershipRepository $partnershipRepository): Response
@@ -453,6 +422,8 @@ class OrganizerController extends AbstractController
                     $this->addFlash('success', 'Contract verified successfully!');
                     $partnership->setIsSigned(true);
                     $partnership->setSignedAt(new \DateTime());
+                    
+                    $this->entityManager->persist($partnership);
                     $this->entityManager->flush();
                 } else {
                     // Get the original contract size for comparison
@@ -473,6 +444,8 @@ class OrganizerController extends AbstractController
                 ]);
                 $this->addFlash('error', 'Error verifying contract: ' . $e->getMessage());
             }
+            
+            return $this->redirectToRoute('app_organizer_contract_management', ['id' => $partnership->getId()]);
         }
 
         return $this->render('organizer/verify_contract.html.twig', [

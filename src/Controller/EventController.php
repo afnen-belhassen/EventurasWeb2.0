@@ -52,8 +52,8 @@ final class EventController extends AbstractController
     }
   
     #[Route('/event/new', name: 'app_event_new')]
-public function new(Request $request, EntityManagerInterface $entityManager): Response
-{
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
     $event = new Event();
 
     // Set default values
