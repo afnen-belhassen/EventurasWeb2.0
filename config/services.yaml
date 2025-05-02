@@ -15,6 +15,7 @@ parameters:
     twilio.auth_token: '%env(TWILIO_AUTH_TOKEN)%'
     twilio.phone_number: '%env(TWILIO_PHONE_NUMBER)%'
     google_maps_api_key: '%env(GOOGLE_MAPS_API_KEY)%'
+    original_contracts_directory: '%kernel.project_dir%/public/uploads/contracts'
     
 services:
     # default configuration for services in *this* file
@@ -55,4 +56,5 @@ services:
 
     App\Service\SignatureVerificationService:
         arguments:
-            $uploadDirectory: '%kernel.project_dir%/public/uploads/organizer/signed_contracts'
+            $uploadDirectory: '%signed_contracts_directory%'
+            $originalContractsDirectory: '%original_contracts_directory%'

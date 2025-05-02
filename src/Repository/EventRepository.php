@@ -85,8 +85,6 @@ public function searchByName(string $query): array
 
         return $qb->getQuery()->getResult();
     }
-<<<<<<< HEAD
-=======
     // src/Repository/EventRepository.php
 
     public function getEventsCountByCategory(): array
@@ -99,5 +97,4 @@ public function searchByName(string $query): array
         ->getQuery()
         ->getResult();
 }
->>>>>>> origin/main
 }
