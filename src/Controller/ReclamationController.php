@@ -23,6 +23,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\UX\Chartjs\Model\Chart;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use App\Repository\ReclamationRepository;
+
 
 
 final class ReclamationController extends AbstractController
@@ -49,7 +51,7 @@ final class ReclamationController extends AbstractController
         $pagination = $paginator->paginate(
             $qb,
             $request->query->getInt('page', 1),
-            5
+            10
         );
     
         return $this->render('backOFF/reclamsBack.html.twig', [
@@ -127,6 +129,8 @@ final class ReclamationController extends AbstractController
         }
         $reclamation = new Reclamation();
         $reclamation->setStatus('En attente');
+        $reclamation->setIdUser(2); // hardcoded for now
+
 
         $form = $this->createForm(ReclamationType::class, $reclamation);
         $form->handleRequest($request);
@@ -393,7 +397,7 @@ final class ReclamationController extends AbstractController
         $message = new ConversationMessage();
         $message->setConversation($conversation);
         $message->setCreatedAt(new \DateTime());
-        $message->setSenderId(1); // Replace later with $this->getUser()->getId()
+        $message->setSenderId(2); // Replace later with $this->getUser()->getId()
 
         $form = $this->createForm(ConversationMessageType::class, $message);
         $form->handleRequest($request);
@@ -515,6 +519,13 @@ final class ReclamationController extends AbstractController
     }
 
 
+    private $reclamationRepository;
+
+    public function __construct(ReclamationRepository $reclamationRepository)
+    {
+        $this->reclamationRepository = $reclamationRepository;
+    }
+
     #[Route('/reclams/stats', name: 'reclam_stats')]
     public function showStats(ChartBuilderInterface $chartBuilder, EntityManagerInterface $em): Response
     {
@@ -609,12 +620,49 @@ final class ReclamationController extends AbstractController
             ]]
         ]);
 
+        // Test data for demonstration
+        $totalReclamations = 150;
+        $pendingReclamations = 45;
+        $resolvedReclamations = 85;
+        $rejectedReclamations = 20;
+        
+        $ratingStats = $this->reclamationRepository->getRatingStats();
+        $monthlyStats = $this->reclamationRepository->getMonthlyReclamations();
+        $avgResolutionTime = $this->reclamationRepository->getAverageResolutionTime();
+
+
+
+        
+        // Test data for type distribution
+        $typeDistribution = [
+            'labels' => ['Technical', 'Billing', 'Service', 'Other'],
+            'data' => [40, 35, 25, 20]
+        ];
+        
+        // Test data for status distribution
+        $statusDistribution = [
+            'Pending' => $pendingReclamations,
+            'Resolved' => $resolvedReclamations,
+            'Rejected' => $rejectedReclamations
+        ];
+
         return $this->render('backOFF/reclamStats.html.twig', [
             'satisfactionChart' => $satisfactionChart,
             'volumeChart'       => $volumeChart,
             'durationChart'     => $durationChart,
             'avgHours'          => $avgHours,
             'testChart'         => $testChart, // ✅ Add this line
+            'totalReclamations' => $totalReclamations,
+            'pendingReclamations' => $pendingReclamations,
+            'resolvedReclamations' => $resolvedReclamations,
+            'avgResponseTime' => 2.5,
+            'monthlyStats' => $monthlyStats,
+            'typeDistribution' => $typeDistribution,
+            'statusDistribution' => $statusDistribution,
+            'avgRating' => $ratingStats['average'],
+            'ratingDistribution' => $ratingStats['distribution'],
+            'monthlyStats' => $monthlyStats,
+            'avgResolutionTime' => $avgResolutionTime,
 
         ]);
     }

@@ -31,11 +31,12 @@ class ReclamationsBackController extends AbstractController
         $resolvedReclamations = 85;
         $rejectedReclamations = 20;
         
-        // Test data for monthly statistics
-        $monthlyStats = [
-            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            'data' => [12, 19, 15, 25, 22, 30]
-        ];
+        $ratingStats = $this->reclamationRepository->getRatingStats();
+        $monthlyStats = $this->reclamationRepository->getMonthlyReclamations();
+        $avgResolutionTime = $this->reclamationRepository->getAverageResolutionTime();
+
+
+
         
         // Test data for type distribution
         $typeDistribution = [
@@ -57,7 +58,16 @@ class ReclamationsBackController extends AbstractController
             'avgResponseTime' => 2.5, // Test average response time in days
             'monthlyStats' => $monthlyStats,
             'typeDistribution' => $typeDistribution,
-            'statusDistribution' => $statusDistribution
+            'statusDistribution' => $statusDistribution,
+            'avgRating' => $ratingStats['average'],
+            'ratingDistribution' => $ratingStats['distribution'],
+            'monthlyStats' => $monthlyStats,
+            'avgResolutionTime' => $avgResolutionTime,
         ]);
     }
+
+
+
+
+
 } 
