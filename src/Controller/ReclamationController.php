@@ -51,7 +51,7 @@ final class ReclamationController extends AbstractController
         $pagination = $paginator->paginate(
             $qb,
             $request->query->getInt('page', 1),
-            5
+            10
         );
     
         return $this->render('backOFF/reclamsBack.html.twig', [
@@ -129,6 +129,8 @@ final class ReclamationController extends AbstractController
         }
         $reclamation = new Reclamation();
         $reclamation->setStatus('En attente');
+        $reclamation->setIdUser(2); // hardcoded for now
+
 
         $form = $this->createForm(ReclamationType::class, $reclamation);
         $form->handleRequest($request);
@@ -395,7 +397,7 @@ final class ReclamationController extends AbstractController
         $message = new ConversationMessage();
         $message->setConversation($conversation);
         $message->setCreatedAt(new \DateTime());
-        $message->setSenderId(1); // Replace later with $this->getUser()->getId()
+        $message->setSenderId(2); // Replace later with $this->getUser()->getId()
 
         $form = $this->createForm(ConversationMessageType::class, $message);
         $form->handleRequest($request);
@@ -653,7 +655,7 @@ final class ReclamationController extends AbstractController
             'totalReclamations' => $totalReclamations,
             'pendingReclamations' => $pendingReclamations,
             'resolvedReclamations' => $resolvedReclamations,
-            'avgResponseTime' => 2.5, // Test average response time in days
+            'avgResponseTime' => 2.5,
             'monthlyStats' => $monthlyStats,
             'typeDistribution' => $typeDistribution,
             'statusDistribution' => $statusDistribution,

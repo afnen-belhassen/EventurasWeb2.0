@@ -43,19 +43,23 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $id_event = null;
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(name: "id_event", referencedColumnName: "id_event", nullable: true, onDelete: "SET NULL")]
+    private ?Event $id_event = null;
 
-    public function getId_event(): ?int
+    public function getIdEvent(): ?Event
     {
         return $this->id_event;
     }
-
-    public function setId_event(?int $id_event): self
+    
+    public function setIdEvent(?Event $id_event): self
     {
         $this->id_event = $id_event;
+    
         return $this;
     }
+
+
 
     #[ORM\Column(type: 'datetime', nullable: false)]
     private ?\DateTimeInterface $created_at = null;
@@ -219,17 +223,7 @@ class Reclamation
         return $this;
     }
 
-    public function getIdEvent(): ?int
-    {
-        return $this->id_event;
-    }
 
-    public function setIdEvent(?int $id_event): static
-    {
-        $this->id_event = $id_event;
-
-        return $this;
-    }
 
 
     public function getRefuseReason(): ?string
