@@ -531,62 +531,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-{% if showRatingPopup and reclamation.status|trim == 'Résolu' %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    Swal.fire({
-        title: 'Notez cette réclamation',
-        showConfirmButton: false,
-        showCloseButton: true,
-        html: `
-            <div class="star-rating" style="font-size: 2em; display: flex; gap: 10px; justify-content: center;">
-                <label for="rate1" style="cursor:pointer;">⭐</label>
-                <label for="rate2" style="cursor:pointer;">⭐</label>
-                <label for="rate3" style="cursor:pointer;">⭐</label>
-                <label for="rate4" style="cursor:pointer;">⭐</label>
-                <label for="rate5" style="cursor:pointer;">⭐</label>
-
-                <input type="radio" name="rating" value="1" id="rate1" style="display:none;">
-                <input type="radio" name="rating" value="2" id="rate2" style="display:none;">
-                <input type="radio" name="rating" value="3" id="rate3" style="display:none;">
-                <input type="radio" name="rating" value="4" id="rate4" style="display:none;">
-                <input type="radio" name="rating" value="5" id="rate5" style="display:none;">
-            </div>
-        `
-    });
-
-    // Bind click listeners directly after popup is shown
-    setTimeout(() => {
-        document.querySelectorAll('input[name="rating"]').forEach(input => {
-            const label = document.querySelector(`label[for="${input.id}"]`);
-            if (label) {
-                label.addEventListener('click', () => {
-                    // Auto-submit on click
-                    fetch("{{ path('rate_reclamation', { id: reclamation.id })|e('js') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({ rating: input.value })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Merci !', 'Votre note a été enregistrée.', 'success')
-                                .then(() => location.reload());
-                        } else {
-                            Swal.fire('Erreur', data.message, 'error');
-                        }
-                    });
-                });
-            }
-        });
-    }, 100); // allow DOM to fully render
-});
-</script>
-{% endif %}
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
