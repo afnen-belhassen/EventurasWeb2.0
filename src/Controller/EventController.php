@@ -321,7 +321,7 @@ public function editBack(Request $request, int $id, EntityManagerInterface $enti
     ]);
 }
 #[Route('/newBack', name: 'app_eventback')]
-public function newBack(Request $request, EntityManagerInterface $entityManager): Response
+public function newBack(Request $request, EntityManagerInterface $entityManager,Security $security): Response
 {
     $event = new Event();
     $form = $this->createForm(EventType::class, $event);
@@ -329,9 +329,8 @@ public function newBack(Request $request, EntityManagerInterface $entityManager)
     $event->setStatus('Accepté');
     $event->setCreation_date(new \DateTime());
 
- 
     $form->handleRequest($request);
-
+    
     if ($form->isSubmitted() && $form->isValid()) {
         try {
             $file = $form->get('image')->getData();

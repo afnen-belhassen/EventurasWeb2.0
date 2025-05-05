@@ -17,6 +17,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use App\Service\TwilioService;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class ReservationController extends AbstractController
 {
@@ -370,11 +371,13 @@ class ReservationController extends AbstractController
     }
 
     #[Route('/reservations', name: 'app_reservations')]
-    public function user1Reservations(ReservationRepository $reservationRepo): Response
+    public function user1Reservations(ReservationRepository $reservationRepo,Security $security): Response
     {
+        $user = $security->getUser();
+        $userId = $user->getUserId();
     return $this->render('reservation/displayReservation.html.twig', [
-        'reservations' => $reservationRepo->findBy(['user_id' => 1]),
-        'user_id' => 1
+        'reservations' => $reservationRepo->findBy(['user_id' => $userId]),
+        'username' => $user->getUserFirstName()
     ]);
     }
 
