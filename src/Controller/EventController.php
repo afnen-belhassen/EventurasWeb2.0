@@ -1,6 +1,5 @@
 <?php
 namespace App\Controller;
-
 use App\Entity\Event;
 use App\Entity\Categorie; 
 use App\Entity\Rating;
@@ -14,8 +13,15 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\EventRepository;
 use App\Repository\ReservationRepository;
+use Symfony\Bundle\SecurityBundle\Security;
+
 final class EventController extends AbstractController
-{
+{   private Security $security;
+    
+    public function __construct(Security $security)
+    {
+        $this->security = $security;
+    }
     #[Route('/homeOrg', name: 'app_home')]
     public function index(EntityManagerInterface $entityManager): Response
     {
@@ -52,12 +58,13 @@ final class EventController extends AbstractController
     }
   
     #[Route('/event/new', name: 'app_event_new')]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager,Security $security): Response
     {
+        
     $event = new Event();
-
+    $user = $security->getUser();
     // Set default values
-    $event->setUser_id(2); // Set user_id to 1 by default
+    $event->setUser_id($user->getUserId()); // Set user_id to 1 by default
     $event->setStatus('En cours de traitement'); // Set status
     $event->setCreation_date(new \DateTime()); // Set creation date to current timestamp
 
@@ -154,7 +161,7 @@ public function edit(Request $request, int $id, EntityManagerInterface $entityMa
             ? $eventRepository->searchByName($searchQuery)
             : $eventRepository->findAll();
     
-        // Rest of your statistics code remains the same
+        // code statistiqques wht's left 
         $eventsByDate = $eventRepository->createQueryBuilder('e')
             ->select('SUBSTRING(e.creation_date, 1, 10) as date, COUNT(e.id_event) as count')
             ->groupBy('date')
