@@ -491,8 +491,9 @@ class ForumController extends AbstractController
     }
 
     #[Route('/forum/log-badword-attempt', name:'app_forum_log_badword', methods:['POST'])]
-    public function logBadWordAttempt(Request $request, EntityManagerInterface $em): JsonResponse
+    public function logBadWordAttempt(Request $request, EntityManagerInterface $em,Security $security): JsonResponse
     {
+
         $data = json_decode($request->getContent(), true);
         $word = $data['word'] ?? null;
         if (!$word) {
@@ -504,7 +505,10 @@ class ForumController extends AbstractController
             $attempt = new BadWordAttempt();
             $attempt->setBadWord($bw);
             // si tu as ajouté userId sur BadWordAttempt, fais $attempt->setUserId($this->getUser()->getId());
-            $attempt->setUserId(3);
+
+            $user = $security->getUser();
+            $userId = $user->getUserId();
+            $attempt->setUserId($userId);
             $attempt->setAttemptedAt(new \DateTimeImmutable());
             $em->persist($attempt);
             $em->flush();
