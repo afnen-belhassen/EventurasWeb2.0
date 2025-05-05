@@ -177,26 +177,23 @@
            attr: { enctype: 'multipart/form-data', id: 'reclamationForm' }
       }) }}
   
-      <div class="mb-3">
-        {{ form_label(form.id_user, null, { label_attr: { class: 'form-label' } }) }}
-        {{ form_widget(form.id_user, { attr: { class: 'form-control' } }) }}
-      </div>
   
-      <div class="mb-3">
-        {{ form_label(form.id_event, null, { label_attr: { class: 'form-label' } }) }}
-        {{ form_widget(form.id_event, { attr: { class: 'form-control' } }) }}
-      </div>
+  <div class="mb-3">
+    {{ form_label(form.subject, null, { label_attr: { class: 'form-label' } }) }}
+    {{ form_widget(form.subject, { attr: { class: 'form-control' } }) }}
+  </div>
+
+  
+  <div class="mb-3" id="eventFieldWrapper">
+    {{ form_label(form.id_event, null, { label_attr: { class: 'form-label' } }) }}
+    {{ form_widget(form.id_event, { attr: { class: 'form-control' } }) }}
+</div>
   
       <div class="mb-3">
         {{ form_label(form.description, null, { label_attr: { class: 'form-label' } }) }}
         {{ form_widget(form.description, { attr: { class: 'form-control', rows: 3 } }) }}
       </div>
-  
-      <div class="mb-3">
-        {{ form_label(form.subject, null, { label_attr: { class: 'form-label' } }) }}
-        {{ form_widget(form.subject, { attr: { class: 'form-control' } }) }}
-      </div>
-  
+
       <!-- File Upload Button -->
       <div class="mb-3">
         <button type="button" id="addFilesBtn" class="btn btn-outline-secondary w-100">
@@ -472,4 +469,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      const subjectField = document.querySelector('#reclamation_subject');
+      const eventWrapper = document.querySelector('#eventFieldWrapper');
+  
+      function toggleEventField() {
+          const value = subjectField.value;
+          if (value === 'Evenement' || value === 'Organizateur') {
+              eventWrapper.style.display = 'block';
+          } else {
+              eventWrapper.style.display = 'none';
+          }
+      }
+  
+      // Initial toggle on page load
+      toggleEventField();
+  
+      // Toggle when subject changes
+      subjectField.addEventListener('change', toggleEventField);
+  });
+  </script>
+
+
 {% endblock %}
