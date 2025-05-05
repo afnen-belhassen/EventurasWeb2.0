@@ -1,3 +1,11 @@
 controllers:
     resource: '../src/Controller/'
     type: attribute
+commande_configuration:
+    path: /commande/configuration/{id}
+    controller: App\Controller\CommandeController::orderConfirmation
+
+commande_payment:
+    path: /commande/payment/{id}
+    controller: App\Controller\CommandeController::startPaiement
+

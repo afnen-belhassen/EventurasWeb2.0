@@ -82,20 +82,18 @@
                 </div>
             </div>
 
-
-
             <div class="row mt-5">
                 <div class="col-12">
                     <div class="custom-block custom-block-bg">
                         <h5 class="text-white mb-3">Commandes récentes</h5>
-                        <div class="table-responsive">
-                            <table class="table table-dark">
-                                <thead>
+                        <div style="max-height: 300px; overflow-y: auto; overflow-x: auto;">
+                            <table class="table table-dark mb-0">
+                                <thead style="position: sticky; top: 0; background-color: #212529;">
                                     <tr>
                                         <th>ID</th>
                                         <th>Client</th>
                                         <th>Adresse</th>
-                                        <th>Telephone</th>
+                                        <th>Téléphone</th>
                                         <th>Produit</th>
                                         <th>Quantité</th>
                                         <th>Total</th>
@@ -103,7 +101,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for commande in commandes|slice(0, 5) %}
+                                    {% for commande in commandes %}
                                         <tr>
                                             <td>#{{ commande.id }}</td>
                                             <td>{{ commande.nomclient }}</td>
@@ -112,7 +110,7 @@
                                             <td>{{ commande.produit.nom ?? 'Nom non disponible' }}</td>
                                             <td>{{ commande.quantite }}</td>
                                             <td>{{ commande.total|number_format(2, '.', ',') }} TND</td>
-                                            <td>{{ commande.dateCommande|date('d/m/Y H:i') }}</td>                                           </td>
+                                            <td>{{ commande.dateCommande|date('d/m/Y H:i') }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -121,6 +119,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
 </main>
@@ -130,90 +129,94 @@
     {{ parent() }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ventesCtx = document.getElementById('ventesChart').getContext('2d')
-        new Chart(ventesCtx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Ventes mensuelles (TND)',
-                    data: ventesParMois,
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white'
-                        }
-                    }
+        const ventesCtx = document.getElementById('ventesChart')?.getContext('2d')
+        if (ventesCtx) {
+            new Chart(ventesCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ventes mensuelles (TND)',
+                        data: ventesParMois,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1
+                    }]
                 },
-                scales: {
-                    y: {
-                        ticks: {
-                            color: 'white'
-                        },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
                         }
                     },
-                    x: {
-                        ticks: {
-                            color: 'white'
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
                         },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
                         }
                     }
                 }
-            }
-        })
+            });
+        }
 
-        const produitsCtx = document.getElementById('produitsChart').getContext('2d')
-        new Chart(produitsCtx, {
-            type: 'bar',
-            data: {
-                labels: topProduitsLabels,
-                datasets: [{
-                    label: 'Quantité vendue',
-                    data: topProduitsData,
-                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                    borderColor: 'rgb(75, 192, 192)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white'
-                        }
-                    }
+        const produitsCtx = document.getElementById('produitsChart')?.getContext('2d')
+        if (produitsCtx) {
+            new Chart(produitsCtx, {
+                type: 'bar',
+                data: {
+                    labels: topProduitsLabels,
+                    datasets: [{
+                        label: 'Quantité vendue',
+                        data: topProduitsData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgb(75, 192, 192)',
+                        borderWidth: 1
+                    }]
                 },
-                scales: {
-                    y: {
-                        ticks: {
-                            color: 'white'
-                        },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
                         }
                     },
-                    x: {
-                        ticks: {
-                            color: 'white'
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
                         },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
                         }
                     }
                 }
-            }
-        })
+            });
+        }
     </script>
 {% endblock %}

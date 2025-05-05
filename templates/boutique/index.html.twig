@@ -1,233 +1,417 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boutique</title>
-    <style>
-        body {
-            background-color: #001e33; /* Bleu plus foncé */
-            color: white;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+{% extends 'base.html.twig' %}
 
-        /* En-tête */
-        h1 {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 3rem;
-            font-weight: bold;
-            color: #ffffff;
-        }
+{% block css %}
+<style>
+  /* Variables pour faciliter les changements de couleur */
+  :root {
+      --primary-color: #003366;
+      --primary-dark: #001e33;
+      --primary-light: #004d80;
+      --accent-color: #00a8ff;
+      --text-light: #ffffff;
+      --text-muted: #d9d9d9;
+      --price-color: #19e6b5;
+      --shadow-color: rgba(0, 0, 0, 0.2);
+      --card-radius: 16px;
+      --btn-radius: 10px;
+  }
 
-        /* Conteneur principal */
-        .container {
-            padding: 30px;
-        }
+  body {
+      background: linear-gradient(135deg, var(--primary-dark), #001428);
+      color: var(--text-light);
+      font-family: 'Montserrat', 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+  }
 
-        /* Grille de produits */
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px; /* Espacement entre les éléments */
-            justify-content: center; /* Centrer les produits */
-        }
+  h1 {
+      margin: 40px 0;
+      text-align: center;
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--text-light);
+      text-shadow: 0 3px 10px rgba(0, 168, 255, 0.3);
+      letter-spacing: 1.5px;
+  }
 
-        .col-md-4 {
-            flex: 0 0 30%; /* Chaque carte occupe environ 30% de la largeur (3 produits par ligne) */
-            max-width: 30%;
-        }
+  .container {
+      padding: 30px;
+      max-width: 1280px;
+      margin: 0 auto;
+  }
 
-        /* Style pour les cards */
-        .card {
-            background-color: #003366; /* Bleu foncé pour les cartes */
-            color: white;
-            border: none;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
+  .navbar {
+      background-color: rgba(0, 30, 51, 0.9);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      padding: 15px 0;
+      top: 0;
+      z-index: 100;
+  }
 
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
-        }
+  .navbar-brand {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+  }
 
-        .card-body {
-            padding: 20px;
-            text-align: center;
-        }
+  .navbar-brand:hover {
+      color: #ffffff;
+      transform: scale(1.05);
+  }
 
-        .card-title {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
+  .nav-item {
+      margin: 0 5px;
+  }
 
-        .card-text {
-            font-size: 1rem;
-            color: #d9d9d9;
-            margin-bottom: 10px;
-        }
+  .nav-link {
+      color: var(--text-light);
+      font-weight: 500;
+      padding: 8px 15px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+  }
 
-        .card-price {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #f8b400;
-        }
+  .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--accent-color);
+  }
 
-        /* Boutons */
-        .btn {
-            background-color: #004080; /* Bleu foncé pour le bouton */
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease-in-out;
-        }
+  .custom-btn {
+      background-color: var(--accent-color);
+      color: var(--text-light);
+      padding: 10px 20px;
+      border-radius: var(--btn-radius);
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+  }
 
-        .btn:hover {
-            background-color: #003366; /* Bleu plus foncé au survol */
-        }
+  .custom-btn:hover {
+      background-color: #0095e0;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 168, 255, 0.4);
+  }
 
-        .btn-primary {
-            background-color: #006699; /* Bleu plus clair pour "Agrandir" */
-        }
+  .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+  }
 
-        .btn-primary:hover {
-            background-color: #004d66; /* Bleu plus foncé au survol */
-        }
+  .col-md-4 {
+      flex: 0 0 calc(33.333% - 30px);
+      max-width: calc(33.333% - 30px);
+  }
 
-        /* Modal */
-        .modal-toggle {
-            display: none;
-        }
+  @media (max-width: 992px) {
+      .col-md-4 {
+          flex: 0 0 calc(50% - 30px);
+          max-width: calc(50% - 30px);
+      }
+  }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding-top: 60px;
-            transition: opacity 0.3s ease-in-out;
-        }
+  @media (max-width: 768px) {
+      .col-md-4 {
+          flex: 0 0 100%;
+          max-width: 100%;
+      }
+  }
 
-        .modal-content {
-            background-color: #ffffff;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 12px;
-            width: 80%;
-            max-width: 900px;
-            text-align: center;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-        }
+  .card {
+      background: linear-gradient(145deg, #00264d, var(--primary-color));
+      color: var(--text-light);
+      border: none;
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
 
-        .close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            position: absolute;
-            top: 10px;
-            right: 25px;
-            cursor: pointer;
-        }
+  .card:hover {
+      transform: translateY(-15px);
+      box-shadow: 0 20px 40px rgba(0, 102, 204, 0.3);
+  }
 
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+  .produit {
+      padding: 25px 20px;
+      background: rgba(0, 30, 60, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 250px;
+  }
 
-        .modal img {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-        }
+  .product-image {
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+      max-width: 200px !important;
+      max-height: 200px !important;
+      object-fit: contain;
+  }
 
-        .modal-toggle:checked + .modal {
-            display: block;
-        }
+  .card:hover .product-image {
+      transform: scale(1.08);
+      box-shadow: 0 8px 25px rgba(0, 168, 255, 0.25);
+  }
 
-        .pagination {
-            margin-top: 40px;
-            display: flex;
-            justify-content: center;
-        }
+  .card-body {
+      padding: 25px;
+      text-align: center;
+  }
 
-        .pagination a {
-            color: #fff;
-            padding: 8px 15px;
-            margin: 0 5px;
-            background-color: #003366; /* Bleu foncé pour la pagination */
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
+  .card-title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: var(--accent-color);
+  }
 
-        .pagination a:hover {
-            background-color: #004080; /* Bleu plus clair au survol */
-        }
-    </style>
-</head>
-<body>
+  .card-text {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+      line-height: 1.6;
+  }
 
-<h1 class="text-center">Boutique</h1>
+  .card-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--price-color);
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
 
-<div class="container">
-    <div class="row">
-        {% for produit in produits %}
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="produit text-center mt-3">
-                        <img 
-                            src="{{ asset('uploads/produits/' ~ produit.image) }}"
-                            alt="{{ produit.nom }}"
-                            class="product-image img-fluid"
-                            style="max-width: 200px; max-height: 200px; border-radius: 8px;">
-                    </div>
+  .btn {
+      background-color: var(--accent-color);
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: var(--btn-radius);
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
 
-                    <div class="card-body">
-                        <h5 class="card-title">{{ produit.nom }}</h5>
-                        <p class="card-text">{{ produit.description }}</p>
-                        <p class="card-price">{{ produit.prix|number_format(2, ',', ' ') }} DT</p>
-                        <p class="card-text">Quantité : {{ produit.quantite }}</p>
+  .btn:hover {
+      background-color: #0095e0;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
 
-                        <div class="d-flex justify-content-center gap-2">
-                            <a href="{{ path('ajouter_commande', {'id': produit.id}) }}" class="btn">Commander</a>
-                            <!-- Lien pour ouvrir le modal -->
-                            <label for="modal-toggle-{{ produit.id }}" class="btn btn-primary">Agrandir</label>
-                        </div>
-                    </div>
-                </div>
+  /* Modal */
+  .modal-toggle {
+      display: none;
+  }
+
+  .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      padding-top: 60px;
+      transition: all 0.5s ease-in-out;
+  }
+
+  .modal-content {
+      background: linear-gradient(145deg, #002747, #001e33);
+      margin: 5% auto;
+      padding: 30px;
+      border-radius: var(--card-radius);
+      width: 80%;
+      max-width: 900px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      position: relative;
+      color: var(--text-light);
+      border: 1px solid rgba(0, 168, 255, 0.2);
+  }
+
+  .modal-content h2 {
+      color: var(--accent-color);
+      font-size: 2.2rem;
+      margin-bottom: 25px;
+      font-weight: 700;
+  }
+
+  .close {
+      color: var(--text-muted);
+      font-size: 35px;
+      font-weight: bold;
+      position: absolute;
+      top: 15px;
+      right: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+  }
+
+  .close:hover,
+  .close:focus {
+      color: var(--accent-color);
+      transform: rotate(90deg);
+  }
+
+  .modal img {
+      width: 100%;
+      max-width: 600px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: transform 0.5s ease;
+  }
+
+  .modal img:hover {
+      transform: scale(1.03);
+  }
+
+  .modal-toggle:checked + .modal {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+  }
+
+  .pagination {
+      margin-top: 60px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: center;
+  }
+
+  .pagination a, .pagination span {
+      color: var(--text-light);
+      padding: 12px 18px;
+      margin: 0 5px;
+      background: linear-gradient(145deg, #003366, #002747);
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .pagination a:hover {
+      background: var(--accent-color);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(0, 168, 255, 0.3);
+  }
+
+  .pagination .current {
+      background-color: var(--accent-color);
+      font-weight: 700;
+  }
+
+  /* Alignement des boutons dans la navbar */
+  .navbar-buttons {
+      align-items: center;
+      display: flex;
+  }
+</style>
+{% endblock %}
+
+{% block title %}Boutique | Eventura{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="{{ path('app_home') }}">Eventura</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+        <li class="nav-item"><a class="nav-link click-scroll" href="/homePart">Home</a></li>
+        <li class="nav-item"><a class="nav-link click-scroll" href="/events">Events</a></li>
+        <li class="nav-item"><a class="nav-link click-scroll" href="/reclamations">Reclamations</a></li>
+        <li class="nav-item"><a class="nav-link click-scroll active" href="{{ path('app_reservations') }}">Réservations</a></li>
+        <li class="nav-item"><a class="nav-link click-scroll active" href="/boutique">Boutique</a></li>
+      </ul>
+      <div class="d-flex gap-3 navbar-buttons">
+        <a href="{{ path('app_event_new') }}" class="custom-btn d-lg-block d-none">
+          <i class="bi bi-plus-circle me-2"></i>Créer Événement
+        </a>
+        <a href="{{ path('app_show_all_events') }}" class="custom-btn d-lg-block d-none">
+          Vos événements
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5">
+  <h1>Notre Boutique</h1>
+
+  <div class="row">
+    {% for produit in produits %}
+      <div class="col-md-4">
+        <div class="card mb-4">
+          <div class="produit">
+            <img 
+              src="{{ asset('uploads/produits/' ~ produit.image) }}"
+              alt="{{ produit.nom }}"
+              class="product-image img-fluid">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ produit.nom }}</h5>
+            <p class="card-text">{{ produit.description }}</p>
+            <p class="card-price">{{ produit.prix|number_format(2, ',', ' ') }} DT</p>
+            <p class="card-text">Quantité disponible: {{ produit.quantite }}</p>
+            <div class="d-flex justify-content-center gap-3">
+              <a href="{{ path('ajouter_commande', {'id': produit.id}) }}" class="btn">
+                <i class="bi bi-cart-plus me-2"></i>Commander
+              </a>
+              <label for="modal-toggle-{{ produit.id }}" class="btn btn-primary">
+                <i class="bi bi-zoom-in me-2"></i>Agrandir
+              </label>
             </div>
-        {% endfor %}
-    </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-12 text-center py-5">
+        <h3>Aucun produit disponible pour le moment</h3>
+        <p>Revenez bientôt pour découvrir nos nouveautés!</p>
+      </div>
+    {% endfor %}
+  </div>
 
-    <div class="pagination mt-4">
-        {{ knp_pagination_render(produits) }}
-    </div>
+  <div class="pagination">
+    {{ knp_pagination_render(produits) }}
+  </div>
 </div>
 
 {% for produit in produits %}
-    <input type="checkbox" id="modal-toggle-{{ produit.id }}" class="modal-toggle">
-    <div class="modal">
-        <div class="modal-content">
-            <label for="modal-toggle-{{ produit.id }}" class="close">&times;</label>
-            <h2>{{ produit.nom }}</h2>
-            <img src="{{ asset('uploads/produits/' ~ produit.image) }}" alt="{{ produit.nom }}">
-        </div>
+  <input type="checkbox" id="modal-toggle-{{ produit.id }}" class="modal-toggle">
+  <div class="modal">
+    <div class="modal-content">
+      <label for="modal-toggle-{{ produit.id }}" class="close">&times;</label>
+      <h2>{{ produit.nom }}</h2>
+      <img src="{{ asset('uploads/produits/' ~ produit.image) }}" alt="{{ produit.nom }}">
+      <div class="mt-4">
+        <p>{{ produit.description }}</p>
+        <p class="card-price">{{ produit.prix|number_format(2, ',', ' ') }} DT</p>
+        <a href="{{ path('ajouter_commande', {'id': produit.id}) }}" class="btn">
+          <i class="bi bi-cart-plus me-2"></i>Commander maintenant
+        </a>
+      </div>
     </div>
+  </div>
 {% endfor %}
-
-</body>
-</html>
+{% endblock %}

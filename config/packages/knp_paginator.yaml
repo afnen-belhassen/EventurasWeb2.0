@@ -2,7 +2,7 @@
 knp_paginator:
     default_options:
         # Limite par défaut des éléments par page
-        default_limit: 6
+        default_limit: 3
         # Nom du paramètre de la page dans l'URL
         page_name: page
         # Nom du champ pour le tri

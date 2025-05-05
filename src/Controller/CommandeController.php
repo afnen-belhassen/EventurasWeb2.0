@@ -9,6 +9,7 @@ use App\Form\CommandeType;
 use App\Repository\CommandeRepository;
 use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Stripe\Checkout\Session;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,10 +17,9 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class CommandeController extends AbstractController
 {
@@ -47,7 +47,6 @@ class CommandeController extends AbstractController
     public function show(int $id): Response
     {
         $commande = $this->commandeRepository->find($id);
-
         if (!$commande) {
             throw $this->createNotFoundException('Aucune commande trouvée pour cet ID.');
         }
@@ -77,6 +76,8 @@ class CommandeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $quantite = $commande->getQuantite();
             $commande->setTotal($produit->getPrix() * $quantite);
+            $commande->setDateCommande(new \DateTime());
+
             $produit->setQuantite($produit->getQuantite() - $quantite);
 
             $user = $this->security->getUser();
@@ -87,11 +88,8 @@ class CommandeController extends AbstractController
             $this->entityManager->persist($commande);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Commande ajoutée avec succès !');
-
-            return $this->redirectToRoute('commande_configuration', [
-                'id' => $commande->getId(),
-            ]);
+            // Redirection directe vers le paiement avec l'ID de la commande
+            return $this->redirectToRoute('commande_payment', ['id' => $commande->getId()]);
         }
 
         return $this->render('Commande/form.html.twig', [
@@ -100,87 +98,68 @@ class CommandeController extends AbstractController
         ]);
     }
 
-    #[Route('/commande/modifier/{id}', name: 'modifier_commande')]
-    public function edit(Request $request, Commande $commande): Response
-    {
-        $form = $this->createForm(CommandeType::class, $commande);
-        $form->handleRequest($request);
+    #[Route('/commande/payment/{id}', name: 'commande_payment')]
+public function startPaiement(Request $request, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, int $id): Response
+{
+    $commande = $em->getRepository(Commande::class)->find($id);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $commande->setTotal($commande->getQuantite() * $commande->getProduit()?->getPrix() ?? 0);
-            $this->entityManager->flush();
-
-            return $this->redirectToRoute('liste_commandes');
-        }
-
-        return $this->render('Commande/form.html.twig', [
-            'form' => $form->createView(),
-            'commande' => $commande,
-        ]);
+    if (!$commande) {
+        throw $this->createNotFoundException("Commande introuvable.");
     }
 
-    #[Route('/commande/supprimer/{id}', name: 'supprimer_commande')]
-    public function delete(Commande $commande): Response
-    {
-        $this->entityManager->remove($commande);
-        $this->entityManager->flush();
+    // Récupérer les données du formulaire
+    $nomClient = $request->request->get('nom_client');
+    $adresse = $request->request->get('adresse');
+    $telephone = $request->request->get('telephone');
+    $produit = $commande->getProduit(); // Récupérer le produit directement de la commande
+    $quantite = $commande->getQuantite(); // Récupérer la quantité de la commande
 
-        return $this->redirectToRoute('liste_commandes');
+    $total = $produit->getPrix() * $quantite;
+
+    // Créer la session de paiement Stripe
+    $session = Session::create([
+        'payment_method_types' => ['card'],
+        'line_items' => [[
+            'price_data' => [
+                'currency' => 'eur',
+                'product_data' => [
+                    'name' => $produit->getNom(),
+                ],
+                'unit_amount' => $produit->getPrix() * 100, // en centimes
+            ],
+            'quantity' => $quantite,
+        ]],
+        'mode' => 'payment',
+        'success_url' => $urlGenerator->generate('paiement_success', ['id' => $id], UrlGeneratorInterface::ABSOLUTE_URL),
+        'cancel_url' => $urlGenerator->generate('paiement_cancel', [], UrlGeneratorInterface::ABSOLUTE_URL),
+    ]);
+
+    // Rediriger vers la page Stripe
+    return $this->redirect($session->url, 303);
+}
+
+    
+
+#[Route('/paiement/success/{id}', name: 'paiement_success')]
+public function success(int $id, EntityManagerInterface $em): Response
+{
+    $commande = $em->getRepository(Commande::class)->find($id);
+
+    if (!$commande) {
+        throw $this->createNotFoundException("Commande introuvable.");
     }
 
-    #[Route('/commande/configuration/{id}', name: 'commande_configuration')]
-    public function orderConfirmation(int $id): Response
+    return $this->render('success.html.twig', [
+        'id' => $commande->getId(), 
+    ]);
+}
+
+
+    #[Route('/paiement/cancel', name: 'paiement_cancel')]
+    public function cancel(): Response
     {
-        $commande = $this->commandeRepository->find($id);
-
-        if (!$commande) {
-            throw $this->createNotFoundException('Commande non trouvée');
-        }
-
-        $user = $this->security->getUser();
-        $customerEmail = ($user instanceof User) ? $user->getEmail() : null;
-
-        return $this->render('order_confirmation.html.twig', [
-            'commande' => $commande,
-            'customerEmail' => $customerEmail,
-        ]);
+        return $this->render('cancel.html.twig');
     }
-
-    #[Route('/commande/{id}/review', name: 'commande_review')]
-    public function review(int $id): Response
-    {
-        $commande = $this->commandeRepository->find($id);
-        $user = $this->security->getUser();
-        $customerEmail = ($user instanceof User) ? $user->getEmail() : null;
-
-        if (!$commande) {
-            throw $this->createNotFoundException('Commande non trouvée');
-        }
-
-        return $this->render('review.html.twig', [
-            'commande' => $commande,
-            'customerEmail' => $customerEmail,
-        ]);
-    }
-
-    #[Route('/commande/{id}/payment', name: 'commande_payment')]
-    public function payment(int $id): Response
-    {
-        $commande = $this->commandeRepository->find($id);
-        $user = $this->security->getUser();
-        $customerEmail = ($user instanceof User) ? $user->getEmail() : null;
-
-        if (!$commande) {
-            throw $this->createNotFoundException('Commande non trouvée');
-        }
-
-        return $this->render('payment.html.twig', [
-            'commande' => $commande,
-            'customerEmail' => $customerEmail,
-            'stripe_public_key' => $_ENV['STRIPE_PUBLIC_KEY'],
-        ]);
-    }
-
 
     #[Route('/paiement/intent', name: 'app_create_payment_intent', methods: ['POST'])]
     public function createPaymentIntent(Request $request): JsonResponse
@@ -211,35 +190,13 @@ class CommandeController extends AbstractController
         }
     }
 
-    #[Route('/test-mail', name: 'envoyer_test_mail')]
-    public function testEmail(MailerInterface $mailer): Response
-    {
-        $email = (new Email())
-            ->from('noreply@votresite.com')
-            ->to('nassir.bouzaienne@esprit.tn')  // <-- Email fixe pour test
-            ->subject('Test d\'envoi de mail depuis Symfony')
-            ->html('<p>Ceci est un email de test envoyé depuis l\'application Symfony.</p>');
-    
-        try {
-            $mailer->send($email);
-            return new Response('Email envoyé avec succès.');
-        } catch (\Exception $e) {
-            return new Response('Erreur lors de l\'envoi : ' . $e->getMessage());
-        }
-    }
-    
-    
-
-    
-
-    #[Route('/confirm-order', name: 'app_confirm_order', methods: ['POST'])]
+#[Route('/commande/configuration/{id}', name: 'app_confirm_order')]
     public function confirmOrder(Request $request): Response
     {
         $id = $request->request->get('id');
         $paymentIntentId = $request->request->get('payment_intent_id');
-        
-        $commande = $this->commandeRepository->find($id);
 
+        $commande = $this->commandeRepository->find($id);
         if ($commande) {
             $commande->setStripePaymentId($paymentIntentId);
             $this->entityManager->flush();

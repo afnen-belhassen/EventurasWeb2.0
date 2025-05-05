@@ -26,7 +26,8 @@
                 </div>
 
                 <input type="hidden" id="id" value="{{ commande.id }}">
-                <a href="{{ path('app_payment_success', {'id': commande.id}) }}" class="btn btn-success">Payer</a>
+                <a href="{{ path('commande_payment', {'id': commande.id}) }}" class="btn btn-success">Payer</a>
+
 
 
 
