@@ -29,9 +29,6 @@
     "knplabs/knp-paginator-bundle": {
         "version": "v6.8.0"
     },
-    "knplabs/knp-paginator-bundle": {
-        "version": "v6.8.0"
-    },
     "phpunit/phpunit": {
         "version": "9.6",
         "recipe": {
