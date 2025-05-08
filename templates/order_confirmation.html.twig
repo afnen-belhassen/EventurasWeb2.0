@@ -1,0 +1,43 @@
+{# templates/commande_configuration.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Configuration de la Commande{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="bg-dark p-3 rounded mb-4">
+        <h2 class="text-white mb-0"><i class="bi bi-cart-check me-2"></i> Configuration de la Commande</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h3 style="color: white;">Détails de la Commande</h3>
+            <p style="color: white;"><strong>Numéro de Commande:</strong> {{ commande.id }}</p>
+            <p style="color: white;"><strong>Montant Total:</strong> {{ commande.total|number_format(2, ',', ' ') }} DT</p>
+            <p style="color: white;"><strong>Adresse de Livraison:</strong> {{ commande.adresse }}</p>
+
+            <h4 style="color: white;">Produit commandé :</h4>
+            <ul>
+                <li style="color: white;">
+                    {{ commande.produit.nom }} - {{ commande.quantite }} x {{ commande.produit.prix|number_format(2, ',', ' ') }} DT
+                </li>
+            </ul>
+
+            <div class="mt-3">
+                <a href="{{ path('commande_review', {'id': commande.id}) }}" class="btn btn-primary">Revoir la Commande</a>
+
+                {# ✅ Formulaire POST vers la route commande_payment #}
+                <form action="{{ path('commande_payment') }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="nom_client" value="{{ commande.nomClient }}">
+                    <input type="hidden" name="adresse" value="{{ commande.adresse }}">
+                    <input type="hidden" name="telephone" value="{{ commande.telephone }}">
+                    <input type="hidden" name="id" value="{{ commande.produit.id }}">
+                    <input type="hidden" name="quantite" value="{{ commande.quantite }}">
+                    <button type="submit" class="btn btn-success">Procéder au Paiement</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
