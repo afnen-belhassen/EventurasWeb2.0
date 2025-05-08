@@ -63,7 +63,7 @@
                   {% for a in message.messageAttachments %}
                   {% set attachmentData = attachmentData|merge([{ id: a.id, filePath: a.filePath }]) %}
                   {% endfor %}
-                  <div class="{% if message.sender_id == 1 %}message-left{% else %}message-right{% endif %}">
+                  <div class="{% if message.sender_id == userid %}message-left{% else %}message-right{% endif %}">
                     <div class="message-bubble"
                     onclick="openCategoryPopup(this)"
                     data-id="{{ message.id }}"
