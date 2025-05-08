@@ -1,0 +1,98 @@
+    <style>
+        /* CSS pour uniformiser la taille des champs du formulaire */
+        .custom-form-group {
+            max-width: 500px; /* Largeur maximale des champs */
+            width: 100%; /* Champs occupe toute la largeur de leur conteneur */
+            margin: 0 auto; /* Centrer les champs dans leur conteneur */
+        }
+
+        .custom-form-group .form-control {
+            width: 100%; /* Les champs de saisie s'étendent sur toute la largeur du conteneur */
+            padding: 10px; /* Ajuste la taille des champs */
+            box-sizing: border-box; /* Assure que padding ne dépasse pas la taille de l'élément */
+        }
+
+        .custom-form-group .form-label {
+            display: block; /* S'assurer que le label s'affiche sur une ligne distincte */
+            margin-bottom: 5px; /* Un peu d'espace entre le label et le champ */
+            font-weight: bold; /* Mettre en gras les labels */
+        }
+
+        .form-group {
+            margin-bottom: 20px; /* Ajoute un espacement entre chaque champ */
+        }
+    </style>
+
+{{ form_start(form, {'attr': {'class': 'p-4'}, 'novalidate': 'novalidate'}) }}
+
+<div class="card shadow-sm p-4 mb-4" style="border-radius: 1rem;">
+    <h2 class="mb-4 text-center">📝 Modifier Votre Profil</h2>
+
+    <div class="form-group mb-3 custom-form-group">
+        {{ form_label(form.userUsername, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.userUsername, {'attr': {'class': 'form-control rounded-pill'}}) }}
+        {{ form_errors(form.userUsername) }}
+    </div>
+
+    <div class="form-group mb-3 custom-form-group">
+        {{ form_label(form.userEmail, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.userEmail, {'attr': {'class': 'form-control rounded-pill'}}) }}
+        {{ form_errors(form.userEmail) }}
+    </div>
+
+    <div class="form-group mb-3 custom-form-group">
+        {{ form_label(form.userPassword, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.userPassword, {'attr': {'class': 'form-control rounded-pill'}}) }}
+        {{ form_errors(form.userPassword) }}
+    </div>
+
+    <div class="form-group mb-3 custom-form-group">
+        {{ form_label(form.userFirstname, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.userFirstname, {'attr': {'class': 'form-control rounded-pill'}}) }}
+        {{ form_errors(form.userFirstname) }}
+    </div>
+
+    <div class="form-group mb-3 custom-form-group">
+        {{ form_label(form.userLastname, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.userLastname, {'attr': {'class': 'form-control rounded-pill'}}) }}
+        {{ form_errors(form.userLastname) }}
+    </div>
+
+    <div class="form-group mb-3 custom-form-group">
+        {{ form_label(form.userBirthday, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.userBirthday, {'attr': {'class': 'form-control rounded-pill'}}) }}
+        {{ form_errors(form.userBirthday) }}
+    </div>
+
+    <div class="form-group mb-3 custom-form-group">
+        {{ form_label(form.userGender, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.userGender, {'attr': {'class': 'form-select rounded-pill'}}) }}
+        {{ form_errors(form.userGender) }}
+    </div>
+
+    <div class="form-group mb-3 custom-form-group">
+        {{ form_label(form.userPicture, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.userPicture, {'attr': {'class': 'form-control rounded-pill'}}) }}
+        {{ form_errors(form.userPicture) }}
+    </div>
+
+    <div class="form-group mb-3 custom-form-group">
+        {{ form_label(form.userPhonenumber, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.userPhonenumber, {'attr': {'class': 'form-control rounded-pill'}}) }}
+        {{ form_errors(form.userPhonenumber) }}
+    </div>
+
+    <div class="form-group mb-3 custom-form-group">
+        {{ form_label(form.userLevel, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.userLevel, {'attr': {'class': 'form-control rounded-pill'}}) }}
+        {{ form_errors(form.userLevel) }}
+    </div>
+
+    <div class="d-grid gap-2">
+        <button class="btn btn-primary rounded-pill fw-bold shadow-sm" style="font-size: 16px;">
+            {{ button_label|default('💾 Sauvegarder') }}
+        </button>
+    </div>
+</div>
+
+{{ form_end(form) }}

@@ -30,17 +30,17 @@ class MessageAttachment
     }
 
     #[ORM\ManyToOne(targetEntity: ConversationMessage::class, inversedBy: 'messageAttachments')]
-    #[ORM\JoinColumn(name: 'message_id', referencedColumnName: 'id')]
-    private ?ConversationMessage $conversationMessage = null;
+    #[ORM\JoinColumn(name: 'message_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?ConversationMessage $message = null;
 
-    public function getConversationMessage(): ?ConversationMessage
+    public function getMessage(): ?ConversationMessage
     {
-        return $this->conversationMessage;
+        return $this->message;
     }
-
-    public function setConversationMessage(?ConversationMessage $conversationMessage): self
+    
+    public function setMessage(?ConversationMessage $message): self
     {
-        $this->conversationMessage = $conversationMessage;
+        $this->message = $message;
         return $this;
     }
 

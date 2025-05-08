@@ -2,53 +2,62 @@
 namespace App\Controller;
 
 use App\Entity\Event;
-use App\Entity\Categorie; // Import the Categorie entity
+use App\Entity\Categorie; 
+use App\Entity\Rating;
 use App\Form\EventType;
+use App\Entity\Reservation;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
+use App\Repository\EventRepository;
+use App\Repository\ReservationRepository;
 final class EventController extends AbstractController
 {
     #[Route('/homeOrg', name: 'app_home')]
     public function index(EntityManagerInterface $entityManager): Response
     {
-        $events = $entityManager->getRepository(Event::class)->findAll();
+        // Fetch the last 3 accepted events
+        $events = $entityManager->getRepository(Event::class)
+            ->findBy(['status' => 'Accepté'], ['creation_date' => 'DESC'], 3);
 
         return $this->render('service/indexORG.html.twig', [
-            'events' => $events,
-        ]);
-    }
-    #[Route('/homeBACK', name: 'app_home_back')]
-    public function indexBack(EntityManagerInterface $entityManager): Response
-    {
-        $events = $entityManager->getRepository(Event::class)->findAll();
-
-        return $this->render('back/indexBACK.html.twig', [
             'events' => $events,
         ]);
     }
     #[Route('/homePart', name: 'app_home_part')]
     public function indexPart(EntityManagerInterface $entityManager): Response
     {
-        $events = $entityManager->getRepository(Event::class)->findAll();
+        // Fetch the last 3 accepted events
+        $events = $entityManager->getRepository(Event::class)
+            ->findBy(['status' => 'Accepté'], ['creation_date' => 'DESC'], 3);
 
-        return $this->render('service/indexPart.html.twig', [
+        return $this->render('service/indexPART.html.twig', [
             'events' => $events,
         ]);
     }
+    #[Route('/homeBACK', name: 'app_home_back')]
+    public function indexBack(EntityManagerInterface $entityManager,ReservationRepository $reservationRepository): Response
+    {
+        $events = $entityManager->getRepository(Event::class)->findAll();
+        $reservations = $reservationRepository->findAll();
+        return $this->render('back/indexBACK.html.twig', [
+            'events' => $events,
+            'reservations' => $reservations
+        ]);
 
-
+          
+    }
+  
     #[Route('/event/new', name: 'app_event_new')]
-public function new(Request $request, EntityManagerInterface $entityManager): Response
-{
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
     $event = new Event();
 
     // Set default values
-    $event->setUser_id(1); // Set user_id to 1 by default
+    $event->setUser_id(2); // Set user_id to 1 by default
     $event->setStatus('En cours de traitement'); // Set status
     $event->setCreation_date(new \DateTime()); // Set creation date to current timestamp
 
@@ -76,45 +85,30 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
         'form' => $form->createView(),
     ]);
 }
-#[Route('/event/{id}/edit', name: 'app_event_edit')]
-public function edit(Request $request, Event $event, EntityManagerInterface $entityManager): Response
+#[Route('/event/{id}/edit', name: 'app_event_edit', methods: ['GET', 'POST'])]
+public function edit(Request $request, int $id, EntityManagerInterface $entityManager): Response
 {
-    $form = $this->createForm(EventType::class, $event); // Pass the existing event
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted()) {
-        dump($form->getData()); // Check the submitted data
-
-        if (!$form->isValid()) {
-            dump($form->getErrors(true, false)); // Check for validation errors
-        }
-
-        if ($form->isValid()) {
-            // Update only the fields you want to change
-            $event->setTitle($form->get('title')->getData() ?? $event->getTitle());
-            $event->setDate_event($form->get('date')->getData() ?? $event->getDate_event());
-            $event->setPrix($form->get('prix')->getData() ?? $event->getPrix());
-            $event->setLocation($form->get('localisation')->getData() ?? $event->getLocation());
-
-          try {
-        $entityManager->flush(); // Save changes
-        } catch (\Exception $e) {
-        dump($e->getMessage()); // Log any exceptions
-        }
-
-            $this->addFlash('success', 'Event updated successfully!'); // Set success message
-
-            // Redirect to the showAll template after editing
-            return $this->redirectToRoute('app_show_all_events');
-        }
+    $event = $entityManager->getRepository(Event::class)->find($id);
+    
+    if (!$event) {
+        throw $this->createNotFoundException('Event not found');
     }
-
-    // Render the form if not submitted or if there are validation errors
-    return $this->render('service/indexORG.html.twig', [
+    
+    $form = $this->createForm(EventType::class, $event); // 
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->flush();
+        $this->addFlash('success', 'Event updated successfully!');
+        return $this->redirectToRoute('app_show_all_events', ['id' => $event->getId()]);
+    }
+    
+    return $this->render('service/editEvent.html.twig', [
         'form' => $form->createView(),
-        'event' => $event, // Pass the event for editing
+        'event' => $event
     ]);
 }
+
     #[Route('/event/{id}/delete', name: 'app_event_delete', methods: ['POST'])]
     public function delete(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
@@ -133,22 +127,74 @@ public function edit(Request $request, Event $event, EntityManagerInterface $ent
     ]);
     }
     #[Route('/events', name: 'app_show_all_events')]
-    public function showAll(EntityManagerInterface $entityManager): Response
+    public function showAll(EntityManagerInterface $entityManager, Request $request): Response
     {
-    $events = $entityManager->getRepository(Event::class)->findAll();
-
-    return $this->render('service/showAll.html.twig', [
-        'events' => $events,
-    ]);
+        $events = $entityManager->getRepository(Event::class)->findAll();
+        $highlightId = $request->query->get('highlight');
+    
+        return $this->render('service/showAll.html.twig', [
+            'events' => $events,
+            'highlight' => $highlightId
+        ]);
     }
     
     #[Route('/eventsBack', name: 'app_show_all_eventsBack')]
     public function showAllBack(EntityManagerInterface $entityManager, Request $request): Response
     {
-        $events = $entityManager->getRepository(Event::class)->findAll();
-
+        $eventRepository = $entityManager->getRepository(Event::class);
+        
+        // Get the sort parameter from the request
+        $sortCriteria = $request->query->get('sort', 'default');
+        
+        // Use the repository method to get sorted events
+        $events = $eventRepository->findByCriteria($sortCriteria);
+        //search
+        $searchQuery = $request->query->get('search');
+        $events = $searchQuery 
+            ? $eventRepository->searchByName($searchQuery)
+            : $eventRepository->findAll();
+    
+        // Rest of your statistics code remains the same
+        $eventsByDate = $eventRepository->createQueryBuilder('e')
+            ->select('SUBSTRING(e.creation_date, 1, 10) as date, COUNT(e.id_event) as count')
+            ->groupBy('date')
+            ->orderBy('date', 'ASC')
+            ->getQuery()
+            ->getResult();
+    
+        $eventsByCategory = $eventRepository->createQueryBuilder('e')
+            ->select('c.name as category, COUNT(e.id_event) as count')
+            ->join('e.category', 'c')
+            ->groupBy('c.id')
+            ->addGroupBy('c.name')
+            ->getQuery()
+            ->getResult();
+    
+        $stats = [
+            'totalEvents' => count($events),
+            'activeEvents' => $eventRepository->count(['status' => 'Accepté']),
+            'inactiveEvents' => $eventRepository->count(['status' => 'En cours de traitement']),
+            'upcomingEvents' => $eventRepository->createQueryBuilder('e')
+                ->select('COUNT(e.id_event)')
+                ->where('e.date_event > :now')
+                ->setParameter('now', new \DateTime())
+                ->getQuery()
+                ->getSingleScalarResult(),
+            'pastEvents' => $eventRepository->createQueryBuilder('e')
+                ->select('COUNT(e.id_event)')
+                ->where('e.date_fin_eve < :now')
+                ->setParameter('now', new \DateTime())
+                ->getQuery()
+                ->getSingleScalarResult(),
+            'labels' => array_column($eventsByDate, 'date'),
+            'data' => array_column($eventsByDate, 'count'),
+            'eventsByCategory' => $eventsByCategory
+        ];
+    
         return $this->render('backOFF/displayEveBack.html.twig', [
             'events' => $events,
+            'stats' => $stats,
+            'searchQuery' => $searchQuery
         ]);
     }
     #[Route('/event/change-status/{id}', name: 'app_change_status', methods: ['POST'])]
@@ -197,6 +243,175 @@ public function edit(Request $request, Event $event, EntityManagerInterface $ent
                 'status' => $event->getStatus(),
             ]);
         }
+      // In EventController.php
+      #[Route('/event/{id}/edit-page', name: 'app_event_edit_page', methods: ['GET', 'POST'])]
+      public function editPage(Request $request, Event $event, EntityManagerInterface $entityManager): Response
+      {
+          $form = $this->createForm(EventType::class, $event); // ⬅️ plus de 'is_edit'
+      
+          $form->handleRequest($request);
+      
+          if ($form->isSubmitted()) {
+              // Debug before saving
+              dump($form->isValid());
+              dump($event);
+              dump($form->getErrors(true));
+              
+              if ($form->isValid()) {
+                  try {
+                      $entityManager->flush();
+                      $this->addFlash('success', 'Event updated successfully!');
+                      return $this->redirectToRoute('app_show_all_events', [
+                          'highlight' => $event->getIdEvent()
+                      ]);
+                  } catch (\Exception $e) {
+                      $this->addFlash('error', 'Error saving: '.$e->getMessage());
+                  }
+              }
+          }
+      
+          return $this->render('service/editEvent.html.twig', [
+              'form' => $form->createView(),
+              'event' => $event
+          ]);
+      }
+      #[Route('/search', name: 'app_event_search')]
+public function search(Request $request, EventRepository $eventRepository)
+{
+    $query = $request->query->get('q');
+    $events = $eventRepository->findAll(); // Default to all events
+    
+    if (!empty($query)) {
+        $events = $eventRepository->searchByName($query);
+    }
+    
+    return $this->render('service/showAll.html.twig', [ // Reuse the same template
+        'events' => $events,
+        'search_query' => $query // Pass the query to pre-fill the search input
+    ]);
+}
+#[Route('/event/{id}/editBack', name: 'app_event_edit_back', methods: ['GET', 'POST'])]
+public function editBack(Request $request, int $id, EntityManagerInterface $entityManager): Response
+{
+    $event = $entityManager->getRepository(Event::class)->find($id);
+    
+    if (!$event) {
+        throw $this->createNotFoundException('Event not found');
+    }
+    
+    $form = $this->createForm(EventType::class, $event); // 
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->flush();
+        $this->addFlash('success', 'Event updated successfully!');
+        return $this->redirectToRoute('app_show_all_eventsBack', ['id' => $event->getId()]);
+    }
+    
+    return $this->render('backOFF/editEventBack.html.twig', [
+        'form' => $form->createView(),
+        'event' => $event
+    ]);
+}
+#[Route('/newBack', name: 'app_eventback')]
+public function newBack(Request $request, EntityManagerInterface $entityManager,Security $security): Response
+{
+    $event = new Event();
+    $form = $this->createForm(EventType::class, $event);
+    $event->setUser_id(1);
+    $event->setStatus('Accepté');
+    $event->setCreation_date(new \DateTime());
+
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+        try {
+            $file = $form->get('image')->getData();
+            if ($file) {
+                $filename = uniqid().'.'.$file->guessExtension();
+                $file->move($this->getParameter('images_events_directory'), $filename);
+                $event->setImage($filename);
+            }
+
+            $entityManager->persist($event);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Event created successfully!');
+            return $this->redirectToRoute('app_show_all_eventsBack');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Error creating event: '.$e->getMessage());
+        }
+    }
+
+    return $this->render('backOFF/createEventBack.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+    #[Route('/events/accepted', name: 'app_accepted_events')]
+    public function showAcceptedEvents(EventRepository $eventRepository, Request $request): Response
+    {
+        $criteria = $request->query->get('sort', 'upcoming');
+        $events = $eventRepository->findByCriteria($criteria);
+        
+        return $this->render('service/displayEventFRONT.html.twig', [
+            'events' => $events,
+            'criteria' => $criteria
+        ]);
+    }
+    #[Route('/event/{id}/deleteBACK', name: 'app_evedelBACK', methods: ['POST'])]
+    public function deleteBACK(Request $request, Event $event, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$event->getId_event(), $request->request->get('_token'))) {
+            $entityManager->remove($event);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_show_all_eventsBack');
+    }
+    // src/Controller/EventController.php
+
+#[Route('/event/{id_event}/rate/{value}', name: 'app_event_rate', methods: ['POST'])]
+public function rateEvent(
+    Event $event,
+    int $value,
+    EntityManagerInterface $em,
+    Request $request
+): Response {
+    // For testing, we'll use user_id = 1
+    $userId = 2;
+
+    // Check if event is in the past
+    if ($event->getDateEvent() > new \DateTime()) {
+        return $this->json([
+            'success' => false,
+            'message' => 'You can only rate past events.'
+        ]);
+    }
+
+    // Check if user already rated this event
+    $existingRating = $em->getRepository(Rating::class)->findOneBy([
+        'event' => $event,
+        'user_id' => $userId
+    ]);
+
+    if ($existingRating) {
+        $existingRating->setValue($value);
+    } else {
+        $rating = new Rating();
+        $rating->setEvent($event);
+        $rating->setUser_id($userId);
+        $rating->setValue(max(1, min(5, $value)));
+        $em->persist($rating);
+    }
+
+    $em->flush();
+    
+    return $this->json([
+        'success' => true,
+        'averageRating' => $event->getAverageRating(),
+        'ratingCount' => $event->getRatings()->count()
+    ]);
+}
 
 
 }

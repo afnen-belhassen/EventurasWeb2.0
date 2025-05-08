@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Commande;
 use App\Entity\Produit;
 use App\Entity\User;
+use App\Entity\Users;
 use App\Form\CommandeType;
 use App\Repository\CommandeRepository;
 use App\Repository\ProduitRepository;
@@ -81,7 +82,7 @@ class CommandeController extends AbstractController
             $produit->setQuantite($produit->getQuantite() - $quantite);
 
             $user = $this->security->getUser();
-            if ($user instanceof User) {
+            if ($user instanceof Users) {
                 $commande->setEmail($user->getEmail());
             }
 
@@ -116,7 +117,7 @@ public function startPaiement(Request $request, EntityManagerInterface $em, UrlG
 
     $total = $produit->getPrix() * $quantite;
 
-    // Créer la session de paiement Stripe
+    //**********Stripe Configuration**********//
     $session = Session::create([
         'payment_method_types' => ['card'],
         'line_items' => [[

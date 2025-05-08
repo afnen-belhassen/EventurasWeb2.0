@@ -21,6 +21,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
+use App\Service\NotificationService;
 
 #[Route('/organizer')]
 class OrganizerController extends AbstractController
@@ -29,24 +30,34 @@ class OrganizerController extends AbstractController
     private $signatureVerificationService;
     private $entityManager;
     private $logger;
+    private $notificationService;
     
     public function __construct(
         ContractGeneratorService $contractGenerator,
         SignatureVerificationService $signatureVerificationService,
         EntityManagerInterface $entityManager,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        NotificationService $notificationService
     ) {
         $this->contractGenerator = $contractGenerator;
         $this->signatureVerificationService = $signatureVerificationService;
         $this->entityManager = $entityManager;
         $this->logger = $logger;
+        $this->notificationService = $notificationService;
     }
     
     #[Route('/', name: 'app_organizer_index', methods: ['GET'])]
-    public function index(PartnerRepository $partnerRepository): Response
+    public function index(PartnerRepository $partnerRepository, Request $request): Response
     {
+        $sortBy = $request->query->get('sort', 'name');
+        $direction = $request->query->get('direction', 'asc');
+
+        $partners = $partnerRepository->findAllSorted($sortBy, $direction);
+
         return $this->render('organizer/index.html.twig', [
-            'partners' => $partnerRepository->findAll(),
+            'partners' => $partners,
+            'sortBy' => $sortBy,
+            'direction' => $direction,
         ]);
     }
 
@@ -80,7 +91,7 @@ class OrganizerController extends AbstractController
             
             $this->addFlash('success', 'Partnership created successfully! A contract has been generated for your review.');
             
-            return $this->redirectToRoute('contract_management', [
+            return $this->redirectToRoute('app_organizer_contract_management', [
                 'id' => $partnership->getId()
             ]);
         }
@@ -115,7 +126,7 @@ class OrganizerController extends AbstractController
         ]);
     }
     
-    #[Route('/partnership/{id}/contract-management', name: 'contract_management')]
+    #[Route('/partnership/{id}/contract-management', name: 'app_organizer_contract_management', methods: ['GET', 'POST'])]
     public function contractManagement(Request $request, Partnership $partnership, SignatureVerificationService $signatureVerificationService): Response
     {
         $this->logger->info('Contract management for partnership ID: ' . $partnership->getId());
@@ -129,51 +140,59 @@ class OrganizerController extends AbstractController
 
         // Check if there's a signed contract
         if ($partnership->getSignedContractFile()) {
-            $signedContractPath = 'uploads/organizer/signed_contracts/' . $partnership->getSignedContractFile();
+            $signedContractPath = $partnership->getSignedContractFile();
             $this->logger->info('Found signed contract: ' . $signedContractPath);
         }
 
-        // Find the original contract file
-        $contractsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/organizer/contracts/';
-        $files = glob($contractsDir . 'contract_' . $partnership->getId() . '_*.pdf');
-        if (!empty($files)) {
-            $contractPath = 'uploads/organizer/contracts/' . basename($files[0]);
-            $this->logger->info('Found original contract: ' . $contractPath);
-        } else {
-            $this->logger->warning('No original contract found for partnership ID: ' . $partnership->getId());
+        // Find or generate the original contract file
+        $basePath = $this->getParameter('kernel.project_dir') . '/public/uploads/organizer/';
+        $contractsDir = $basePath . 'contracts/';
+        
+        if (!file_exists($contractsDir)) {
+            mkdir($contractsDir, 0777, true);
         }
-
-        // Handle contract upload
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->logger->info('Contract upload form submitted');
+        
+        // First try to find by partnership ID
+        $files = glob($contractsDir . 'contract_' . $partnership->getId() . '_*.pdf');
+        if (empty($files)) {
+            // If not found, generate a new contract
+            $this->logger->info('No existing contract found, generating new one');
+            $contractFilename = $this->contractGenerator->generateContract($partnership, $partnership->getPartnerId());
             
-            $file = $form->get('contractFile')->getData();
-            if ($file) {
-                $this->logger->info('Processing uploaded contract file: ' . $file->getClientOriginalName());
+            if ($contractFilename) {
+                // Move the generated contract to the correct directory
+                $sourcePath = $basePath . $contractFilename;
+                $targetPath = $contractsDir . basename($contractFilename);
                 
-                try {
-                    // Verify the signature
-                    if ($signatureVerificationService->verifySignature($file->getPathname())) {
-                        // Save the signed contract
-                        $filename = $signatureVerificationService->saveContract($file, $partnership->getId());
-                        $partnership->setSignedContractFile($filename);
-                        $partnership->setStatus('signed');
-                        $partnership->setIsSigned(true);
-                        $partnership->setSignedAt(new \DateTime());
-                        $this->entityManager->flush();
-                        
-                        $this->addFlash('success', 'Contract signed successfully!');
-                        return $this->redirectToRoute('contract_management', ['id' => $partnership->getId()]);
-                    } else {
-                        $this->logger->warning('Contract verification failed for file: ' . $file->getClientOriginalName());
-                        $this->addFlash('error', 'Invalid contract file. Please upload a valid signed PDF contract.');
+                if (file_exists($sourcePath)) {
+                    if (!file_exists($contractsDir)) {
+                        mkdir($contractsDir, 0777, true);
                     }
-                } catch (\Exception $e) {
-                    $this->logger->error('Error processing contract: ' . $e->getMessage());
-                    $this->addFlash('error', 'Error processing contract: ' . $e->getMessage());
+                    rename($sourcePath, $targetPath);
+                    $contractPath = basename($contractFilename);
+                    $this->logger->info('Generated and moved new contract to: ' . $targetPath);
+                } else {
+                    $this->logger->error('Generated contract not found at source path: ' . $sourcePath);
+                    $this->addFlash('error', 'Erreur lors de la génération du contrat. Veuillez réessayer.');
                 }
             }
+        } else {
+            $contractPath = basename($files[0]);
+            $this->logger->info('Found existing contract: ' . $contractPath);
         }
+
+        // If we still don't have a contract path, try to generate one more time
+        if (!$contractPath) {
+            $this->logger->warning('No contract path available, attempting to generate one more time');
+            $contractFilename = $this->contractGenerator->generateContract($partnership, $partnership->getPartnerId());
+            if ($contractFilename) {
+                $contractPath = basename($contractFilename);
+                $this->logger->info('Successfully generated contract: ' . $contractPath);
+            }
+        }
+
+        $this->logger->info('Final contract path: ' . $contractPath);
+        $this->logger->info('Final signed contract path: ' . $signedContractPath);
 
         return $this->render('organizer/contract_management.html.twig', [
             'partnership' => $partnership,
@@ -188,15 +207,38 @@ class OrganizerController extends AbstractController
     {
         $this->logger->info('Serving contract file: ' . $filename . ' of type: ' . $type);
         
+        // Ensure the filename is properly decoded
+        $filename = urldecode($filename);
+        
+        // Get the base path for uploads
         $basePath = $this->getParameter('kernel.project_dir') . '/public/uploads/organizer/';
+        
+        // Construct the full file path
         $filePath = $basePath . $type . '/' . $filename;
+        
+        $this->logger->info('Looking for contract file at: ' . $filePath);
+        $this->logger->info('Base path: ' . $basePath);
+        $this->logger->info('Type: ' . $type);
+        $this->logger->info('Filename: ' . $filename);
 
         if (!file_exists($filePath)) {
-            $this->logger->error('Contract file not found: ' . $filePath);
-            throw $this->createNotFoundException('Contract file not found');
+            $this->logger->error('Contract file not found at: ' . $filePath);
+            
+            // Try alternative paths for signed contracts
+            if ($type === 'signed_contracts') {
+                $altPath = $basePath . 'signed_contracts/' . $filename;
+                $this->logger->info('Trying alternative path for signed contract: ' . $altPath);
+                if (file_exists($altPath)) {
+                    $filePath = $altPath;
+                }
+            }
+            
+            if (!file_exists($filePath)) {
+                throw $this->createNotFoundException('Contract file not found');
+            }
         }
 
-        $this->logger->info('Serving contract file from: ' . $filePath);
+        $this->logger->info('Found contract file at: ' . $filePath);
         
         $response = new BinaryFileResponse($filePath);
         $response->headers->set('Content-Type', 'application/pdf');
@@ -224,103 +266,190 @@ class OrganizerController extends AbstractController
         ]);
     }
 
-    #[Route('/partner/{id}/generate-partnership', name: 'app_organizer_generate_partnership', methods: ['GET', 'POST'])]
-    public function generatePartnership(Request $request, Partner $partner, EntityManagerInterface $entityManager): Response
-    {
-        if ($request->isMethod('POST')) {
-            // Create a new partnership with all required fields
-            $partnership = new Partnership();
-            $partnership->setPartnerId($partner);
-            $partnership->setName('Partnership with ' . $partner->getName());
-            $partnership->setStatus('pending');
-            $partnership->setCreatedAt(new \DateTime());
-            $partnership->setContracttype('Standard');
-            $partnership->setDescription('Partnership with ' . $partner->getName());
-            $partnership->setOrganizerid(1); // Hardcoded for testing
-            
-            // Set optional fields from form data
-            $partnership->setEmail($request->request->get('email'));
-            $partnership->setPhone($request->request->get('phone'));
-            $partnership->setAddress($request->request->get('address'));
-            
-            // Persist and flush
-            $entityManager->persist($partnership);
-            $entityManager->flush();
-            
-            $this->addFlash('success', 'Partnership request has been created successfully.');
-            return $this->redirectToRoute('app_organizer_partners');
-        }
-        
-        // For GET requests, just render the form
-        return $this->render('organizer/generate_partnership.html.twig', [
-            'partner' => $partner,
-        ]);
-    }
+
 
     #[Route('/partnerships', name: 'app_organizer_partnerships', methods: ['GET'])]
     public function partnerships(PartnershipRepository $partnershipRepository): Response
     {
-        $this->logger->info('Accessing partnerships list');
-        
         return $this->render('organizer/partnerships.html.twig', [
             'partnerships' => $partnershipRepository->findAll(),
         ]);
     }
     
-    #[Route('/partnership/{id}/sign', name: 'app_organizer_sign_contract', methods: ['GET'])]
-    public function signContract(Partnership $partnership): Response
+    #[Route('/partner/{partnerId}/rate', name: 'app_organizer_rate_partner', methods: ['POST'])]
+    public function ratePartner(Request $request, int $partnerId, EntityManagerInterface $entityManager): JsonResponse
     {
-        // Find the original contract file
-        $contractsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/organizer/contracts/';
-        $files = glob($contractsDir . 'contract_' . $partnership->getId() . '_*.pdf');
+        $rating = $request->request->get('rating');
         
-        if (empty($files)) {
-            $this->addFlash('error', 'Contract file not found.');
-            return $this->redirectToRoute('contract_management', ['id' => $partnership->getId()]);
+        if (!is_numeric($rating) || $rating < 0 || $rating > 5) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Invalid rating value'
+            ]);
         }
         
-        $contractFilename = basename($files[0]);
-        
-        return $this->render('organizer/sign_online.html.twig', [
-            'partnership' => $partnership,
-            'contractFilename' => $contractFilename,
-        ]);
+        try {
+            // Get the partner from the database
+            $partner = $entityManager->getRepository(Partner::class)->find($partnerId);
+            
+            if (!$partner) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Partner not found'
+                ]);
+            }
+            
+            // Get current rating and count
+            $currentRating = $partner->getRating() ?? 0;
+            $currentCount = $partner->getRatingCount() ?? 0;
+            
+            // Calculate new average
+            $newCount = $currentCount + 1;
+            $newRating = (($currentRating * $currentCount) + $rating) / $newCount;
+            
+            // Update partner
+            $partner->setRating($newRating);
+            $partner->setRatingCount($newCount);
+            
+            // Save to database
+            $entityManager->flush();
+            
+            // Get the total rating that includes the partnership bonus
+            $totalRating = $partner->getTotalRating();
+            
+            return $this->json([
+                'success' => true,
+                'newRating' => round($totalRating, 1),
+                'baseRating' => round($newRating, 1),
+                'newCount' => $newCount
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error saving rating: ' . $e->getMessage()
+            ]);
+        }
     }
 
-    #[Route('/partnership/{id}/upload-signed-contract', name: 'app_organizer_upload_signed_contract')]
-    public function uploadSignedContract(Request $request, Partnership $partnership, SignatureVerificationService $signatureVerificationService): Response
+    #[Route('/partnership/{id}/upload-signed-contract', name: 'app_organizer_upload_signed_contract', methods: ['POST'])]
+    public function uploadSignedContract(Request $request, Partnership $partnership, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(SignedContractType::class);
-        $form->handleRequest($request);
+        // Debugging: Log request data
+        $this->logger->debug('Upload attempt', [
+            'files' => $request->files->all(),
+            'post' => $request->request->all()
+        ]);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $file = $form->get('signedContract')->getData();
-            
-            try {
-                // Verify the signature
-                if ($signatureVerificationService->verifySignature($file->getPathname())) {
-                    // Save the signed contract
-                    $filename = $signatureVerificationService->saveContract($file, $partnership->getId());
-                    $partnership->setSignedContractFile($filename);
-                    $partnership->setStatus('signed');
-                    $partnership->setIsSigned(true);
-                    $partnership->setSignedAt(new \DateTime());
-                    $this->entityManager->flush();
-
-                    $this->addFlash('success', 'Le contrat signé a été téléversé avec succès et vérifié. Le statut du partenariat a été mis à jour.');
-                    return $this->redirectToRoute('contract_management', ['id' => $partnership->getId()]);
-                } else {
-                    $this->addFlash('error', 'Le fichier du contrat n\'est pas valide ou n\'est pas correctement signé. Veuillez téléverser un PDF valide avec une signature.');
-                }
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors du téléversement du contrat: ' . $e->getMessage());
-            }
+        if ($partnership->isSigned()) {
+            $this->addFlash('error', 'This contract is already signed.');
+            return $this->redirectToRoute('app_organizer_contract_management', ['id' => $partnership->getId()]);
         }
 
-        // Afficher la page dédiée au téléchargement et à la vérification
-        return $this->render('organizer/upload_signed_contract.html.twig', [
+        /** @var UploadedFile|null $uploadedFile */
+        $uploadedFile = $request->files->get('signedContract');
+        
+        if (!$uploadedFile) {
+            $this->logger->error('No file uploaded');
+            $this->addFlash('error', 'No file was uploaded or file size exceeds server limit');
+            return $this->redirectToRoute('app_organizer_contract_management', ['id' => $partnership->getId()]);
+        }
+
+        // Verify file type
+        if ($uploadedFile->getMimeType() !== 'application/pdf') {
+            $this->addFlash('error', 'Only PDF files are accepted.');
+            return $this->redirectToRoute('app_organizer_contract_management', ['id' => $partnership->getId()]);
+        }
+
+        try {
+            $newFilename = sprintf(
+                'contract_%d_signed_%s.%s',
+                $partnership->getId(),
+                uniqid(),
+                $uploadedFile->guessExtension()
+            );
+
+            $uploadDir = $this->getParameter('signed_contracts_directory');
+            $uploadedFile->move($uploadDir, $newFilename);
+
+            $partnership
+                ->setSignedContractFile($newFilename)
+                ->setIsSigned(true)
+                ->setSignedAt(new \DateTime());
+
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Signed contract uploaded successfully!');
+            $this->logger->info('Contract uploaded', [
+                'partnership' => $partnership->getId(),
+                'file' => $newFilename
+            ]);
+
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Upload failed: ' . $e->getMessage());
+            $this->logger->error('Upload error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+
+        return $this->redirectToRoute('app_organizer_contract_management', ['id' => $partnership->getId()]);
+    }
+
+    #[Route('/partnership/{id}/verify', name: 'app_organizer_verify_contract', methods: ['GET', 'POST'])]
+    public function verifyContract(Request $request, Partnership $partnership): Response
+    {
+        if ($request->isMethod('POST')) {
+            $uploadedFile = $request->files->get('contract');
+            
+            if (!$uploadedFile) {
+                $this->addFlash('error', 'No file was uploaded.');
+                return $this->redirectToRoute('app_organizer_verify_contract', ['id' => $partnership->getId()]);
+            }
+
+            try {
+                $this->logger->info('Starting contract verification process', [
+                    'partnershipId' => $partnership->getId(),
+                    'filename' => $uploadedFile->getClientOriginalName(),
+                    'size' => $uploadedFile->getSize()
+                ]);
+
+                $isValid = $this->signatureVerificationService->verifySignature(
+                    $uploadedFile->getPathname(),
+                    $partnership->getId()
+                );
+                
+                if ($isValid) {
+                    $this->addFlash('success', 'Contract verified successfully!');
+                    $partnership->setIsSigned(true);
+                    $partnership->setSignedAt(new \DateTime());
+                    
+                    $this->entityManager->persist($partnership);
+                    $this->entityManager->flush();
+                } else {
+                    // Get the original contract size for comparison
+                    $originalContractPattern = $this->getParameter('kernel.project_dir') . '/public/uploads/organizer/contracts/contract_' . $partnership->getId() . '_*.pdf';
+                    $originalContracts = glob($originalContractPattern);
+                    $originalSize = !empty($originalContracts) ? filesize($originalContracts[count($originalContracts) - 1]) : 0;
+                    
+                    $this->addFlash('error', sprintf(
+                        'Contract verification failed. The uploaded file (%d bytes) must be larger than the original contract (%d bytes) to be considered signed.',
+                        $uploadedFile->getSize(),
+                        $originalSize
+                    ));
+                }
+            } catch (\Exception $e) {
+                $this->logger->error('Error during contract verification', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                $this->addFlash('error', 'Error verifying contract: ' . $e->getMessage());
+            }
+            
+            return $this->redirectToRoute('app_organizer_contract_management', ['id' => $partnership->getId()]);
+        }
+
+        return $this->render('organizer/verify_contract.html.twig', [
             'partnership' => $partnership,
-            'form' => $form->createView(),
         ]);
     }
 } 

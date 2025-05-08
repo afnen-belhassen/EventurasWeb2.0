@@ -1,0 +1,190 @@
+{% extends 'indexBACK.html.twig' %}
+{% block title %}Users List{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+  <h1 class="mb-4 text-center">Users Management</h1>
+
+  <div class="card shadow-lg">
+    <div class="card-header bg-gradient-primary text-white">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0">Users Information</h5>
+        <a href="{{ path('app_users_new') }}" class="btn btn-light btn-sm shadow-sm">
+          <i class="fas fa-plus me-1"></i> Ajouter
+        </a>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <form id="search-form" method="get" class="row g-2 align-items-center mb-4">
+        <div class="col-lg-4">
+          <input id="search-input" type="text" name="search" class="form-control shadow-sm" placeholder="🔍 Rechercher par nom, email..." value="{{ app.request.get('search') }}">
+        </div>
+
+        <div class="col-lg-3">
+          <select name="role" class="form-select shadow-sm">
+            <option value="">🎭 Tous les rôles</option>
+            {% for role in roles %}
+              <option value="{{ role.roleId }}" {% if app.request.get('role') == role.roleId %}selected{% endif %}>{{ role.roleName }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-lg-3">
+          <select name="statut" class="form-select shadow-sm">
+            <option value="">📋 Tous les statuts</option>
+            <option value="0" {% if app.request.get('statut') == '0' %}selected{% endif %}>Non validés</option>
+            <option value="1" {% if app.request.get('statut') == '1' %}selected{% endif %}>Validés</option>
+          </select>
+        </div>
+
+        <div class="col-lg-2 d-flex gap-2">
+          <button type="submit" class="btn btn-outline-primary w-100 shadow-sm" title="Chercher">
+            <i class="fas fa-search"></i>
+          </button>
+          <a href="{{ path('app_users_export') }}" class="btn btn-outline-success shadow-sm" title="Exporter vers Excel">
+            <i class="fas fa-file-excel"></i>
+          </a>
+        </div>
+      </form>
+
+      <div id="users-table">
+        {% if pagination.getTotalItemCount() == 0 %}
+          <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <div>No records found.</div>
+          </div>
+        {% else %}
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+              <thead class="table-dark">
+                <tr>
+                  <th>#ID</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Full Name</th>
+                  <th>Birthday</th>
+                  <th>Gender</th>
+                  <th>Phone</th>
+                  <th>Level</th>
+                  <th>Role</th>
+                  <th class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for user in pagination %}
+                  <tr>
+                    <td>{{ user.userId }}</td>
+                    <td>{{ user.userUsername }}</td>
+                    <td>{{ user.userEmail }}</td>
+                    <td>{{ user.userFirstname ~ ' ' ~ user.userLastname }}</td>
+                    <td>{{ user.userBirthday ? user.userBirthday|date('Y-m-d') : 'N/A' }}</td>
+                    <td>{{ user.userGender|default('N/A') }}</td>
+                    <td>{{ user.userPhonenumber|default('N/A') }}</td>
+                    <td>{{ user.userLevel|default('N/A') }}</td>
+                    <td>{{ user.role|default('N/A') }}</td>
+                    <td class="text-center">
+                      <div class="btn-group" role="group">
+                        <a href="{{ path('app_users_show', {'id': user.userId}) }}" class="btn btn-sm btn-info" title="Show"><i class="fas fa-eye"></i></a>
+                        <a href="{{ path('app_users_edit', {'id': user.userId}) }}" class="btn btn-sm btn-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                        {% if user.statut == 0 %}
+                          <a href="{{ path('app_users_edit_status', {'id': user.userId}) }}" class="btn btn-sm btn-info" title="Set Status"><i class="fas fa-check"></i></a>
+                        {% endif %}
+                        <button type="button" class="btn btn-sm btn-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.userId }}">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <div class="modal fade" id="deleteModal{{ user.userId }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                          <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          Are you sure you want to delete <strong>{{ user.userUsername }}</strong>?
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <form action="{{ path('app_users_delete', {'id': user.userId}) }}" method="post">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.userId) }}">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <nav aria-label="Pagination">
+            <ul class="pagination justify-content-center">
+              {{ knp_pagination_render(pagination) }}
+            </ul>
+          </nav>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('search-form');
+  const searchInput = document.getElementById('search-input');
+  const usersTable = document.getElementById('users-table');
+
+  const debounce = (callback, delay) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => callback(...args), delay);
+    };
+  };
+
+  const fetchResults = () => {
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData).toString();
+
+    fetch(window.location.pathname + '?' + params, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const newContent = doc.querySelector('#users-table');
+      if (newContent) usersTable.innerHTML = newContent.innerHTML;
+    });
+  };
+
+  const debouncedSearch = debounce(fetchResults, 300);
+  searchInput.addEventListener('input', debouncedSearch);
+  form.querySelectorAll('select').forEach(select => {
+    select.addEventListener('change', fetchResults);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.pagination a')) {
+      e.preventDefault();
+      const url = new URL(e.target.closest('a').href);
+      fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(response => response.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const newContent = doc.querySelector('#users-table');
+        if (newContent) usersTable.innerHTML = newContent.innerHTML;
+      });
+    }
+  });
+});
+</script>
+{% endblock %}

@@ -2,8 +2,11 @@
 
 namespace App\Form;
 
+use App\Entity\Event;
 use App\Entity\Reclamation;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -17,18 +20,30 @@ class ReclamationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('id_user', IntegerType::class, [
-                'label' => 'User ID',
-                'constraints' => [
-                    new Assert\NotBlank(['message' => 'Le champ utilisateur est requis.']),
-                ],
-            ])
-            ->add('id_event', IntegerType::class, [
-                'label' => 'Event ID',
-                'constraints' => [
-                    new Assert\NotBlank(['message' => 'Le champ événement est requis.']),
-                ],
-            ])
+        ->add('subject', ChoiceType::class, [
+            'label' => 'Sujet',
+            'choices' => [
+                'Évènement' => 'Evenement',
+                'Organisateur' => 'Organizateur',
+                'Problème Technique' => 'Probleme Technique',
+            ],
+            'placeholder' => 'Choisir un sujet',
+            'constraints' => [
+                new Assert\NotBlank(['message' => 'Le sujet est requis.']),
+            ],
+        ])
+        ->add('id_event', EntityType::class, [
+            'class' => Event::class,
+            'choice_label' => 'title', // or 'title', or whatever property identifies the event
+            'placeholder' => 'Choisir un évènement',
+            'label' => 'Évènement',
+            'required' => true,
+            'constraints' => [
+                new Assert\NotBlank(['message' => 'Le champ événement est requis.']),
+            ],
+        ])
+
+
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'constraints' => [
@@ -41,18 +56,8 @@ class ReclamationType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('subject', TextType::class, [
-                'label' => 'Sujet',
-                'constraints' => [
-                    new Assert\NotBlank(['message' => 'Le sujet est requis.']),
-                    new Assert\Length([
-                        'min' => 10,
-                        'max' => 30,
-                        'minMessage' => 'Le sujet doit contenir au moins {{ limit }} caractères.',
-                        'maxMessage' => 'Le sujet ne peut pas dépasser {{ limit }} caractères.',
-                    ]),
-                ],
-            ])
+
+
             ->add('attachments', FileType::class, [
                 'label'    => 'Pièces jointes',
                 'mapped'   => false,

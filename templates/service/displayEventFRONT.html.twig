@@ -339,73 +339,70 @@
         </div>
     </div>
 {% block js %}
-
-{{ parent() }}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.user-stars .star').forEach(star => {
-        star.addEventListener('click', function() {
-            const eventId = this.closest('.user-stars').dataset.eventId;
-            const value = this.dataset.value;
-            
-            fetch(`/event/${eventId}/rate/${value}`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Update user stars
-                    const userStars = this.parentElement.querySelectorAll('.star');
-                    userStars.forEach((star, index) => {
-                        star.classList.toggle('rated', (index + 1) <= value);
-                    });
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.user-stars .star').forEach(star => {
+                star.addEventListener('click', function() {
+                    const eventId = this.closest('.user-stars').dataset.eventId;
+                    const value = this.dataset.value;
                     
-                    // Update average rating display
-                    const averageRating = data.averageRating;
-                    const ratingCount = data.ratingCount;
-                    document.querySelector(`.star-rating[data-event-id="${eventId}"] .rating-text`)
-                        .textContent = `(${averageRating.toFixed(1)} from ${ratingCount} ratings)`;
-                        
-                    // Update average stars
-                    const avgStars = document.querySelector(`.star-rating[data-event-id="${eventId}"]`).querySelectorAll('.star');
-                    avgStars.forEach((star, index) => {
-                        star.classList.toggle('rated', (index + 1) <= Math.round(averageRating));
+                    fetch(`/event/${eventId}/rate/${value}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Update user stars
+                            const userStars = this.parentElement.querySelectorAll('.star');
+                            userStars.forEach((star, index) => {
+                                star.classList.toggle('rated', (index + 1) <= value);
+                            });
+                            
+                            // Update average rating display
+                            const averageRating = data.averageRating;
+                            const ratingCount = data.ratingCount;
+                            document.querySelector(`.star-rating[data-event-id="${eventId}"] .rating-text`)
+                                .textContent = `(${averageRating.toFixed(1)} from ${ratingCount} ratings)`;
+                                
+                            // Update average stars
+                            const avgStars = document.querySelector(`.star-rating[data-event-id="${eventId}"]`).querySelectorAll('.star');
+                            avgStars.forEach((star, index) => {
+                                star.classList.toggle('rated', (index + 1) <= Math.round(averageRating));
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                     });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+                });
+                
+                // Hover effects
+                star.addEventListener('mouseover', function() {
+                    const value = this.dataset.value;
+                    const stars = this.parentElement.querySelectorAll('.star');
+                    stars.forEach((star, index) => {
+                        star.classList.toggle('hover', (index + 1) <= value);
+                    });
+                });
+                
+                star.addEventListener('mouseout', function() {
+                    const stars = this.parentElement.querySelectorAll('.star');
+                    stars.forEach(star => {
+                        star.classList.remove('hover');
+                    });
+                });
             });
         });
-        
-        // Hover effects
-        star.addEventListener('mouseover', function() {
-            const value = this.dataset.value;
-            const stars = this.parentElement.querySelectorAll('.star');
-            stars.forEach((star, index) => {
-                star.classList.toggle('hover', (index + 1) <= value);
-            });
-        });
-        
-        star.addEventListener('mouseout', function() {
-            const stars = this.parentElement.querySelectorAll('.star');
-            stars.forEach(star => {
-                star.classList.remove('hover');
-            });
-        });
-    });
-});
-</script>
-
+    </script>
 {% endblock %}
 {% endblock %}

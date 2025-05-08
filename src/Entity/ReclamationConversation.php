@@ -29,6 +29,12 @@ class ReclamationConversation
         return $this;
     }
 
+    public function __toString(): string
+    {
+        return 'Conversation #' . $this->id;
+    }
+    
+
     #[ORM\ManyToOne(targetEntity: Reclamation::class, inversedBy: 'reclamationConversations')]
     #[ORM\JoinColumn(name: 'reclamation_id', referencedColumnName: 'id')]
     private ?Reclamation $reclamation = null;
@@ -44,8 +50,8 @@ class ReclamationConversation
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: false)]
-    private ?\DateTimeInterface $created_at = null;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private ?\DateTimeImmutable $created_at = null;
 
     public function getCreated_at(): ?\DateTimeInterface
     {
@@ -58,10 +64,10 @@ class ReclamationConversation
         return $this;
     }
 
-    #[ORM\Column(type: 'text', nullable: false)]
-    private ?string $status = null;
+    #[ORM\Column(type: 'string', length: 20, options: ['default' => 'active'])]
+    private string $status = 'active';
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -77,10 +83,43 @@ class ReclamationConversation
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeInterface $created_at): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
     {
-        $this->created_at = $created_at;
+        $this->created_at = $createdAt;
+        return $this;
+    }
+    
+    #[ORM\OneToMany(
+        mappedBy: 'conversation',
+        targetEntity: ConversationMessage::class,
+        cascade: ['persist','remove']
+    )]
+    private Collection $messages;
 
+    public function __construct()
+    {
+        $this->messages = new ArrayCollection();
+    }
+
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(ConversationMessage $msg): static
+    {
+        if (!$this->messages->contains($msg)) {
+            $this->messages->add($msg);
+            $msg->setConversation($this);
+        }
+        return $this;
+    }
+
+    public function removeMessage(ConversationMessage $msg): static
+    {
+        if ($this->messages->removeElement($msg) && $msg->getConversation() === $this) {
+            $msg->setConversation(null);
+        }
         return $this;
     }
 

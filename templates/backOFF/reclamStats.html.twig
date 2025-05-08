@@ -1,0 +1,352 @@
+{% extends 'back/indexBACK.html.twig' %}
+
+{% block title %}Liste des Événements{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/plugins.min.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/kaiadmin.min.css') }}" />
+<style>
+    .main-panel {
+        margin-left: 250px; /* Should match your sidebar width */
+        width: calc(100% - 250px); /* Subtract sidebar width */
+    }
+    .page-inner {
+        padding: 20px;
+    }
+    .event-list {
+        width: 100%;
+        margin-top: 20px;
+    }
+    .event-list th, .event-list td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .event-list th {
+        background-color: #f8f9fa;
+    }
+    .button-group {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+    .button-group .btn {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+    .main-header {
+        padding: 20px;
+        background: #fff;
+        box-shadow: 0 1px 15px rgba(0,0,0,0.1);
+    }
+     .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1000; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+        max-width: 800px;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close:hover {
+        color: black;
+    }
+    .modal.show {
+  display: block !important;
+  z-index: 9999 !important;
+}
+    
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+  <!-- Sidebar -->
+  <div class="sidebar" data-background-color="dark">
+    <div class="sidebar-logo">
+      <div class="logo-header" data-background-color="dark">
+        <a href="index.html" class="logo">
+          <img src="{{ asset('images/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+        </a>
+        <div class="nav-toggle">
+          <button class="btn btn-toggle toggle-sidebar">
+            <i class="gg-menu-right"></i>
+          </button>
+          <button class="btn btn-toggle sidenav-toggler">
+            <i class="gg-menu-left"></i>
+          </button>
+        </div>
+        <button class="topbar-toggler more">
+          <i class="gg-more-vertical-alt"></i>
+        </button>
+      </div>
+    </div>
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+      <div class="sidebar-content">
+        <ul class="nav nav-secondary">
+          <li class="nav-item active">
+            <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+              <i class="fas fa-home"></i>
+              <p>Dashboard</p>
+              <span class="caret"></span>
+            </a>
+            <div class="collapse" id="dashboard">
+              <ul class="nav nav-collapse">
+                <li>
+                  <a href="../demo1/index.html">
+                    <span class="sub-item">Dashboard 1</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-section">
+            <span class="sidebar-mini-icon">
+              <i class="fa fa-ellipsis-h"></i>
+            </span>
+            <h4 class="text-section">Components</h4>
+          </li>
+          <li class="nav-item">
+            <a data-bs-toggle="collapse" href="#base">
+              <i class="fas fa-layer-group"></i>
+              <p>Administration des comptes</p>
+              <span class="caret"></span>
+            </a>
+            <div class="collapse" id="base">
+              <ul class="nav nav-collapse">
+                <li>
+                  <a href="components/avatars.html">
+                    <span class="sub-item">Utilisateurs</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="components/avatars.html">
+                    <span class="sub-item">Roles</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item active submenu">
+            <a data-bs-toggle="collapse" href="#sidebarLayouts">
+              <i class="fas fa-th-list"></i>
+              <p>Centre événementiel</p>
+              <span class="caret"></span>
+            </a>
+            <div class="collapse show" id="sidebarLayouts">
+              <ul class="nav nav-collapse">
+                <li class="active">
+                  <a href="{{ path('app_show_all_eventsBack') }}">
+                    <span class="sub-item">Événements</span>
+                  </a>
+                </li>
+                <li class="active">
+                  <a href="sidebar-style-2.html">
+                    <span class="sub-item">Catégories</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+         <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#forms">
+                  <i class="fas fa-pen-square"></i>
+                  <p>Relations externes</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="forms">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="forms/forms.html">
+                        <span class="sub-item">Partenaires</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="forms/forms.html">
+                        <span class="sub-item">Partenariats</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#tables">
+                  <i class="fas fa-table"></i>
+                  <p>Boutique</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="tables">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="tables/tables.html">
+                        <span class="sub-item">Produits</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="tables/tables.html">
+                        <span class="sub-item">Commandes</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#maps">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <p>Espace communautaire</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="maps">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="forum.html">
+                        <span class="sub-item">Publications</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#maps">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <p>Réclamations</p>
+                  <span class="caret"></span>
+                </a>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="main-panel">
+    <div class="main-header">
+
+    </div>
+    
+    <div class="container">
+      <div class="page-inner">
+        <h1>Page of stats</h1>
+
+        <div class="container mt-5">
+            <h2 class="mb-4">📊 Statistiques des Réclamations</h2>
+
+        
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Temps moyen de résolution: <strong>{{ avgHours }}</strong> heures en moyenne</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+          <div class="card bg-secondary text-white">
+              <div class="card-body">
+                  <h5 class="card-title">Avg. Satisfaction</h5>
+                  <h2 class="display-4">{{ avgRating|number_format(1) }}/5</h2>
+                  <p class="card-text">Based on user feedback</p>
+              </div>
+          </div>
+      </div>
+      
+      
+      
+      <!-- Satisfaction Rating Distribution -->
+      <div class="row mt-4">
+          <div class="col-md-6">
+              <div class="card">
+                  <div class="card-body">
+                      <h5 class="card-title">Satisfaction Ratings</h5>
+                      <canvas id="ratingChart" height="200"></canvas>
+                  </div>
+              </div>
+          </div>
+      </div>
+      
+
+
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  // Monthly Chart
+  const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+new Chart(ratingCtx, {
+  type: 'bar',
+  data: {
+      labels: {{ ratingDistribution|keys|json_encode|raw }},
+      datasets: [{
+          label: 'Number of Ratings',
+          data: {{ ratingDistribution|json_encode|raw }},
+          backgroundColor: '#6f42c1'
+      }]
+  },
+  options: {
+      scales: {
+          y: {
+              beginAtZero: true,
+              stepSize: 1
+          }
+      }
+  }
+});
+
+  // Type Distribution Chart
+  const typeCtx = document.getElementById('typeChart').getContext('2d');
+  new Chart(typeCtx, {
+      type: 'doughnut',
+      data: {
+          labels: {{ typeDistribution.labels|json_encode|raw }},
+          datasets: [{
+              data: {{ typeDistribution.data|json_encode|raw }},
+              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+          }]
+      }
+  });
+
+  // Status Distribution Chart
+  const statusCtx = document.getElementById('statusChart').getContext('2d');
+  new Chart(statusCtx, {
+      type: 'pie',
+      data: {
+          labels: {{ statusDistribution|keys|json_encode|raw }},
+          datasets: [{
+              data: {{ statusDistribution|json_encode|raw }},
+              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+          }]
+      }
+  });
+
+
+
+</script>
+
+{% endblock %}

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Entity;
-
+use App\Entity\Partnership;
 use App\Repository\PartnerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -52,6 +52,12 @@ class Partner
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $website = null;
 
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $rating = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $ratingCount = null;
+
     #[ORM\OneToMany(mappedBy: 'partnerId', targetEntity: Partnership::class)]
     private Collection $partnerships;
 
@@ -60,6 +66,8 @@ class Partner
         $this->partnerships = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
+        $this->rating = 0.0;
+        $this->ratingCount = 0;
     }
 
     public function getId(): ?int
@@ -199,6 +207,28 @@ class Partner
         return $this;
     }
 
+    public function getRating(): ?float
+    {
+        return $this->rating;
+    }
+
+    public function setRating(?float $rating): static
+    {
+        $this->rating = $rating;
+        return $this;
+    }
+
+    public function getRatingCount(): ?int
+    {
+        return $this->ratingCount;
+    }
+
+    public function setRatingCount(?int $ratingCount): static
+    {
+        $this->ratingCount = $ratingCount;
+        return $this;
+    }
+
     /**
      * @return Collection<int, Partnership>
      */
@@ -227,5 +257,17 @@ class Partner
         }
 
         return $this;
+    }
+
+    public function getTotalRating(): float
+    {
+        $baseRating = $this->rating ?? 0;
+        $partnershipCount = $this->partnerships->count();
+        
+        // Calculate bonus based on number of partnerships
+        // Each partnership adds 0.2 to the rating, up to a maximum of 1.0 bonus
+        $bonus = min($partnershipCount * 0.2, 1.0);
+        
+        return min($baseRating + $bonus, 5.0);
     }
 } 

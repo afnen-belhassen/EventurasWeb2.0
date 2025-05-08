@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Kaiadmin - Forum Admin</title>
+    <title>Eventura</title>
     <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
     <link rel="icon" href="{{ asset('images/img/kaiadmin/favicon.ico') }}" type="image/x-icon" />
 
@@ -64,27 +64,13 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-              <li class="nav-item active">
-                <a
-                  data-bs-toggle="collapse"
-                  href="#dashboard"
-                  class="collapsed"
-                  aria-expanded="false"
-                >
-                  <i class="fas fa-home"></i>
-                  <p>Dashboard</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="dashboard">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="../demo1/index.html">
-                        <span class="sub-item">Dashboard 1</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
+               <li class="nav-item active">
+            <a  href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
+              <i class="fas fa-home"></i>
+              <p>Tableau de bord</p>
+              
+            </a>
+          </li>
               <li class="nav-section">
                 <span class="sidebar-mini-icon">
                   <i class="fa fa-ellipsis-h"></i>
@@ -126,7 +112,7 @@
                       </a>
                     </li>
                     <li class="active">
-                      <a href="sidebar-style-2.html">
+                      <a href="{{ path('app_show_all_catsBack') }}">
                         <span class="sub-item">Catégories</span>
                       </a>
                     </li>
@@ -142,12 +128,12 @@
                 <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="forms/forms.html">
+                      <a href="{{ path('app_partner_index') }}">
                         <span class="sub-item">Partenaires</span>
                       </a>
                     </li>
                     <li>
-                      <a href="forms/forms.html">
+                      <a href="{{ path('app_partnership_index') }}">
                         <span class="sub-item">Partenariats</span>
                       </a>
                     </li>
@@ -192,18 +178,18 @@
                 </div>
               </li>
               
-              <li class="nav-item">
-                <a href="widgets.html">
-                  <i class="fas fa-desktop"></i>
-                  <p>Support client</p>
-                  <span class="badge badge-success">4</span>
-                  <li>
-                      <a href="maps/googlemaps.html">
-                        <span class="sub-item">Réclamations</span>
-                      </a>
-                    </li>
+
+
+              <li class="nav-item active submenu">
+                <a  href="{{ path('app_show_all_reclamsBack') }}">
+                  <i class="fa fa-flag"></i>
+                  <p>Réclamations</p>
+                  <span class="caret"></span>
                 </a>
+
               </li>
+
+
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#charts">
                   <i class="far fa-chart-bar"></i>
@@ -328,12 +314,67 @@
                     </div>
                   </div>
                 {% endfor %}
-              </div></div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card card-round mt-4">
+                  <div class="card-header"><h4 class="card-title">Tentatives par Mot-Interdit</h4></div>
+                  <div class="card-body" style="width:100%; height:300px;">
+                    <canvas id="bwAttemptsChart" class="mx-auto"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card card-round mt-4">
+                  <div class="card-header"><h4 class="card-title">Tentatives par Utilisateur</h4></div>
+                  <div class="card-body table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr><th>Utilisateur ID</th><th>Nb de tentatives</th></tr>
+                      </thead>
+                      <tbody>
+                        {% for row in user_attempts %}
+                          <tr>
+                            <td>{{ row.user_id }}</td>
+                            <td>{{ row.count }}</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card card-round mt-4">
+              <div class="card-header">
+                <h4 class="card-title">Posts vs Comments per User</h4>
+              </div>
+              <div class="card-body">
+                <canvas id="statisticsChart"></canvas>
+              </div>
+            </div>
 
             <!-- Liste des Publications -->
-            <div class="card card-round mt-4"><div class="card-header"><div class="card-head-row"><h4 class="card-title">Dernières Publications</h4></div></div>
-              <div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0">
-                <thead><tr><th>Auteur</th><th>Contenu</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+            <div class="card card-round mt-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title">Dernières Publications</h4>
+                <button class="btn btn-sm btn-secondary" 
+                        type="button"
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#posts-section" 
+                        aria-expanded="true" 
+                        aria-controls="posts-section">
+                  Show/Hide
+                </button>
+              </div>
+              <div id="posts-section" class="collapse show">
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                     <thead><tr><th>Auteur</th><th>Contenu</th><th>Date</th><th>Actions</th></tr></thead><tbody>
                   {% for post in allPosts %}
                     <tr>
                       <td>Utilisateur #{{ post.userId }}</td>
@@ -343,22 +384,49 @@
                     </tr>
                   {% endfor %}
                 </tbody>
-              </table></div></div></div>
+
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <!-- Liste des Commentaires -->
-            <div class="card card-round mt-4"><div class="card-header"><div class="card-head-row"><h4 class="card-title">Derniers Commentaires</h4></div></div>
-              <div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0">
-                <thead><tr><th>Auteur</th><th>Contenu</th><th>Date</th><th>Actions</th></tr></thead><tbody>
-                  {% for comment in allComments %}
-                    <tr>
-                      <td>Utilisateur #{{ comment.userId }}</td>
-                      <td>{{ comment.content|slice(0,50) }}...</td>
-                      <td>{{ comment.CreatedAt|date('d/m/Y H:i') }}</td>
-                      <td><form action="{{ path('app_admin_delete_comment', {id: comment.id}) }}" method="POST"><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></form></td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table></div></div></div>
+            <div class="card card-round mt-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title">Derniers Commentaires</h4>
+                <button class="btn btn-sm btn-secondary" 
+                        type="button"
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#comments-section" 
+                        aria-expanded="true" 
+                        aria-controls="comments-section">
+                  Show/Hide
+                </button>
+              </div>
+              <div id="comments-section" class="collapse show">
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                    <thead><tr><th>Auteur</th><th>Contenu</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+                              {% for comment in allComments %}
+                                <tr>
+                                  <td>Utilisateur #{{ comment.userId }}</td>
+                                  <td>{{ comment.content|slice(0,50) }}...</td>
+                                  <td>{{ comment.CreatedAt|date('d/m/Y H:i') }}</td>
+                                  <td><form action="{{ path('app_admin_delete_comment', {id: comment.id}) }}" method="POST"><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></form></td>
+                                </tr>
+                              {% endfor %}
+                            </tbody>  
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            
+
+
 
           </div>
         </div>
@@ -372,19 +440,16 @@
             <div>Distributed by <a target="_blank" href="https://themewagon.com/">ThemeWagon</a>.</div>
           </div>
         </footer>
-
-        <!-- Custom template | don't include it in your project! -->
-        <div class="custom-template"> ... </div>
-      </div>
+        
     </div>
     {% endblock %}
 
     {% block js %}
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> {# :contentReference[oaicite:0]{index=0} #}
       <script src="{{ asset('js/core/jquery-3.7.1.min.js') }}"></script>
       <script src="{{ asset('js/core/popper.min.js') }}"></script>
       <script src="{{ asset('js/core/bootstrap.min.js') }}"></script>
       <script src="{{ asset('js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
-      <script src="{{ asset('js/plugin/chart.js/chart.min.js') }}"></script>
       <script src="{{ asset('js/plugin/jquery.sparkline/jquery.sparkline.min.js') }}"></script>
       <script src="{{ asset('js/plugin/chart-circle/circles.min.js') }}"></script>
       <script src="{{ asset('js/plugin/datatables/datatables.min.js') }}"></script>
@@ -392,9 +457,95 @@
       <script src="{{ asset('js/plugin/jsvectormap/jsvectormap.min.js') }}"></script>
       <script src="{{ asset('js/plugin/jsvectormap/world.js') }}"></script>
       <script src="{{ asset('js/plugin/sweetalert/sweetalert.min.js') }}"></script>
-      <script src="{{ asset('js/kaiadmin.min.js') }}"></script>
       <script src="{{ asset('js/setting-demo.js') }}"></script>
-      <script src="{{ asset('js/demo.js') }}"></script>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Récupère les données passées par le contrôleur
+          const labels        = {{ chart_labels|json_encode|raw }};
+          const postData      = {{ chart_post_data|json_encode|raw }};
+          const commentData   = {{ chart_comment_data|json_encode|raw }};
+          console.log('postData:', postData, postData.map(x=>typeof x));
+        console.log('commentData:', commentData, commentData.map(x=>typeof x));
+      
+          console.log(document.getElementById('statisticsChart'));
+          const ctx = document.getElementById('statisticsChart').getContext('2d');
+          new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Posts',
+              data: postData.map(x => +x),
+              backgroundColor: 'rgba(54,162,235,0.5)',
+              borderColor: 'rgba(54,162,235,1)',
+              borderWidth: 1
+            },
+            {
+              label: 'Comments',
+              data: commentData.map(x => +x),
+              backgroundColor: 'rgba(255,99,132,0.5)',
+              borderColor: 'rgba(255,99,132,1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          scales: {
+            y: {                              // ← définition de l’axe Y
+              type: 'linear',                // optionnel, c’est la valeur par défaut
+              min: 0,                        // force le minimum à 0
+              max: Math.max(...postData, ...commentData), // force le maximum
+              beginAtZero: true,             // commence bien à zéro :contentReference[oaicite:0]{index=0}
+              ticks: {
+                stepSize: 1,                 // un pas de 1 entre chaque graduation :contentReference[oaicite:1]{index=1}
+                precision: 0,                // aucune décimale
+                callback: v => Number.isInteger(v) ? v : ''  
+              }
+            },
+            x: {                             // tu peux aussi configurer l’axe X si besoin
+              // barPercentage, categoryPercentage, etc.
+            }
+          }
+        }
+      });
+      
+        
+        });
+      
+        </script>
+        <script>
+          // données pour bad-words
+          const bwLabels = {{ chart_bw_labels|json_encode|raw }};
+          const bwData   = {{ chart_bw_data|json_encode|raw }};
+      
+          const ctxBW = document.getElementById('bwAttemptsChart').getContext('2d');
+          new Chart(ctxBW, {
+            type: 'pie',    // ← camembert au lieu de 'bar'
+            data: {
+              labels: bwLabels,
+              datasets: [{
+                label: 'Tentatives',
+                data: bwData.map(x => +x),
+                // borderWidth et couleurs peuvent rester ou être retirés
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: context => `${context.label}: ${context.parsed} tentative(s)`
+                  }
+                }
+              }
+            }
+          });
+        </script>
     {% endblock %}
+    
   </body>
+  
 </html>

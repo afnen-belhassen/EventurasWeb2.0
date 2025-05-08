@@ -51,7 +51,7 @@ class DashboardController extends AbstractController
     }
 
 
-    #[Route('/dashboard', name: 'app_dashboard')]
+    #[Route('/dashboard1', name: 'app_dashboard1')]
     public function index(): Response
     {
         $commandes = $this->commandeRepository->createQueryBuilder('c')
@@ -104,7 +104,7 @@ class DashboardController extends AbstractController
         $topProduitsLabels = array_column($topProduits, 'nom');
         $topProduitsData = array_column($topProduits, 'total');
 
-        return $this->render('dashboard/index.html.twig', [
+        return $this->render('backOFF/nassiradmin.html.twig', [
             'produit' => $produits,
             'commandes' => $commandes,
             'chiffre_affaires' => $chiffre_affaires,

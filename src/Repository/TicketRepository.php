@@ -40,4 +40,31 @@ class TicketRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function findTicketsByUserId(int $userId): array
+{
+    return $this->createQueryBuilder('t')
+        ->join('t.reservation', 'r')  // Using the relationship
+        ->join('r.user', 'u')         // Join through reservation to user
+        ->where('u.id = :userId')
+        ->setParameter('userId', $userId)
+        ->orderBy('t.ticket_id', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
+
+public function findReservedSeatNumbers(int $eventId): array
+{
+    $result = $this->createQueryBuilder('t')
+        ->select('t.seat_number') // Using database column name
+        ->join('t.reservation', 'r')
+        ->join('r.event', 'e')
+        ->where('e.id = :eventId')
+        ->andWhere('r.status = :status')
+        ->setParameter('eventId', $eventId)
+        ->setParameter('status', 'reserved')
+        ->getQuery()
+        ->getScalarResult();
+
+    return array_column($result, 'seat_number');
+}
 }

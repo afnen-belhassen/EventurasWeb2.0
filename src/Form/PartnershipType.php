@@ -33,7 +33,13 @@ class PartnershipType extends AbstractType
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'required' => true,
-                'attr' => ['class' => 'form-control bg-dark text-white border-secondary', 'rows' => 5]
+                'attr' => [
+                    'class' => 'form-control bg-dark text-white border-secondary',
+                    'rows' => 5,
+                    'maxlength' => 200,
+                    'data-maxlength' => 200
+                ],
+                'help' => 'Maximum 200 caractères'
             ])
             ->add('status', ChoiceType::class, [
                 'choices' => [

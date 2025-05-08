@@ -43,19 +43,23 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $id_event = null;
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(name: "id_event", referencedColumnName: "id_event", nullable: true, onDelete: "SET NULL")]
+    private ?Event $id_event = null;
 
-    public function getId_event(): ?int
+    public function getIdEvent(): ?Event
     {
         return $this->id_event;
     }
-
-    public function setId_event(?int $id_event): self
+    
+    public function setIdEvent(?Event $id_event): self
     {
         $this->id_event = $id_event;
+    
         return $this;
     }
+
+
 
     #[ORM\Column(type: 'datetime', nullable: false)]
     private ?\DateTimeInterface $created_at = null;
@@ -70,6 +74,21 @@ class Reclamation
         $this->created_at = $created_at;
         return $this;
     }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $created_at): static
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+
+    
 
     #[ORM\Column(type: 'text', nullable: false)]
     private ?string $description = null;
@@ -127,7 +146,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\OneToMany(targetEntity: ReclamationAttachment::class, mappedBy: 'reclamation')]
+    #[ORM\OneToMany(mappedBy: 'reclamation', targetEntity: ReclamationAttachment::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $reclamationAttachments;
 
     /**
@@ -164,6 +183,7 @@ class Reclamation
         $this->created_at = new \DateTime();
         $this->reclamationAttachments = new ArrayCollection();
         $this->reclamationConversations = new ArrayCollection();
+        
     }
 
     /**
@@ -203,29 +223,8 @@ class Reclamation
         return $this;
     }
 
-    public function getIdEvent(): ?int
-    {
-        return $this->id_event;
-    }
 
-    public function setIdEvent(?int $id_event): static
-    {
-        $this->id_event = $id_event;
 
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
 
     public function getRefuseReason(): ?string
     {
@@ -238,5 +237,51 @@ class Reclamation
 
         return $this;
     }
+
+
+    #[ORM\Column(type: 'boolean')]
+private bool $isRated = false;
+
+#[ORM\Column(type: 'smallint', nullable: true)]
+private ?int $rating = null;
+
+public function isRated(): bool
+{
+    return $this->isRated;
+}
+
+public function setIsRated(bool $isRated): self
+{
+    $this->isRated = $isRated;
+    return $this;
+}
+
+public function getRating(): ?int
+{
+    return $this->rating;
+}
+
+public function setRating(?int $rating): self
+{
+    $this->rating = $rating;
+    return $this;
+}
+
+
+#[ORM\Column(type: 'datetime', nullable: true)]
+private ?\DateTimeInterface $closed_at = null;
+
+public function getClosedAt(): ?\DateTimeInterface
+{
+    return $this->closed_at;
+}
+
+public function setClosedAt(?\DateTimeInterface $closed_at): self
+{
+    $this->closed_at = $closed_at;
+
+    return $this;
+}
+
 
 }

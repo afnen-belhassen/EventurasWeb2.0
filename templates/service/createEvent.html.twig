@@ -46,15 +46,6 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
                     <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_1">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_2">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link click-scroll" href="#section_3">Features</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link click-scroll" href="#section_4">Contact</a>
                     </li>
                 </ul>
@@ -64,89 +55,152 @@
                         <i class="bi bi-plus-circle me-2"></i>Créer Événement
                     </a>
                     <a href="{{ path('app_show_all_events') }}"class="btn custom-btn d-lg-block d-none">Vos événements</a>
+                   {{ include('service/sidebar.html.twig') }}
                 </div>
             </div>
         </div>
     </nav>
 
     <div class="container mt-5">
-        <div class="event-form">
-            <h2>Créer votre événement</h2>
-            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                <div class="mb-3">
-                    {% if form.title.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.title.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.title, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.description.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.description.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.description, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.date_event.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.date_event.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.date_event, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.location.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.location.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.location, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.category.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.category.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.category, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.image.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.image.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.image, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.activities.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.activities.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.activities, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.prix.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.prix.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.prix, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="mb-3">
-                    {% if form.nb_places.vars.errors|length > 0 %}
-                        <div class="form-error">
-                            {{ form.nb_places.vars.errors|first.message }}  {# Access the message property #}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form.nb_places, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <button type="submit" class="btn btn-custom">Créer l'événement</button>
-            {{ form_end(form) }}
+         <div class="event-form">
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+        <div class="mb-3">
+            {{ form_row(form.title, {
+                'attr': {'class': 'form-control' ~ (form.title.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
         </div>
-    </div>
+
+        <div class="mb-3">
+            {{ form_row(form.description, {
+                'attr': {'class': 'form-control' ~ (form.description.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.date_event, {
+                'attr': {'class': 'form-control' ~ (form.date_event.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.date_finEve, {
+                'attr': {'class': 'form-control' ~ (form.date_finEve.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.location, {
+                'attr': {'id': 'location', 'class': 'form-control' ~ (form.location.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <!-- Add a visible input field for the location -->
+        <div class="mb-3">
+            <input type="text" id="location" class="form-control" placeholder="Location" readonly>
+        </div>
+
+        <input type="hidden" id="latitude" name="event[latitude]">
+        <input type="hidden" id="longitude" name="event[longitude]">
+
+        <div id="map" style="height: 400px; margin-bottom: 20px;"></div>
+
+        <div class="mb-3">
+            {{ form_row(form.category, {
+                'attr': {'class': 'form-control' ~ (form.category.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.image, {
+                'attr': {'class': 'form-control' ~ (form.image.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.activities, {
+                'attr': {'class': 'form-control' ~ (form.activities.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.prix, {
+                'attr': {'class': 'form-control' ~ (form.prix.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(form.nb_places, {
+                'attr': {'class': 'form-control' ~ (form.nb_places.vars.errors|length > 0 ? ' is-invalid' : '')}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-custom">Créer l'événement</button>
+        </div>
+
+    {{ form_end(form) }}
+    {% if google_maps_api_key is empty %}
+    <div class="alert alert-warning">Google Maps ne peut pas être chargé sans une clé API.</div>
+    {% endif %}
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initMap" async defer></script>
+
+<script>
+    let map, marker, geocoder;
+
+    function initMap() {
+        geocoder = new google.maps.Geocoder();
+        const defaultPosition = { lat: 36.8065, lng: 10.1815 }; // Tunis
+
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: defaultPosition,
+            zoom: 12,
+        });
+
+        marker = new google.maps.Marker({
+            position: defaultPosition,
+            map: map,
+            draggable: true,
+        });
+
+        // Initial update
+        updateFields(defaultPosition);
+
+        // Update on marker drag
+        marker.addListener("dragend", () => {
+            updateFields(marker.getPosition());
+        });
+
+        // Update on map click
+        map.addListener("click", (e) => {
+            marker.setPosition(e.latLng);
+            updateFields(e.latLng);
+        });
+    }
+
+    function updateFields(position) {
+        const latLng = position instanceof google.maps.LatLng 
+            ? position 
+            : new google.maps.LatLng(position.lat, position.lng);
+
+        const lat = latLng.lat();
+        const lng = latLng.lng();
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+
+        geocoder.geocode({ location: latLng }, (results, status) => {
+            const locationField = document.getElementById('location');
+            if (locationField) { // Ensure locationField exists
+                if (status === 'OK' && results[0]) {
+                    locationField.value = results[0].formatted_address;
+                } else {
+                    locationField.value = "Adresse introuvable";
+                }
+            }
+        });
+    }
+</script>
+
 {% endblock %}

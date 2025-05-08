@@ -1,0 +1,86 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Reclamation Statistics{% endblock %}
+
+{% block body %}
+
+<!-- Average Satisfaction Card -->
+<div class="col-md-3 mb-4">
+    <div class="card bg-secondary text-white">
+        <div class="card-body">
+            <h5 class="card-title">Avg. Satisfaction</h5>
+            <h2 class="display-4">{{ avgRating|number_format(1) }}/5</h2>
+            <p class="card-text">Based on user feedback</p>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Satisfaction Rating Distribution -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Satisfaction Ratings</h5>
+                <canvas id="ratingChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Monthly Chart
+    const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+new Chart(ratingCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ ratingDistribution|keys|json_encode|raw }},
+        datasets: [{
+            label: 'Number of Ratings',
+            data: {{ ratingDistribution|json_encode|raw }},
+            backgroundColor: '#6f42c1'
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                stepSize: 1
+            }
+        }
+    }
+});
+
+    // Type Distribution Chart
+    const typeCtx = document.getElementById('typeChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ typeDistribution.labels|json_encode|raw }},
+            datasets: [{
+                data: {{ typeDistribution.data|json_encode|raw }},
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+            }]
+        }
+    });
+
+    // Status Distribution Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ statusDistribution|keys|json_encode|raw }},
+            datasets: [{
+                data: {{ statusDistribution|json_encode|raw }},
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+            }]
+        }
+    });
+
+
+
+</script>
+{% endblock %} 
