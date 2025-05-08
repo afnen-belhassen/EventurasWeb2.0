@@ -231,16 +231,22 @@
     </button>
     <h4 class="mb-3">Modifier Réclamation #<span id="edit-id"></span></h4>
     <form id="editForm" method="post" action="">
-      <div class="mb-2">
+      <div style="display:none" class="mb-2">
         <label for="edit-id_user">User ID</label>
         <input type="number" name="reclamation[id_user]" id="edit-id_user"
                class="form-control">
       </div>
-      <div class="mb-2">
-        <label for="edit-id_event">Event ID</label>
-        <input type="number" name="reclamation[id_event]" id="edit-id_event"
-               class="form-control">
+      <div class="mb-2" id="edit-event-wrapper" style="display: none;">
+        <label for="edit-id_event">Événement</label>
+        <select name="reclamation[id_event]" id="edit-id_event" class="form-select">
+          <option value="">-- Choisir un événement --</option>
+          {% for event in events %}
+          <option value="{{ event.getIdEvent() }}">{{ event.getTitle() }}</option>
+          {% endfor %}
+        </select>
       </div>
+      
+      
       <div class="mb-2">
         <label for="edit-description">Description</label>
         <textarea name="reclamation[description]" id="edit-description"
@@ -338,45 +344,56 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // EDIT popup logic
-  document.querySelectorAll('.modifier-button-kitcat-modif').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var card     = btn.closest('.element-card');
-      var id       = card.dataset.id;
-      var id_user  = card.dataset.id_user;
-      var id_event = card.dataset.id_event;
-      var desc     = card.dataset.description;
-      var subj     = card.dataset.subject;
-      var refuse_reason   = card.dataset.refuse_reason;
-      var status = card.dataset.status;
-var submitBtn = document.querySelector('#editForm button[type="submit"]');
+  document.querySelectorAll('.modifier-button-kitcat-modif').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    const card = btn.closest('.element-card');
 
-if (status === 'Rejeté') {
-  submitBtn.style.display = 'none';
-} else {
-  submitBtn.style.display = 'inline-block';
-}
+    const id = card.dataset.id;
+    const id_user = card.dataset.id_user;
+    const id_event = card.dataset.id_event;
+    const desc = card.dataset.description;
+    const subj = card.dataset.subject;
+    const refuse_reason = card.dataset.refuse_reason || '';
+    const status = card.dataset.status;
 
-      document.getElementById('edit-id').textContent         = id;
-      document.getElementById('edit-id_user').value         = id_user;
-      document.getElementById('edit-id_event').value        = id_event;
-      document.getElementById('edit-description').value     = desc;
-      document.getElementById('edit-subject').value         = subj;
-      const refuseField = document.getElementById('edit-refuse_reason');
-const refuseWrapper = document.getElementById('refuse-reason-container');
+    const form = document.getElementById('editForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const eventSelect = document.getElementById('edit-id_event');
+    const eventWrapper = document.getElementById('edit-event-wrapper');
 
-if (refuse_reason !== undefined && refuse_reason.trim() !== '') {
-  refuseField.value = refuse_reason;
-  refuseWrapper.style.display = 'block';
-} else {
-  refuseField.value = '';
-  refuseWrapper.style.display = 'none';
-}
-      document.getElementById('editForm').action            =
-        '{{ path("app_reclamation_edit", {"id":0}) }}'.replace('/0','/' + id);
+    // Fill in the form
+    document.getElementById('edit-id').textContent = id;
+    document.getElementById('edit-id_user').value = id_user;
+    document.getElementById('edit-description').value = desc;
+    document.getElementById('edit-subject').value = subj;
+    document.getElementById('edit-refuse_reason').value = refuse_reason;
 
-      document.getElementById('editPopup').classList.add('open');
-    });
+    // Update event select
+    if (eventSelect) {
+      eventSelect.value = id_event || '';
+    }
+
+    // Show/hide refuse reason
+    const refuseWrapper = document.getElementById('refuse-reason-container');
+    refuseWrapper.style.display = refuse_reason.trim() ? 'block' : 'none';
+
+    // Show/hide event select dropdown depending on subject
+    if (subj === 'Evenement' || subj === 'Organizateur') {
+      eventWrapper.style.display = 'block';
+    } else {
+      eventWrapper.style.display = 'none';
+    }
+
+    // Disable submit button if status is Rejeté
+    submitBtn.style.display = status === 'Rejeté' ? 'none' : 'inline-block';
+
+    // Update form action
+    form.action = '{{ path("app_reclamation_edit", {"id": "__ID__"}) }}'.replace('__ID__', id);
+
+    // Open popup
+    document.getElementById('editPopup').classList.add('open');
   });
+});
 });
 
 function openCategoryPopup() {
@@ -434,8 +451,7 @@ document.getElementById('editForm').addEventListener('submit', function (e) {
   if (description.length < 20 || description.length > 300)
     errors.push("La description doit contenir entre 20 et 300 caractères.");
 
-  if (subject.length < 10 || subject.length > 30)
-    errors.push("Le sujet doit contenir entre 10 et 30 caractères.");
+
 
   if (errors.length > 0) {
     e.preventDefault();

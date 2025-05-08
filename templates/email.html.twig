@@ -1,0 +1,7 @@
+{# templates/emails/confirmation.html.twig #}
+
+<h2>Confirmation de Paiement</h2>
+<p>Merci pour votre commande n°{{ commande.id }}.</p>
+<p>Montant total : {{ commande.montantTotal|number_format(2, ',', ' ') }} DT</p>
+<p>Méthode de paiement : {{ paymentMethod }}</p>
+<p>Adresse de livraison : {{ commande.adresse }}</p>

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\ConversationMessage;
+use App\Entity\Event;
 use App\Entity\MessageAttachment;
 use App\Entity\Reclamation;
 use App\Entity\ReclamationAttachment;
@@ -91,13 +92,17 @@ final class ReclamationController extends AbstractController
         $newRecl->setStatus('En attente');
         $form = $this->createForm(ReclamationType::class, $newRecl);
     
+        // ✅ Get events for the edit dropdown
+        $events = $em->getRepository(Event::class)->findAll();
+    
         return $this->render('reclamation/reclam.html.twig', [
-            'reclamations'    => $pagination,
-            'form'            => $form->createView(),
-            'selectedStatus'  => $statusFilter, // Pass the current filter to the template
+            'reclamations'   => $pagination,
+            'form'           => $form->createView(),
+            'events'         => $events,
+            'selectedStatus' => $statusFilter,
         ]);
     }
-
+    
     #[Route('/reclamation/{id}/delete', name: 'app_reclamation_delete', methods: ['POST'])]
     public function delete(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): Response
     {
@@ -182,29 +187,25 @@ final class ReclamationController extends AbstractController
         Request $request,
         EntityManagerInterface $em
     ): Response {
-        // 1) grab the entire POST payload
         $post = $request->request->all();
-
-        // 2) extract your “reclamation” sub‑array (or fallback to empty array)
-        $data = [];
-        if (isset($post['reclamation']) && is_array($post['reclamation'])) {
-            $data = $post['reclamation'];
-        }
-
-        // 3) apply updates, falling back to current values
+        $data = $post['reclamation'] ?? [];
+    
         $reclamation
-            ->setIdUser((int)($data['id_user']   ?? $reclamation->getIdUser()))
-            ->setIdEvent(isset($data['id_event']) ? (int)$data['id_event'] : null)
+            ->setIdUser((int)($data['id_user'] ?? $reclamation->getIdUser()))
+            ->setIdEvent(
+                isset($data['id_event']) && $data['id_event'] !== ''
+                    ? $em->getReference(Event::class, (int)$data['id_event'])
+                    : null
+            )
             ->setDescription($data['description'] ?? $reclamation->getDescription())
-            ->setSubject($data['subject']       ?? $reclamation->getSubject())
-        ;
-
+            ->setSubject($data['subject'] ?? $reclamation->getSubject());
+    
         $em->flush();
         $this->addFlash('success', 'Réclamation mise à jour !');
-
+    
         return $this->redirectToRoute('app_show_all_reclamations');
     }
-
+    
 
 
 
