@@ -144,95 +144,193 @@
 <body>
   <div class="wrapper">
     {% block sidebar %}
-    <!-- Sidebar -->
-    <div class="sidebar" data-background-color="dark">
-      <div class="sidebar-logo">
-        <div class="logo-header" data-background-color="dark">
-          <a href="#" class="logo">
-            <img src="{{ asset('images/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20">
-          </a>
-          <div class="nav-toggle">
-            <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
-            <button class="btn btn-toggle sidenav-toggler"><i class="gg-menu-left"></i></button>
+     <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a href="index.html" class="logo">
+              <img
+                src="{{ asset('images/img/kaiadmin/logo_light.svg') }}"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="20"
+              />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+          <div class="sidebar-content">
+            <ul class="nav nav-secondary">
+               <li class="nav-item active">
+            <a  href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
+              <i class="fas fa-home"></i>
+              <p>Tableau de bord</p>
+              
+            </a>
+          </li>
+              <li class="nav-section">
+                <span class="sidebar-mini-icon">
+                  <i class="fa fa-ellipsis-h"></i>
+                </span>
+                <h4 class="text-section">Components</h4>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#base">
+                  <i class="fas fa-layer-group"></i>
+                  <p>Administration des comptes</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="base">
+                  <ul class="nav nav-collapse">
+                  <li>
+                      <a href="{{ path('app_dashboard') }}">
+                        <span class="sub-item">Dashboard</span>
+                      </a>
+                    </li>
+                  <li>
+                      <a href="{{ path('app_users_index') }}">
+                        <span class="sub-item">Utilisateurs</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ path('app_role_index') }}">
+                        <span class="sub-item">Roles</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item active submenu">
+                <a data-bs-toggle="collapse" href="#sidebarLayouts">
+                  <i class="fas fa-th-list"></i>
+                  <p>Centre événementiel</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse show" id="sidebarLayouts">
+                  <ul class="nav nav-collapse">
+                  <li class="active">
+                      <a href="{{ path('app_show_all_eventsBack') }}">
+                        <span class="sub-item">Événements</span>
+                      </a>
+                    </li>
+                    <li class="active">
+                      <a href="{{ path('app_show_all_catsBack') }}">
+                        <span class="sub-item">Catégories</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#forms">
+                  <i class="fas fa-pen-square"></i>
+                  <p>Relations externes</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="forms">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ path('app_partner_index') }}">
+                        <span class="sub-item">Partenaires</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ path('app_partnership_index') }}">
+                        <span class="sub-item">Partenariats</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#tables">
+                  <i class="fas fa-table"></i>
+                  <p>Boutique</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="tables">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="tables/tables.html">
+                        <span class="sub-item">Produits</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="tables/tables.html">
+                        <span class="sub-item">Commandes</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#maps">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <p>Espace communautaire</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="maps">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="admin/forum">
+                        <span class="sub-item">Publications</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              
+
+
+              <li class="nav-item active submenu">
+                <a  href="{{ path('app_show_all_reclamsBack') }}">
+                  <i class="fa fa-flag"></i>
+                  <p>Réclamations</p>
+                  <span class="caret"></span>
+                </a>
+
+              </li>
+
+
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#charts">
+                  <i class="far fa-chart-bar"></i>
+                  <p>Charts</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="charts">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="charts/charts.html">
+                        <span class="sub-item">Chart Js</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="charts/sparkline.html">
+                        <span class="sub-item">Sparkline</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
-      <div class="sidebar-wrapper scrollbar scrollbar-inner">
-        <div class="sidebar-content">
-          <ul class="nav nav-secondary">
-            <li class="nav-item active">
-              <a href="{{path('app_dashboard')}}">
-                <i class="fas fa-home"></i>
-                <p>Dashboard</p>
-              </a>
-            </li>
-            <li class="nav-section">
-              <span class="sidebar-mini-icon"><i class="fa fa-ellipsis-h"></i></span>
-              <h4 class="text-section">Modules</h4>
-            </li>
-            <li class="nav-item">
-              <a data-bs-toggle="collapse" href="#userMgmt">
-                <i class="fas fa-user-shield"></i>
-                <p>Comptes</p>
-                <span class="caret"></span>
-              </a>
-              <div class="collapse" id="userMgmt">
-                <ul class="nav nav-collapse">
-                  <li><a href="{{ path('app_users_index') }}">Utilisateurs</a></li>
-                  <li><a href="{{ path('app_role_index') }}">Rôles</a></li>
-                </ul>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a data-bs-toggle="collapse" href="#eventCenter">
-                <i class="fas fa-calendar-alt"></i>
-                <p>Événements</p>
-                <span class="caret"></span>
-              </a>
-              <div class="collapse" id="eventCenter">
-                <ul class="nav nav-collapse">
-                  <li><a href="{{ path('app_show_all_eventsBack') }}">Liste événements</a></li>
-                  <li><a href="#">Catégories</a></li>
-                </ul>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a data-bs-toggle="collapse" href="#external">
-                <i class="fas fa-handshake"></i>
-                <p>Relations</p>
-                <span class="caret"></span>
-              </a>
-              <div class="collapse" id="external">
-                <ul class="nav nav-collapse">
-                  <li><a href="{{ path('app_partnership_index') }}">Partenaires</a></li>
-                  <li><a href="#">Partenariats</a></li>
-                </ul>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a data-bs-toggle="collapse" href="#shop">
-                <i class="fas fa-store"></i>
-                <p>Boutique</p>
-                <span class="caret"></span>
-              </a>
-              <div class="collapse" id="shop">
-                <ul class="nav nav-collapse">
-                  <li><a href="/dashboard1">Produits</a></li>
-                  <li><a href="/dashboard1">Commandes</a></li>
-                </ul>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a href="#">
-                <i class="fas fa-headset"></i>
-                <p>Support client</p>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <!-- End Sidebar -->
+      <!-- End Sidebar -->>
     {% endblock %}
 
     <!-- Main Content -->

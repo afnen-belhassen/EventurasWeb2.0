@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class TicketController extends AbstractController
 {
@@ -45,11 +46,13 @@ class TicketController extends AbstractController
     }
 
     #[Route('/my-tickets', name: 'app_user_tickets', methods: ['GET'])]
-    public function userTickets(EntityManagerInterface $entityManager): Response
+    public function userTickets(EntityManagerInterface $entityManager,Security $security): Response
     {
+        $user = $security->getUser();
+        $userId = $user->getUserId();
         // Get reservations for user 1
         $reservations = $entityManager->getRepository(Reservation::class)
-            ->findBy(['user_id' => 1]); // Hardcoded user ID 1
+            ->findBy(['user_id' => $userId]); // Hardcoded user ID 1
 
         // Get ticket IDs from reservations
         $ticketIds = array_map(function($reservation) {

@@ -258,7 +258,7 @@ class ReservationController extends AbstractController
     }
 
     #[Route('/confirm-reservation', name: 'app_confirm_reservation', methods: ['POST'])]
-    public function confirmReservation(Request $request, EntityManagerInterface $em, TwilioService $twilioService = null): JsonResponse
+    public function confirmReservation(Request $request, EntityManagerInterface $em, TwilioService $twilioService = null,Security $security): JsonResponse
     {
         try {
             // Log the incoming request for debugging
@@ -329,9 +329,12 @@ class ReservationController extends AbstractController
             $event->setNbPlaces($event->getNbPlaces() - 1);
             $em->persist($event);
             
+            $user = $security->getUser();
+            $userId = $user->getUserId();
+
             $reservation = new Reservation();
             $reservation->setEvent($event);
-            $reservation->setUser_id(1);
+            $reservation->setUser_id($userId);
             $reservation->setStatus('confirmed');
             $reservation->setStripePaymentId($paymentIntentId);
             $reservation->setTicket($ticket);
