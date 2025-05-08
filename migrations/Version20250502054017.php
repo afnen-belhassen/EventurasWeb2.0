@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250416154805 extends AbstractMigration
+final class Version20250502054017 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,7 +21,10 @@ final class Version20250416154805 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE event ADD date_fin_eve DATETIME DEFAULT NULL, CHANGE date_event date_event DATETIME DEFAULT NULL
+            ALTER TABLE reclamations ADD CONSTRAINT FK_1CAD6B76D52B4B97 FOREIGN KEY (id_event) REFERENCES event (id_event) ON DELETE SET NULL
+        SQL);
+        $this->addSql(<<<'SQL'
+            CREATE INDEX IDX_1CAD6B76D52B4B97 ON reclamations (id_event)
         SQL);
     }
 
@@ -29,7 +32,10 @@ final class Version20250416154805 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE event DROP date_fin_eve, CHANGE date_event date_event DATE DEFAULT NULL
+            ALTER TABLE reclamations DROP FOREIGN KEY FK_1CAD6B76D52B4B97
+        SQL);
+        $this->addSql(<<<'SQL'
+            DROP INDEX IDX_1CAD6B76D52B4B97 ON reclamations
         SQL);
     }
 }
