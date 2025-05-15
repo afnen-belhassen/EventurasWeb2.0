@@ -18,11 +18,11 @@ use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use App\Service\TwilioService;
 use Symfony\Bundle\SecurityBundle\Security;
-
+use App\Entity\Users;
 class ReservationController extends AbstractController
 {
     #[Route('/event/{id}/reserve', name: 'app_reservation_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, int $id, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, int $id, EntityManagerInterface $entityManager,Security $security): Response
     {
         $reservation = new Reservation();
         $event = $entityManager->getRepository(Event::class)->find($id);
@@ -30,9 +30,10 @@ class ReservationController extends AbstractController
         if (!$event) {
             throw $this->createNotFoundException('Event not found');
         }
-
+        $user = $security->getUser();
+        $userId = $user->getUserId();
         $reservation->setEvent($event);
-        $reservation->setUser_id(1);
+        $reservation->setUser_id($userId);
         $reservation->setStatus('pending');
 
         // Get available seats
@@ -371,15 +372,18 @@ class ReservationController extends AbstractController
     }
 
     #[Route('/reservations', name: 'app_reservations')]
-    public function user1Reservations(ReservationRepository $reservationRepo,Security $security): Response
-    {
-        $user = $security->getUser();
-        $userId = $user->getUserId();
+public function user1Reservations(ReservationRepository $reservationRepo, Security $security): Response
+{
+    $user = $security->getUser();
+    $userId = $user->getUserId();
+    $userFirstName = $user->getUserFirstname();
+
     return $this->render('reservation/displayReservation.html.twig', [
         'reservations' => $reservationRepo->findBy(['user_id' => $userId]),
-        'username' => $user->getUserFirstName()
+        'username' => $userFirstName,
     ]);
-    }
+}
+
 
     #[Route('/reservation/{id}/cancel', name: 'app_reservation_cancel', methods: ['POST'])]
     public function annuler(int $id, ReservationRepository $reservationRepository, EntityManagerInterface $entityManager): Response

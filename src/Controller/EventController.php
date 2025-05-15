@@ -1,5 +1,6 @@
 <?php
 namespace App\Controller;
+
 use App\Entity\Event;
 use App\Entity\Categorie; 
 use App\Entity\Rating;
@@ -13,15 +14,15 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\EventRepository;
 use App\Repository\ReservationRepository;
-use Symfony\Bundle\SecurityBundle\Security;
+use Google\Cloud\TextToSpeech\V1\AudioConfig;
+use Google\Cloud\TextToSpeech\V1\AudioEncoding;
+use Google\Cloud\TextToSpeech\V1\SsmlVoiceGender;
+use Google\Cloud\TextToSpeech\V1\SynthesisInput;
+use Google\Cloud\TextToSpeech\V1\TextToSpeechClient;
+use Google\Cloud\TextToSpeech\V1\VoiceSelectionParams;
 
 final class EventController extends AbstractController
-{   private Security $security;
-    
-    public function __construct(Security $security)
-    {
-        $this->security = $security;
-    }
+{
     #[Route('/homeOrg', name: 'app_home')]
     public function index(EntityManagerInterface $entityManager): Response
     {
@@ -58,13 +59,12 @@ final class EventController extends AbstractController
     }
   
     #[Route('/event/new', name: 'app_event_new')]
-    public function new(Request $request, EntityManagerInterface $entityManager,Security $security): Response
-    {
-        
+public function new(Request $request, EntityManagerInterface $entityManager): Response
+{
     $event = new Event();
-    $user = $security->getUser();
+
     // Set default values
-    $event->setUser_id($user->getUserId()); // Set user_id to 1 by default
+    $event->setUser_id(2); // Set user_id to 1 by default
     $event->setStatus('En cours de traitement'); // Set status
     $event->setCreation_date(new \DateTime()); // Set creation date to current timestamp
 
@@ -161,7 +161,7 @@ public function edit(Request $request, int $id, EntityManagerInterface $entityMa
             ? $eventRepository->searchByName($searchQuery)
             : $eventRepository->findAll();
     
-        // code statistiqques wht's left 
+        // Rest of your statistics code remains the same
         $eventsByDate = $eventRepository->createQueryBuilder('e')
             ->select('SUBSTRING(e.creation_date, 1, 10) as date, COUNT(e.id_event) as count')
             ->groupBy('date')
@@ -321,7 +321,7 @@ public function editBack(Request $request, int $id, EntityManagerInterface $enti
     ]);
 }
 #[Route('/newBack', name: 'app_eventback')]
-public function newBack(Request $request, EntityManagerInterface $entityManager,Security $security): Response
+public function newBack(Request $request, EntityManagerInterface $entityManager): Response
 {
     $event = new Event();
     $form = $this->createForm(EventType::class, $event);
@@ -329,8 +329,9 @@ public function newBack(Request $request, EntityManagerInterface $entityManager,
     $event->setStatus('Accepté');
     $event->setCreation_date(new \DateTime());
 
+ 
     $form->handleRequest($request);
-    
+
     if ($form->isSubmitted() && $form->isValid()) {
         try {
             $file = $form->get('image')->getData();
@@ -377,48 +378,44 @@ public function newBack(Request $request, EntityManagerInterface $entityManager,
     }
     // src/Controller/EventController.php
 
-#[Route('/event/{id_event}/rate/{value}', name: 'app_event_rate', methods: ['POST'])]
-public function rateEvent(
-    Event $event,
-    int $value,
-    EntityManagerInterface $em,
-    Request $request
-): Response {
-    // For testing, we'll use user_id = 1
-    $userId = 2;
+    #[Route('/event/{id_event}/rate/{value}', name: 'app_event_rate', methods: ['POST'])]
+    public function rateEvent(Event $event,int $value,EntityManagerInterface $em,Request $request): Response 
+    {
+        // For testing, we'll use user_id = 1
+        $userId = 2;
 
-    // Check if event is in the past
-    if ($event->getDateEvent() > new \DateTime()) {
+        // Check if event is in the past
+        if ($event->getDateEvent() > new \DateTime()) {
+            return $this->json([
+                'success' => false,
+                'message' => 'You can only rate past events.'
+            ]);
+        }
+
+        // Check if user already rated this event
+        $existingRating = $em->getRepository(Rating::class)->findOneBy([
+            'event' => $event,
+            'user_id' => $userId
+        ]);
+
+        if ($existingRating) {
+            $existingRating->setValue($value);
+        } else {
+            $rating = new Rating();
+            $rating->setEvent($event);
+            $rating->setUser_id($userId);
+            $rating->setValue(max(1, min(5, $value)));
+            $em->persist($rating);
+        }
+
+        $em->flush();
+        
         return $this->json([
-            'success' => false,
-            'message' => 'You can only rate past events.'
+            'success' => true,
+            'averageRating' => $event->getAverageRating(),
+            'ratingCount' => $event->getRatings()->count()
         ]);
     }
 
-    // Check if user already rated this event
-    $existingRating = $em->getRepository(Rating::class)->findOneBy([
-        'event' => $event,
-        'user_id' => $userId
-    ]);
-
-    if ($existingRating) {
-        $existingRating->setValue($value);
-    } else {
-        $rating = new Rating();
-        $rating->setEvent($event);
-        $rating->setUser_id($userId);
-        $rating->setValue(max(1, min(5, $value)));
-        $em->persist($rating);
-    }
-
-    $em->flush();
     
-    return $this->json([
-        'success' => true,
-        'averageRating' => $event->getAverageRating(),
-        'ratingCount' => $event->getRatings()->count()
-    ]);
-}
-
-
 }

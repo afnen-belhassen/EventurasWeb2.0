@@ -200,6 +200,21 @@
     color: #666;
     margin-right: 8px;
 }
+.read-btn {
+    cursor: pointer;
+    border-radius: 30px;
+    font-weight: bold;
+    padding: 8px 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.read-btn:hover {
+    background-color: #3f2fd3;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(93, 70, 255, 0.7);
+}
+
     </style>
 {% endblock %}
 
@@ -264,7 +279,7 @@
                                     {{ event.date_event ? event.date_event|date('H:i') : '' }}
                                 </div>
                             </div>
-                            <p style="font-size: 0.95rem;">{{ event.description }}</p>
+                            <p class="event-description" style="font-size: 0.95rem;">{{ event.description }}</p>
 
                             {% if event.image %}
                                 <div class="event-image my-3">
@@ -320,7 +335,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+                                <button class="read-btn btn btn-outline-primary mt-3">Read</button>
                                 <button class="reserver-btn" disabled style="background-color: #6c757d; cursor: not-allowed;">
                                     Événement terminé
                                 </button>
@@ -339,70 +354,159 @@
         </div>
     </div>
 {% block js %}
+
+{{ parent() }}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.user-stars .star').forEach(star => {
-                star.addEventListener('click', function() {
-                    const eventId = this.closest('.user-stars').dataset.eventId;
-                    const value = this.dataset.value;
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.user-stars .star').forEach(star => {
+        star.addEventListener('click', function() {
+            const eventId = this.closest('.user-stars').dataset.eventId;
+            const value = this.dataset.value;
+            
+            fetch(`/event/${eventId}/rate/${value}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update user stars
+                    const userStars = this.parentElement.querySelectorAll('.star');
+                    userStars.forEach((star, index) => {
+                        star.classList.toggle('rated', (index + 1) <= value);
+                    });
                     
-                    fetch(`/event/${eventId}/rate/${value}`, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            // Update user stars
-                            const userStars = this.parentElement.querySelectorAll('.star');
-                            userStars.forEach((star, index) => {
-                                star.classList.toggle('rated', (index + 1) <= value);
-                            });
-                            
-                            // Update average rating display
-                            const averageRating = data.averageRating;
-                            const ratingCount = data.ratingCount;
-                            document.querySelector(`.star-rating[data-event-id="${eventId}"] .rating-text`)
-                                .textContent = `(${averageRating.toFixed(1)} from ${ratingCount} ratings)`;
-                                
-                            // Update average stars
-                            const avgStars = document.querySelector(`.star-rating[data-event-id="${eventId}"]`).querySelectorAll('.star');
-                            avgStars.forEach((star, index) => {
-                                star.classList.toggle('rated', (index + 1) <= Math.round(averageRating));
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
+                    // Update average rating display
+                    const averageRating = data.averageRating;
+                    const ratingCount = data.ratingCount;
+                    document.querySelector(`.star-rating[data-event-id="${eventId}"] .rating-text`)
+                        .textContent = `(${averageRating.toFixed(1)} from ${ratingCount} ratings)`;
+                        
+                    // Update average stars
+                    const avgStars = document.querySelector(`.star-rating[data-event-id="${eventId}"]`).querySelectorAll('.star');
+                    avgStars.forEach((star, index) => {
+                        star.classList.toggle('rated', (index + 1) <= Math.round(averageRating));
                     });
-                });
-                
-                // Hover effects
-                star.addEventListener('mouseover', function() {
-                    const value = this.dataset.value;
-                    const stars = this.parentElement.querySelectorAll('.star');
-                    stars.forEach((star, index) => {
-                        star.classList.toggle('hover', (index + 1) <= value);
-                    });
-                });
-                
-                star.addEventListener('mouseout', function() {
-                    const stars = this.parentElement.querySelectorAll('.star');
-                    stars.forEach(star => {
-                        star.classList.remove('hover');
-                    });
-                });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
         });
-    </script>
+        
+        // Hover effects
+        star.addEventListener('mouseover', function() {
+            const value = this.dataset.value;
+            const stars = this.parentElement.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                star.classList.toggle('hover', (index + 1) <= value);
+            });
+        });
+        
+        star.addEventListener('mouseout', function() {
+            const stars = this.parentElement.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.classList.remove('hover');
+            });
+        });
+    });
+});
+
+
+//TEXT to speech
+document.addEventListener('DOMContentLoaded', function() {
+  let hoveredCard = null;
+  let currentUtterance = null;
+
+  // Get French voice if available
+  function getFrenchVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    return voices.find(voice => voice.lang.startsWith('fr')) || null;
+  }
+
+  // Speak given text in French voice if available
+  function speakText(text) {
+    if ('speechSynthesis' in window) {
+      // Cancel any previous utterance
+      window.speechSynthesis.cancel();
+
+      currentUtterance = new SpeechSynthesisUtterance(text);
+
+      const frenchVoice = getFrenchVoice();
+      if (frenchVoice) {
+        currentUtterance.voice = frenchVoice;
+      }
+
+      window.speechSynthesis.speak(currentUtterance);
+    } else {
+      alert('Votre navigateur ne supporte pas la synthèse vocale.');
+    }
+  }
+
+  // Stop speaking
+  function stopSpeaking() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      currentUtterance = null;
+    }
+  }
+
+  // Track which event card is hovered
+  document.querySelectorAll('.event-card').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      hoveredCard = card;
+    });
+    card.addEventListener('mouseleave', () => {
+      hoveredCard = null;
+    });
+  });
+
+  // Listen for keyboard events
+  document.addEventListener('keydown', function(event) {
+    if (event.key.toLowerCase() === 'f' && hoveredCard) {
+      // Adjust selector to match your description paragraph class or element
+      const descriptionElem = hoveredCard.querySelector('p'); // or '.event-description' if you add that class
+      if (!descriptionElem) {
+        console.error('Description element not found on hovered card');
+        return;
+      }
+      const description = descriptionElem.textContent.trim();
+      speakText(description);
+    }
+
+    if (event.key.toLowerCase() === 'j') {
+      stopSpeaking();
+    }
+  });
+
+  // OPTIONAL: Read button click handlers (if you have buttons with class .read-btn)
+  document.querySelectorAll('.read-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      // Find the event card container of this button
+      const card = button.closest('.event-card');
+      if (!card) return;
+
+      const descriptionElem = card.querySelector('p'); // or '.event-description'
+      if (!descriptionElem) return;
+
+      const text = descriptionElem.textContent.trim();
+      speakText(text);
+    });
+  });
+});
+
+
+
+</script>
+
 {% endblock %}
 {% endblock %}

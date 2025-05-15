@@ -14,6 +14,7 @@
         "dompdf/dompdf": "^3.1",
         "endroid/qr-code": "^5.0",
         "giberti/commonmark-emoji-extension": "^1.4",
+        "google/cloud-text-to-speech": "^2.2",
         "knplabs/knp-paginator-bundle": "^6.8",
         "league/commonmark": "^2.6",
         "phpdocumentor/reflection-docblock": "^5.6",
