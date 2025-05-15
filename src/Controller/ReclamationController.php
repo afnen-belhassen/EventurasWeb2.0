@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\ConversationMessage;
+use App\Entity\Event;
 use App\Entity\MessageAttachment;
 use App\Entity\Reclamation;
 use App\Entity\ReclamationAttachment;
@@ -24,6 +25,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\UX\Chartjs\Model\Chart;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
 use App\Repository\ReclamationRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 
 
 
@@ -68,17 +70,19 @@ final class ReclamationController extends AbstractController
     public function showAll(
         Request $request,
         EntityManagerInterface $em,
-        PaginatorInterface $paginator
+        PaginatorInterface $paginator,Security $security
     ): Response {
         $statusFilter = $request->query->get('status');
-    
-        $qb = $em->getRepository(Reclamation::class)->createQueryBuilder('r');
-    
+        $user = $security->getUser();
+        $userId = $user->getUserId();
+        $qb = $em->getRepository(Reclamation::class)->createQueryBuilder('r')->where('r.id_user = :user')
+         ->setParameter('user', $userId);
+
         if ($statusFilter && $statusFilter !== 'all') {
             $qb->where('r.status = :status')
                ->setParameter('status', $statusFilter);
         }
-    
+        
         $qb->orderBy('r.created_at', 'ASC');
     
         $pagination = $paginator->paginate(
@@ -91,13 +95,17 @@ final class ReclamationController extends AbstractController
         $newRecl->setStatus('En attente');
         $form = $this->createForm(ReclamationType::class, $newRecl);
     
+        // ✅ Get events for the edit dropdown
+        $events = $em->getRepository(Event::class)->findAll();
+    
         return $this->render('reclamation/reclam.html.twig', [
-            'reclamations'    => $pagination,
-            'form'            => $form->createView(),
-            'selectedStatus'  => $statusFilter, // Pass the current filter to the template
+            'reclamations'   => $pagination,
+            'form'           => $form->createView(),
+            'events'         => $events,
+            'selectedStatus' => $statusFilter,
         ]);
     }
-
+    
     #[Route('/reclamation/{id}/delete', name: 'app_reclamation_delete', methods: ['POST'])]
     public function delete(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): Response
     {
@@ -113,6 +121,7 @@ final class ReclamationController extends AbstractController
     #[Route('/reclamation/new', name: 'app_reclamation_new', methods: ['POST'])]
     public function new(
         Request $request,
+        Security $security,
         EntityManagerInterface $em,
         #[Autowire(service: 'limiter.reclamation_submitter')]
         RateLimiterFactory $reclamationSubmitter
@@ -127,9 +136,13 @@ final class ReclamationController extends AbstractController
             $this->addFlash('rate_limit', 'Vous avez déjà soumis une réclamation. Veuillez réessayer dans ' . $retryAfter . '.');
             return $this->redirectToRoute('app_show_all_reclamations');
         }
+
+        $user = $security->getUser();
+        $userId = $user->getUserId();
+
         $reclamation = new Reclamation();
         $reclamation->setStatus('En attente');
-        $reclamation->setIdUser(2); // hardcoded for now
+        $reclamation->setIdUser($userId); // hardcoded for now
 
 
         $form = $this->createForm(ReclamationType::class, $reclamation);
@@ -182,29 +195,25 @@ final class ReclamationController extends AbstractController
         Request $request,
         EntityManagerInterface $em
     ): Response {
-        // 1) grab the entire POST payload
         $post = $request->request->all();
-
-        // 2) extract your “reclamation” sub‑array (or fallback to empty array)
-        $data = [];
-        if (isset($post['reclamation']) && is_array($post['reclamation'])) {
-            $data = $post['reclamation'];
-        }
-
-        // 3) apply updates, falling back to current values
+        $data = $post['reclamation'] ?? [];
+    
         $reclamation
-            ->setIdUser((int)($data['id_user']   ?? $reclamation->getIdUser()))
-            ->setIdEvent(isset($data['id_event']) ? (int)$data['id_event'] : null)
+            ->setIdUser((int)($data['id_user'] ?? $reclamation->getIdUser()))
+            ->setIdEvent(
+                isset($data['id_event']) && $data['id_event'] !== ''
+                    ? $em->getReference(Event::class, (int)$data['id_event'])
+                    : null
+            )
             ->setDescription($data['description'] ?? $reclamation->getDescription())
-            ->setSubject($data['subject']       ?? $reclamation->getSubject())
-        ;
-
+            ->setSubject($data['subject'] ?? $reclamation->getSubject());
+    
         $em->flush();
         $this->addFlash('success', 'Réclamation mise à jour !');
-
+    
         return $this->redirectToRoute('app_show_all_reclamations');
     }
-
+    
 
 
 
@@ -267,6 +276,7 @@ final class ReclamationController extends AbstractController
     #[Route('/reclamation/{id}/conversation', name: 'reclamation_conversation', methods: ['GET'])]
     public function showConversation(
         Reclamation $reclamation,
+        Security $security,
         ReclamationConversationRepository $conversationRepo
     ): Response {
         $conversation = $conversationRepo->findOneBy(['reclamation' => $reclamation]);
@@ -277,12 +287,16 @@ final class ReclamationController extends AbstractController
 
         $form = $this->createForm(ConversationMessageType::class);
 
+        $user = $security->getUser();
+        $userId = $user->getUserId();
+
         return $this->render('reclamation/reclamConvo.html.twig', [
             'reclamation' => $reclamation,
             'conversation' => $conversation,
             'messages' => $conversation->getMessages(),
             'form' => $form->createView(),
-            'showRatingPopup' => !$reclamation->isRated(), // 🔥 This flag controls the popup
+            'showRatingPopup' => !$reclamation->isRated(),
+            'userid' => $userId,
         ]);
     }
 
@@ -290,6 +304,7 @@ final class ReclamationController extends AbstractController
     #[Route('/reclamationn/{id}/conversation', name: 'reclamation_conversation_user', methods: ['GET'])]
     public function showConversationUser(
         Reclamation $reclamation,
+        Security $security,
         ReclamationConversationRepository $conversationRepo
     ): Response {
         $conversation = $conversationRepo->findOneBy(['reclamation' => $reclamation]);
@@ -299,12 +314,14 @@ final class ReclamationController extends AbstractController
         }
 
         $form = $this->createForm(ConversationMessageType::class);
-
+        $user = $security->getUser();
+        $userId = $user->getUserId();
         return $this->render('reclamation/reclamConvoUser.html.twig', [
             'reclamation' => $reclamation,
             'conversation' => $conversation,
             'messages' => $conversation->getMessages(),
             'form' => $form->createView(),
+            'userid' => $userId,
             'showRatingPopup' => !$reclamation->isRated(), // 🔥 This flag controls the popup
         ]);
     }
@@ -321,6 +338,7 @@ final class ReclamationController extends AbstractController
     #[Route('/reclamation/{id}/conversation/send', name: 'reclamation_conversation_send', methods: ['POST'])]
     public function createMessage(
         Reclamation $reclamation,
+        Security $security,
         Request $request,
         ReclamationConversationRepository $conversationRepo,
         EntityManagerInterface $em
@@ -331,10 +349,13 @@ final class ReclamationController extends AbstractController
             throw $this->createNotFoundException('No conversation found.');
         }
 
+        $user = $security->getUser();
+        $userId = $user->getUserId();
+
         $message = new ConversationMessage();
         $message->setConversation($conversation);
         $message->setCreatedAt(new \DateTime());
-        $message->setSenderId(1); // Replace later with $this->getUser()->getId()
+        $message->setSenderId($userId); // Replace later with $this->getUser()->getId()
 
         $form = $this->createForm(ConversationMessageType::class, $message);
         $form->handleRequest($request);
@@ -385,6 +406,7 @@ final class ReclamationController extends AbstractController
     public function createMessageUser(
         Reclamation $reclamation,
         Request $request,
+        Security $security,
         ReclamationConversationRepository $conversationRepo,
         EntityManagerInterface $em
     ): Response {
@@ -394,10 +416,14 @@ final class ReclamationController extends AbstractController
             throw $this->createNotFoundException('No conversation found.');
         }
 
+
+        $user = $security->getUser();
+        $userId = $user->getUserId();
+
         $message = new ConversationMessage();
         $message->setConversation($conversation);
         $message->setCreatedAt(new \DateTime());
-        $message->setSenderId(2); // Replace later with $this->getUser()->getId()
+        $message->setSenderId($userId); // Replace later with $this->getUser()->getId()
 
         $form = $this->createForm(ConversationMessageType::class, $message);
         $form->handleRequest($request);

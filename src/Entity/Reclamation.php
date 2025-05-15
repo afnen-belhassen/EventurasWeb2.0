@@ -146,7 +146,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\OneToMany(targetEntity: ReclamationAttachment::class, mappedBy: 'reclamation')]
+    #[ORM\OneToMany(mappedBy: 'reclamation', targetEntity: ReclamationAttachment::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $reclamationAttachments;
 
     /**

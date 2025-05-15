@@ -1,0 +1,184 @@
+{% extends 'base.html.twig' %}
+
+{% block css %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/displayReclams.css') }}" />
+  <style>
+    .pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin-top: 2rem;
+}
+
+.pagination li {
+    margin: 0 6px;
+}
+
+.pagination span{
+  border: 1px solid black;
+}
+.pagination a,
+.pagination span {
+    display: inline-block;
+    padding: 8px 13px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+    background-color: #f0f8ff;
+    transition: background-color 0.3s ease;
+
+}
+
+
+.pagination .current {
+    background-color: #0dcaf0;
+    color: #000;
+    display: inline-block;
+    padding: 10px 16px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+    
+  </style>
+{% endblock %}
+
+{% block title %}Réclamations{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="{{ path('app_home') }}">Eventura</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+        <li class="nav-item"><a class="nav-link click-scroll" href="#section_1">Home</a></li>
+        <li class="nav-item"><a class="nav-link click-scroll" href="#section_2">About</a></li>
+        <li class="nav-item"><a class="nav-link click-scroll" href="#section_3">Features</a></li>
+        <li class="nav-item"><a class="nav-link click-scroll" href="#section_4">Contact</a></li>
+      </ul>
+      <div class="d-flex gap-2">
+        <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
+          <i class="bi bi-plus-circle me-2"></i>Créer Événement
+        </a>
+        <a href="{{ path('app_show_all_events') }}" class="btn custom-btn d-lg-block d-none">
+          Vos événements
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 bg-dark p-3 rounded">
+            <h2 style="color:white" class="mb-0">Liste des Produits</h2>
+
+        </div>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Prix</th>
+                            <th>Quantité</th>
+                            <th>Image</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produit in produits %}
+                            <tr>
+                                <td>{{ produit.id }}</td>
+                                <td>{{ produit.nom }}</td>
+                                <td>{{ produit.description }}</td>
+                                <td>{{ produit.prix|number_format(2, ',', ' ') }} DT</td>
+                                <td>
+                                    <span class="badge {% if produit.quantite > 10 %}bg-success{% elseif produit.quantite > 0 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ produit.quantite }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if produit.image %}
+                                        <img src="{{ asset('uploads/produits/' ~ produit.image) }}" alt="Product Picture" class="img-thumbnail" style="width: 50px;height:50px">
+                                    {% else %}
+                                        No picture available
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('modifier_produit', {'id': produit.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary"
+                                           data-bs-toggle="tooltip"
+                                           title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{{ path('supprimer_produit', {'id': produit.id}) }}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           data-bs-toggle="tooltip"
+                                           title="Supprimer"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                        <p class="mt-2 mb-0">Aucun produit trouvé</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+    // Initialiser les tooltips Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+
+
+{% endblock %}
+    

@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% if produit is defined %}Modifier{% else %}Ajouter{% endif %} un Produit{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center bg-dark">
+                <h2 class="mb-0 text-white">
+                    {% if produit is defined %}Modifier{% else %}Ajouter{% endif %} un Produit
+                </h2>
+                <div>
+                    <a href="{{ path('liste_produits') }}" class="btn btn-primary me-2">
+                        <i class="bi bi-list"></i> Liste des produits
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.nom, "Nom du Produit") }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-box"></i></span>
+                                {{ form_widget(form.nom) }}
+                            </div>
+                            {{ form_errors(form.nom) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.prix, "Prix") }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-currency-exchange"></i>DT</span>
+                                {{ form_widget(form.prix) }}
+                            </div>
+                            {{ form_errors(form.prix) }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.quantite, "Quantité") }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-cart"></i></span>
+                                {{ form_widget(form.quantite) }}
+                            </div>
+                            {{ form_errors(form.quantite) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.description, "Description") }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-text-paragraph"></i></span>
+                                {{ form_widget(form.description) }}
+                            </div>
+                            {{ form_errors(form.description) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.image, "Image") }}
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-image"></i></span>
+                        {{ form_widget(form.image) }}
+                    </div>
+                    {{ form_errors(form.image) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle me-2"></i>{% if produit is defined %}Modifier{% else %}Ajouter{% endif %} le produit
+            </button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+
+    <script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+{% endblock %}

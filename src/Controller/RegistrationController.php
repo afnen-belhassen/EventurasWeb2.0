@@ -169,13 +169,13 @@ class RegistrationController extends AbstractController
         return $this->render('users/index.html.twig');
     }
 
-
+    
    /**
      * @Route("/logout", name="logout")
      */
     public function logout()
     {
-        return new RedirectResponse($this->generateUrl('app_login'));
+        throw new \LogicException('This method is intercepted by the firewall logout.');
     }
 
     #[Route('/forgot-password', name: 'app_forgot_password')]
