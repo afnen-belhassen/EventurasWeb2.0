@@ -43,7 +43,7 @@
     .main-header {
         padding: 20px;
         background: #fff;
-        box-shadow: 0 1px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 1px 15px rgba(0,0,0,0.1)!important;
     }
      .modal {
         display: none; /* Hidden by default */
@@ -54,7 +54,7 @@
         width: 100%; /* Full width */
         height: 100%; /* Full height */
         overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(245, 246, 255, 0); /* Fallback color */
         background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
     .modal-content {
@@ -88,93 +88,91 @@
 {% block body %}
 <div class="wrapper">
   <!-- Sidebar -->
-  <div class="sidebar" data-background-color="dark">
-    <div class="sidebar-logo">
-      <div class="logo-header" data-background-color="dark">
-        <a href="index.html" class="logo">
-          <img src="{{ asset('images/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
-        </a>
-        <div class="nav-toggle">
-          <button class="btn btn-toggle toggle-sidebar">
-            <i class="gg-menu-right"></i>
-          </button>
-          <button class="btn btn-toggle sidenav-toggler">
-            <i class="gg-menu-left"></i>
-          </button>
+ <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a href="index.html" class="logo">
+              <img
+                src="{{ asset('images/img/kaiadmin/logo_light.svg') }}"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="20"
+              />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
         </div>
-        <button class="topbar-toggler more">
-          <i class="gg-more-vertical-alt"></i>
-        </button>
-      </div>
-    </div>
-    <div class="sidebar-wrapper scrollbar scrollbar-inner">
-      <div class="sidebar-content">
-        <ul class="nav nav-secondary">
-          <li class="nav-item active">
-            <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+          <div class="sidebar-content">
+            <ul class="nav nav-secondary">
+               <li class="nav-item active">
+            <a  href="{{ path('app_home_back') }}" class="collapsed" aria-expanded="false">
               <i class="fas fa-home"></i>
-              <p>Dashboard</p>
-              <span class="caret"></span>
+              <p>Tableau de bord</p>
+              
             </a>
-            <div class="collapse" id="dashboard">
-              <ul class="nav nav-collapse">
-                <li>
-                  <a href="../demo1/index.html">
-                    <span class="sub-item">Dashboard 1</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
           </li>
-          <li class="nav-section">
-            <span class="sidebar-mini-icon">
-              <i class="fa fa-ellipsis-h"></i>
-            </span>
-            <h4 class="text-section">Components</h4>
-          </li>
-          <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#base">
-              <i class="fas fa-layer-group"></i>
-              <p>Administration des comptes</p>
-              <span class="caret"></span>
-            </a>
-            <div class="collapse" id="base">
-              <ul class="nav nav-collapse">
-                <li>
-                  <a href="components/avatars.html">
-                    <span class="sub-item">Utilisateurs</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="components/avatars.html">
-                    <span class="sub-item">Roles</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </li>
-          <li class="nav-item active submenu">
-            <a data-bs-toggle="collapse" href="#sidebarLayouts">
-              <i class="fas fa-th-list"></i>
-              <p>Centre événementiel</p>
-              <span class="caret"></span>
-            </a>
-            <div class="collapse show" id="sidebarLayouts">
-              <ul class="nav nav-collapse">
-                <li class="active">
-                  <a href="{{ path('app_show_all_eventsBack') }}">
-                    <span class="sub-item">Événements</span>
-                  </a>
-                </li>
-                <li class="active">
-                  <a href="sidebar-style-2.html">
-                    <span class="sub-item">Catégories</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </li>
-         <li class="nav-item">
+              <li class="nav-section">
+                <span class="sidebar-mini-icon">
+                  <i class="fa fa-ellipsis-h"></i>
+                </span>
+                <h4 class="text-section">Components</h4>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#base">
+                  <i class="fas fa-layer-group"></i>
+                  <p>Administration des comptes</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="base">
+                  <ul class="nav nav-collapse">
+                  <li>
+                      <a href="{{ path('app_users_index') }}">
+                        <span class="sub-item">Utilisateurs</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ path('app_role_index') }}">
+                        <span class="sub-item">Roles</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item active submenu">
+                <a data-bs-toggle="collapse" href="#sidebarLayouts">
+                  <i class="fas fa-th-list"></i>
+                  <p>Centre événementiel</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse show" id="sidebarLayouts">
+                  <ul class="nav nav-collapse">
+                  <li class="active">
+                      <a href="{{ path('app_show_all_eventsBack') }}">
+                        <span class="sub-item">Événements</span>
+                      </a>
+                    </li>
+                    <li class="active">
+                      <a href="{{ path('app_show_all_catsBack') }}">
+                        <span class="sub-item">Catégories</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#forms">
                   <i class="fas fa-pen-square"></i>
                   <p>Relations externes</p>
@@ -183,39 +181,19 @@
                 <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="forms/forms.html">
+                      <a href="{{ path('app_partner_index') }}">
                         <span class="sub-item">Partenaires</span>
                       </a>
                     </li>
                     <li>
-                      <a href="forms/forms.html">
+                      <a href="{{ path('app_partnership_index') }}">
                         <span class="sub-item">Partenariats</span>
                       </a>
                     </li>
                   </ul>
                 </div>
               </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#tables">
-                  <i class="fas fa-table"></i>
-                  <p>Boutique</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="tables">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="tables/tables.html">
-                        <span class="sub-item">Produits</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="tables/tables.html">
-                        <span class="sub-item">Commandes</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
+              
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#maps">
                   <i class="fas fa-map-marker-alt"></i>
@@ -225,24 +203,31 @@
                 <div class="collapse" id="maps">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="forum.html">
+                      <a href="admin/forum">
                         <span class="sub-item">Publications</span>
                       </a>
                     </li>
                   </ul>
                 </div>
               </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#maps">
-                  <i class="fas fa-map-marker-alt"></i>
+              
+
+
+              <li class="nav-item active submenu">
+                <a  href="{{ path('app_show_all_reclamsBack') }}">
+                  <i class="fa fa-flag"></i>
                   <p>Réclamations</p>
                   <span class="caret"></span>
                 </a>
+
               </li>
-        </ul>
+
+
+          
+            </ul>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
   <!-- End Sidebar -->
 
   <div class="main-panel">
@@ -275,7 +260,7 @@
                 {% for a in message.messageAttachments %}
                 {% set attachmentData = attachmentData|merge([{ id: a.id, filePath: a.filePath }]) %}
                 {% endfor %}
-                <div class="{% if message.sender_id == userid %}message-left{% else %}message-right{% endif %}">
+                <div class="{% if message.sender_id == 1 %}message-left{% else %}message-right{% endif %}">
                   <div class="message-bubble"
                   onclick="openCategoryPopup(this)"
                   data-id="{{ message.id }}"
@@ -527,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {

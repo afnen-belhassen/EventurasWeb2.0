@@ -82,8 +82,9 @@ class CommandeController extends AbstractController
             $produit->setQuantite($produit->getQuantite() - $quantite);
 
             $user = $this->security->getUser();
+            $email=$user->getUserEmail();
             if ($user instanceof Users) {
-                $commande->setEmail($user->getEmail());
+                $commande->setEmail($email);
             }
 
             $this->entityManager->persist($commande);

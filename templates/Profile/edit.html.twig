@@ -89,8 +89,8 @@
 
         {{ include('users/_form.html.twig', {'button_label': 'Update'}) }}
     
-        <a href="{{ path('ProfileOrganisateur) }}">back to list</a>
-    
+        <a href="{{ path('ProfileOrganisateur') }}">back to list</a>
+        {{ include('service/sidebar.html.twig') }}
     </div>
     <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 {% endblock %}

@@ -89,11 +89,10 @@
 
     
         {{ include('Profile/_form.html.twig', {'button_label': 'Update'}) }}
-
+        
     
         <a href="{{ path('edit_profile_organisateur', {'id': user.userId}) }}">back</a>
-
-
+         {{ include('service/sidebar.html.twig') }}
     
     
     </div>

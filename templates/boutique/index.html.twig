@@ -1,34 +1,79 @@
-{% extends 'base1.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Produits{% endblock %}
 
 {% block body %}
 <nav class="navbar navbar-expand-lg">
-  <div class="container">
-    <a class="navbar-brand" href="{{ path('app_home') }}">Eventura</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarNav" aria-controls="navbarNav"
-            aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
-        <li class="nav-item"><a class="nav-link click-scroll" href="#section_1">Home</a></li>
-        <li class="nav-item"><a class="nav-link click-scroll" href="#section_2">About</a></li>
-        <li class="nav-item"><a class="nav-link click-scroll" href="#section_3">Features</a></li>
-        <li class="nav-item"><a class="nav-link click-scroll" href="#section_4">Contact</a></li>
-      </ul>
-      <div class="d-flex gap-2">
-        <a href="{{ path('app_event_new') }}" class="btn custom-btn d-lg-block d-none">
-          <i class="bi bi-plus-circle me-2"></i>Créer Événement
-        </a>
-        <a href="{{ path('app_show_all_events') }}" class="btn custom-btn d-lg-block d-none">
-          Vos événements
-        </a>
-      </div>
-    </div>
-  </div>
-</nav>
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_home') }}">
+                Eventura
+            </a>
+            <form class="search-form" action="/search" method="GET" style="
+                display: flex;
+                align-items: center;
+                background-color: #f8f6fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 50px;
+                padding: 8px 12px;
+                width: 600px;
+                margin: 20px auto;
+                box-sizing: border-box;
+            ">
+                <i class="fas fa-search" style="color: #55546d; margin: 0 10px;"></i>
+                <input 
+                    type="search" 
+                    name="query" 
+                    placeholder="Rechercher des événements" 
+                    style="
+                        border: none;
+                        outline: none;
+                        background: transparent;
+                        font-size: 16px;
+                        flex: 1;
+                        color: #55546d;
+                    " 
+                />
+                <div style="
+                    height: 10px;
+                    width: 1px;
+                    background-color: #ccc;
+                    margin: 0 15px;
+                "></div>
+                <div style="display: flex; align-items: center; color: #55546d; font-size: 16px;">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>
+                    <span>Tunis</span>
+                </div>
+                <button type="submit" style="
+                    background-color: #bd4c33;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: 10px;
+                    cursor: pointer;
+                ">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                    <!-- Add any additional navbar items here -->
+                </ul>
+                <div class="d-flex gap-2">
+                     {{ include('service/sidebarPart.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </nav>
 <div  class="container mt-5 bg-light p-4 rounded shadow-sm">
     <h1 class="text-center mb-5 text-primary">Notre Boutique</h1>
 
